@@ -1,145 +1,276 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/lib/auth-context';
 
 export default function LoginPage() {
+  const router = useRouter();
+  const { login, signup } = useAuth();
+
   const [tab, setTab] = useState<'login' | 'register'>('login');
-  const [loginMethod, setLoginMethod] = useState<'email' | 'phone'>('email');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordConfirm, setPasswordConfirm] = useState('');
+  const [nickname, setNickname] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+
+    if (!email || !password) {
+      setError('이메일과 비밀번호를 입력해주세요.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error: loginError } = await login(email, password);
+      if (loginError) {
+        setError(loginError);
+      } else {
+        router.push('/');
+      }
+    } catch {
+      setError('로그인 중 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+
+    if (!nickname || !email || !password || !passwordConfirm) {
+      setError('모든 항목을 입력해주세요.');
+      return;
+    }
+
+    if (password !== passwordConfirm) {
+      setError('비밀번호가 일치하지 않습니다.');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('비밀번호는 6자 이상이어야 합니다.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error: signupError } = await signup(email, password, nickname);
+      if (signupError) {
+        setError(signupError);
+      } else {
+        // Auto login after signup
+        const { error: loginError } = await login(email, password);
+        if (loginError) {
+          setSuccess('회원가입이 완료되었습니다! 로그인해주세요.');
+          setTab('login');
+          setEmail('');
+          setPassword('');
+          setPasswordConfirm('');
+          setNickname('');
+        } else {
+          router.push('/');
+        }
+      }
+    } catch {
+      setError('회원가입 중 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-[90vh] flex items-center justify-center py-12 px-4 relative overflow-hidden">
+      {/* Background effects */}
+      <div className="absolute inset-0">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-ples-purple/10 rounded-full blur-[80px]" />
+        <div className="absolute bottom-20 right-10 w-64 h-64 bg-ples-pink/10 rounded-full blur-[80px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-ples-blue/5 rounded-full blur-[100px]" />
+      </div>
+
+      <div className="relative z-10 w-full max-w-md animate-slideUp">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-14 h-14 rounded-2xl gradient-purple flex items-center justify-center text-2xl font-bold text-white mx-auto mb-4">
-            P
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">PLES에 오신 것을 환영합니다</h1>
+          <Link href="/" className="inline-block">
+            <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center text-2xl font-bold text-white mx-auto mb-4 shadow-lg shadow-ples-purple/30">
+              P
+            </div>
+          </Link>
+          <h1 className="text-2xl font-bold">PLES에 오신 것을 환영합니다</h1>
           <p className="text-gray-500 text-sm mt-2">참여하고 포인트를 적립하세요</p>
         </div>
 
-        {/* Card */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        {/* Glass Card */}
+        <div className="glass-strong rounded-3xl p-8">
           {/* Tabs */}
-          <div className="flex mb-6 bg-gray-100 rounded-xl p-1">
+          <div className="flex mb-8 bg-white/5 rounded-2xl p-1.5">
             <button
-              onClick={() => setTab('login')}
-              className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                tab === 'login' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+              onClick={() => { setTab('login'); setError(''); setSuccess(''); }}
+              className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${
+                tab === 'login'
+                  ? 'bg-white/10 text-white shadow-sm'
+                  : 'text-gray-500 hover:text-gray-300'
               }`}
             >
               로그인
             </button>
             <button
-              onClick={() => setTab('register')}
-              className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                tab === 'register' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+              onClick={() => { setTab('register'); setError(''); setSuccess(''); }}
+              className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${
+                tab === 'register'
+                  ? 'bg-white/10 text-white shadow-sm'
+                  : 'text-gray-500 hover:text-gray-300'
               }`}
             >
               회원가입
             </button>
           </div>
 
-          {/* Social login */}
-          <div className="flex flex-col gap-3 mb-6">
-            <button className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#FEE500] text-[#191919] font-semibold text-sm hover:brightness-95 transition-all">
-              <span className="text-lg">💬</span>
-              카카오로 {tab === 'login' ? '로그인' : '시작하기'}
-            </button>
-            <button className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-white border border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition-all">
-              <span className="text-lg">G</span>
-              Google로 {tab === 'login' ? '로그인' : '시작하기'}
-            </button>
-          </div>
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 animate-slideUp">
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-sm text-red-400">{error}</p>
+              </div>
+            </div>
+          )}
 
-          {/* Divider */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="flex-1 h-px bg-gray-200" />
-            <span className="text-xs text-gray-400">또는</span>
-            <div className="flex-1 h-px bg-gray-200" />
-          </div>
+          {/* Success Message */}
+          {success && (
+            <div className="mb-6 p-4 rounded-xl bg-ples-green/10 border border-ples-green/20 animate-slideUp">
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-ples-green shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                <p className="text-sm text-ples-green">{success}</p>
+              </div>
+            </div>
+          )}
 
-          {/* Login method toggle */}
-          <div className="flex gap-2 mb-4">
-            <button
-              onClick={() => setLoginMethod('email')}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium ${
-                loginMethod === 'email'
-                  ? 'bg-purple-100 text-purple-600'
-                  : 'bg-gray-100 text-gray-500'
-              }`}
-            >
-              이메일
-            </button>
-            <button
-              onClick={() => setLoginMethod('phone')}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium ${
-                loginMethod === 'phone'
-                  ? 'bg-purple-100 text-purple-600'
-                  : 'bg-gray-100 text-gray-500'
-              }`}
-            >
-              휴대폰
-            </button>
-          </div>
-
-          {/* Form */}
-          <form className="flex flex-col gap-3">
-            {loginMethod === 'email' ? (
-              <input
-                type="email"
-                placeholder="이메일 주소"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100"
-              />
-            ) : (
-              <input
-                type="tel"
-                placeholder="휴대폰 번호"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100"
-              />
-            )}
-
-            {tab === 'login' ? (
-              <input
-                type="password"
-                placeholder="비밀번호"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100"
-              />
-            ) : (
-              <>
-                <input
-                  type="password"
-                  placeholder="비밀번호"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100"
-                />
-                <input
-                  type="password"
-                  placeholder="비밀번호 확인"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100"
-                />
-              </>
-            )}
-
-            <button
-              type="submit"
-              className="w-full py-3 rounded-xl gradient-purple text-white font-semibold text-sm hover:opacity-90 transition-opacity mt-2"
-            >
-              {tab === 'login' ? '로그인' : '회원가입'}
-            </button>
-          </form>
-
+          {/* Login Form */}
           {tab === 'login' && (
-            <p className="text-center text-xs text-gray-400 mt-4">
-              비밀번호를 잊으셨나요?{' '}
-              <span className="text-purple-500 cursor-pointer hover:underline">
-                비밀번호 찾기
-              </span>
-            </p>
+            <form onSubmit={handleLogin} className="flex flex-col gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1.5">이메일</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="example@email.com"
+                  className="input-modern"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1.5">비밀번호</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="비밀번호를 입력하세요"
+                  className="input-modern"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-primary w-full py-3.5 mt-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <svg className="w-5 h-5 animate-spin" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    로그인 중...
+                  </>
+                ) : (
+                  '로그인'
+                )}
+              </button>
+            </form>
+          )}
+
+          {/* Signup Form */}
+          {tab === 'register' && (
+            <form onSubmit={handleSignup} className="flex flex-col gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1.5">닉네임</label>
+                <input
+                  type="text"
+                  value={nickname}
+                  onChange={(e) => setNickname(e.target.value)}
+                  placeholder="사용할 닉네임을 입력하세요"
+                  className="input-modern"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1.5">이메일</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="example@email.com"
+                  className="input-modern"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1.5">비밀번호</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="6자 이상 입력하세요"
+                  className="input-modern"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1.5">비밀번호 확인</label>
+                <input
+                  type="password"
+                  value={passwordConfirm}
+                  onChange={(e) => setPasswordConfirm(e.target.value)}
+                  placeholder="비밀번호를 다시 입력하세요"
+                  className="input-modern"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-primary w-full py-3.5 mt-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <svg className="w-5 h-5 animate-spin" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    가입 중...
+                  </>
+                ) : (
+                  '회원가입'
+                )}
+              </button>
+              <p className="text-center text-xs text-gray-500">
+                이메일 확인 불필요, 바로 로그인됩니다
+              </p>
+            </form>
           )}
         </div>
 
-        <p className="text-center text-xs text-gray-400 mt-6">
+        <p className="text-center text-xs text-gray-600 mt-6">
           1인 1계정 기준으로 운영됩니다. 중복 계정은 제한될 수 있습니다.
         </p>
       </div>
