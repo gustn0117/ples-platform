@@ -9,7 +9,7 @@ import { getUserPoints } from '@/lib/store'
 const NAV_LINKS = [
   { href: '/vote', label: '투표' },
   { href: '/artists', label: '아티스트' },
-  { href: '/artworks', label: '마켓' },
+  { href: '/artworks', label: '갤러리' },
   { href: '/videos', label: '영상' },
   { href: '/ranking', label: '랭킹' },
   { href: '/about', label: '회사소개' },

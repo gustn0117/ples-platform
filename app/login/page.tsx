@@ -28,6 +28,9 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [nickname, setNickname] = useState('');
+  const [realName, setRealName] = useState('');
+  const [residentNumber, setResidentNumber] = useState('');
+  const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -71,7 +74,7 @@ export default function LoginPage() {
     setError('');
     setSuccess('');
 
-    if (!nickname || !email || !password || !passwordConfirm) {
+    if (!realName || !residentNumber || !phone || !nickname || !email || !password || !passwordConfirm) {
       setError('모든 항목을 입력해주세요.');
       setErrorKey((k) => k + 1);
       return;
@@ -91,7 +94,7 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      const { error: signupError } = await signup(email, password, nickname);
+      const { error: signupError } = await signup(email, password, nickname, { realName, residentNumber, phone });
       if (signupError) {
         setError(signupError);
         setErrorKey((k) => k + 1);
@@ -105,6 +108,9 @@ export default function LoginPage() {
           setPassword('');
           setPasswordConfirm('');
           setNickname('');
+          setRealName('');
+          setResidentNumber('');
+          setPhone('');
         } else {
           router.push('/');
         }
@@ -196,7 +202,7 @@ export default function LoginPage() {
 
           {/* Tagline */}
           <h2 className="text-4xl xl:text-5xl font-bold text-white tracking-tight leading-tight">
-            팬이 만드는
+            프로듀서가 만드는
             <br />
             <span
               className="inline-block"
@@ -209,7 +215,7 @@ export default function LoginPage() {
                 animation: 'tagline-gradient-flow 6s ease infinite',
               }}
             >
-              아티스트 플랫폼
+              아티스트
             </span>
           </h2>
           <p className="mt-5 text-gray-500 text-sm leading-relaxed max-w-sm">
@@ -471,6 +477,54 @@ export default function LoginPage() {
             {tab === 'register' && (
               <form onSubmit={handleSignup} className="flex flex-col gap-0">
                 <div className="pb-5">
+                  <label className="block text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">
+                    실명
+                  </label>
+                  <input
+                    type="text"
+                    value={realName}
+                    onChange={(e) => setRealName(e.target.value)}
+                    placeholder="실명을 입력하세요"
+                    className={inputGlowClass}
+                    onFocus={(e) => { e.target.style.animation = 'input-glow-pulse 2s ease-in-out infinite'; }}
+                    onBlur={(e) => { e.target.style.animation = 'none'; }}
+                  />
+                </div>
+                <div className="border-t border-gray-100 pt-5 pb-5">
+                  <label className="block text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">
+                    주민등록번호
+                  </label>
+                  <input
+                    type="text"
+                    value={residentNumber}
+                    onChange={(e) => {
+                      const v = e.target.value.replace(/[^0-9-]/g, '');
+                      if (v.length <= 14) setResidentNumber(v);
+                    }}
+                    placeholder="000000-0000000"
+                    className={inputGlowClass}
+                    onFocus={(e) => { e.target.style.animation = 'input-glow-pulse 2s ease-in-out infinite'; }}
+                    onBlur={(e) => { e.target.style.animation = 'none'; }}
+                  />
+                </div>
+                <div className="border-t border-gray-100 pt-5 pb-5">
+                  <label className="block text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">
+                    휴대폰 번호
+                  </label>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => {
+                      const v = e.target.value.replace(/[^0-9-]/g, '');
+                      if (v.length <= 13) setPhone(v);
+                    }}
+                    placeholder="010-0000-0000"
+                    className={inputGlowClass}
+                    onFocus={(e) => { e.target.style.animation = 'input-glow-pulse 2s ease-in-out infinite'; }}
+                    onBlur={(e) => { e.target.style.animation = 'none'; }}
+                  />
+                </div>
+                <div className="border-t border-gray-100 pt-5 pb-5">
                   <label className="block text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">
                     닉네임
                   </label>

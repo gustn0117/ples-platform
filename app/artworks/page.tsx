@@ -130,7 +130,7 @@ export default function ArtworksPage() {
             <div className="w-10 h-10 rounded-xl bg-gray-800 flex items-center justify-center">
               <IconShoppingBag className="w-5 h-5 text-gray-300" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">마켓</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">갤러리</h1>
           </div>
           <p className="text-gray-500 ml-[52px] text-sm">한정판 아트워크와 굿즈를 만나보세요</p>
           {user && (

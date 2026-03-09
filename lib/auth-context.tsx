@@ -24,6 +24,9 @@ interface MockUser {
   email: string
   nickname: string
   password: string
+  realName?: string
+  residentNumber?: string
+  phone?: string
 }
 
 interface AuthContextType {
@@ -35,7 +38,8 @@ interface AuthContextType {
   signup: (
     email: string,
     password: string,
-    nickname: string
+    nickname: string,
+    extra?: { realName?: string; residentNumber?: string; phone?: string }
   ) => Promise<{ error: string | null }>
   logout: () => Promise<void>
   refreshProfile: () => Promise<void>
@@ -139,7 +143,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signup = async (
     email: string,
     password: string,
-    nickname: string
+    nickname: string,
+    extra?: { realName?: string; residentNumber?: string; phone?: string }
   ): Promise<{ error: string | null }> => {
     const users = getStoredUsers()
 
@@ -152,6 +157,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email,
       nickname,
       password,
+      realName: extra?.realName,
+      residentNumber: extra?.residentNumber,
+      phone: extra?.phone,
     }
 
     users.push(newUser)

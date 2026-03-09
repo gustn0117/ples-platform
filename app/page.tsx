@@ -142,7 +142,7 @@ export default function Home() {
     },
     {
       icon: IconShoppingBag,
-      title: '마켓',
+      title: '갤러리',
       desc: '한정판 아트워크와 굿즈를 만나보세요',
       href: '/artworks',
       accent: 'from-gray-700 to-gray-500',
@@ -200,7 +200,7 @@ export default function Home() {
                   <span className="absolute inset-0 rounded-full bg-gray-900 ring-pulse" />
                 </span>
                 <span className="text-xs font-semibold text-gray-600 tracking-wider uppercase">
-                  팬 참여형 아티스트 플랫폼
+                  프로듀서가 만드는 아티스트
                 </span>
               </div>
 
@@ -215,7 +215,7 @@ export default function Home() {
                   }}
                 />
                 <h1 className="relative text-5xl sm:text-6xl lg:text-8xl font-bold tracking-tight text-gray-900 leading-[1.05]">
-                  팬이 만드는
+                  프로듀서가 만드는
                   <br />
                   <span className="relative inline-block">
                     아티스트
@@ -223,15 +223,13 @@ export default function Home() {
                       <path d="M0 8 Q50 0, 100 8 Q150 16, 200 8" stroke="currentColor" strokeWidth="3" fill="none" />
                     </svg>
                   </span>
-                  <br />
-                  <span className="gradient-text-shine">플랫폼</span>
                 </h1>
               </div>
 
               <p className="mt-10 text-lg sm:text-xl text-gray-400 leading-relaxed max-w-lg">
                 투표하고, 응원하고, 시청하면서 포인트를 쌓는
                 <br className="hidden sm:block" />
-                새로운 참여형 아티스트 플랫폼
+                프로듀서가 만드는 아티스트
               </p>
 
               <div className="mt-12 flex flex-wrap items-center gap-4">

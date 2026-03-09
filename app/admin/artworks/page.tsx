@@ -121,7 +121,7 @@ export default function AdminArtworksPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-gray-900">마켓 관리</h1>
+        <h1 className="text-xl font-semibold text-gray-900">갤러리 관리</h1>
         <button
           onClick={openCreate}
           className="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"

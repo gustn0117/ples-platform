@@ -314,7 +314,7 @@ export default function MyPage() {
                 title="구매 내역이 없어요"
                 desc="아티스트들의 특별한 작품을 만나보세요"
                 link="/market"
-                linkLabel="마켓 둘러보기"
+                linkLabel="갤러리 둘러보기"
               />
             ) : (
               <div className="divide-y divide-gray-50">

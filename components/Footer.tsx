@@ -6,7 +6,7 @@ import Link from 'next/link'
 const SERVICE_LINKS = [
   { label: '투표', href: '/vote' },
   { label: '아티스트', href: '/artists' },
-  { label: '마켓', href: '/artworks' },
+  { label: '갤러리', href: '/artworks' },
   { label: '영상', href: '/videos' },
   { label: '랭킹', href: '/ranking' },
 ]
@@ -47,7 +47,7 @@ export default function Footer() {
                 PLES 소식을 받아보세요
               </h3>
               <p className="mt-2 text-sm text-gray-400 leading-relaxed">
-                새로운 아티스트, 투표 이벤트, 마켓 소식을 가장 먼저 만나보세요.
+                새로운 아티스트, 투표 이벤트, 갤러리 소식을 가장 먼저 만나보세요.
               </p>
             </div>
             <form onSubmit={handleSubscribe} className="flex w-full lg:w-auto gap-2">
@@ -108,7 +108,7 @@ export default function Footer() {
               </div>
             </Link>
             <p className="mt-3 text-sm text-gray-400 leading-relaxed">
-              팬이 만드는 아티스트 플랫폼
+              프로듀서가 만드는 아티스트
             </p>
 
             {/* Social icons - with tooltips and stagger */}
@@ -219,7 +219,7 @@ export default function Footer() {
 
             <div className="flex items-center gap-4">
               <p className="text-xs text-gray-300 tracking-wide">
-                팬이 만드는 아티스트 플랫폼
+                프로듀서가 만드는 아티스트
               </p>
 
               {/* Back to top button */}
