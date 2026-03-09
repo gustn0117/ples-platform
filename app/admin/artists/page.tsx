@@ -11,7 +11,7 @@ import {
 } from '@/lib/store'
 import type { Artist } from '@/lib/mock-data'
 
-const emptyForm = { name: '', genre: '', description: '' }
+const emptyForm = { name: '', genre: '', description: '', instagram: '', youtube: '', twitter: '' }
 
 export default function AdminArtistsPage() {
   const [artists, setArtists] = useState<Artist[]>([])
@@ -34,18 +34,26 @@ export default function AdminArtistsPage() {
 
   const openEdit = (a: Artist) => {
     setEditingId(a.id)
-    setForm({ name: a.name, genre: a.genre, description: a.description ?? '' })
+    setForm({ name: a.name, genre: a.genre, description: a.description ?? '', instagram: a.sns?.instagram ?? '', youtube: a.sns?.youtube ?? '', twitter: a.sns?.twitter ?? '' })
     setModalOpen(true)
   }
 
   const handleSave = () => {
     if (!form.name || !form.genre) return alert('이름과 장르는 필수입니다.')
 
+    const snsData = {
+      instagram: form.instagram || undefined,
+      youtube: form.youtube || undefined,
+      twitter: form.twitter || undefined,
+    }
+    const hasSns = Object.values(snsData).some(Boolean)
+
     if (editingId !== null) {
       updateArtist(editingId, {
         name: form.name,
         genre: form.genre,
         description: form.description || undefined,
+        sns: hasSns ? snsData : undefined,
       })
     } else {
       addArtist({
@@ -53,6 +61,7 @@ export default function AdminArtistsPage() {
         genre: form.genre,
         likes: 0,
         description: form.description || undefined,
+        sns: hasSns ? snsData : undefined,
       })
     }
 
@@ -196,6 +205,41 @@ export default function AdminArtistsPage() {
                   rows={3}
                   className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition-colors resize-none"
                 />
+              </div>
+              <div className="border-t border-gray-100 pt-4">
+                <label className="block text-xs font-medium text-gray-500 mb-3">SNS 링크</label>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-400 w-16 shrink-0">Instagram</span>
+                    <input
+                      type="url"
+                      value={form.instagram}
+                      onChange={(e) => setForm({ ...form, instagram: e.target.value })}
+                      placeholder="https://instagram.com/..."
+                      className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition-colors"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-400 w-16 shrink-0">YouTube</span>
+                    <input
+                      type="url"
+                      value={form.youtube}
+                      onChange={(e) => setForm({ ...form, youtube: e.target.value })}
+                      placeholder="https://youtube.com/..."
+                      className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition-colors"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-400 w-16 shrink-0">X (Twitter)</span>
+                    <input
+                      type="url"
+                      value={form.twitter}
+                      onChange={(e) => setForm({ ...form, twitter: e.target.value })}
+                      placeholder="https://x.com/..."
+                      className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition-colors"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 

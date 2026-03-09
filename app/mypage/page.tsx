@@ -145,7 +145,7 @@ export default function MyPage() {
     { key: 'votes', label: '투표내역', icon: <IconVote className="w-4 h-4" /> },
     { key: 'artists', label: '좋아요 아티스트', icon: <IconHeart className="w-4 h-4" /> },
     { key: 'purchases', label: '구매내역', icon: <IconShoppingBag className="w-4 h-4" /> },
-    { key: 'videos', label: '시청영상', icon: <IconPlay className="w-4 h-4" /> },
+    { key: 'videos', label: '시청미디어', icon: <IconPlay className="w-4 h-4" /> },
   ];
 
   return (
@@ -341,15 +341,15 @@ export default function MyPage() {
             )
           )}
 
-          {/* ---- 시청영상 Tab ---- */}
+          {/* ---- 시청미디어 Tab ---- */}
           {activeTab === 'videos' && (
             watchedVideoList.length === 0 ? (
               <EmptyState
                 icon={<IconPlay className="w-8 h-8 text-gray-300" />}
-                title="시청한 영상이 없어요"
-                desc="영상을 시청하고 포인트를 적립해보세요"
+                title="시청한 미디어가 없어요"
+                desc="미디어를 시청하고 포인트를 적립해보세요"
                 link="/videos"
-                linkLabel="영상 보러 가기"
+                linkLabel="미디어 보러 가기"
               />
             ) : (
               <div className="divide-y divide-gray-50">

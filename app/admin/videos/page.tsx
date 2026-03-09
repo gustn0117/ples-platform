@@ -69,7 +69,7 @@ export default function AdminVideosPage() {
   }
 
   const handleDelete = (id: number, title: string) => {
-    if (!confirm(`"${title}" 영상을 삭제하시겠습니까?`)) return
+    if (!confirm(`"${title}" 미디어를 삭제하시겠습니까?`)) return
     deleteVideoFromStore(id)
     reload()
   }
@@ -77,7 +77,7 @@ export default function AdminVideosPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-gray-900">영상 관리</h1>
+        <h1 className="text-xl font-semibold text-gray-900">미디어 관리</h1>
         <button
           onClick={openCreate}
           className="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
@@ -95,7 +95,7 @@ export default function AdminVideosPage() {
             <thead className="bg-gray-50/80 border-b border-gray-100">
               <tr>
                 <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">영상</th>
+                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">미디어</th>
                 <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">재생시간</th>
                 <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">보상</th>
                 <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">관리</th>
@@ -105,7 +105,7 @@ export default function AdminVideosPage() {
               {videos.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-5 py-12 text-center text-gray-400 text-sm">
-                    등록된 영상이 없습니다.
+                    등록된 미디어가 없습니다.
                   </td>
                 </tr>
               ) : (
@@ -177,7 +177,7 @@ export default function AdminVideosPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-lg font-semibold text-gray-900 mb-5">
-              {editingId !== null ? '영상 수정' : '영상 추가'}
+              {editingId !== null ? '미디어 수정' : '미디어 추가'}
             </h2>
 
             <div className="space-y-4">

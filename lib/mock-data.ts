@@ -6,6 +6,7 @@ export interface Artist {
   likes: number;
   genre: string;
   description?: string;
+  sns?: { instagram?: string; youtube?: string; twitter?: string };
 }
 
 export interface Vote {
@@ -50,7 +51,7 @@ export interface PointHistory {
 
 // 1 Artist
 export const artists: Artist[] = [
-  { id: 1, name: '김수현', likes: 1523, genre: '보컬', description: '감성적인 목소리로 많은 팬을 사로잡은 보컬리스트' },
+  { id: 1, name: '김수현', likes: 1523, genre: '보컬', description: '감성적인 목소리로 많은 팬을 사로잡은 보컬리스트', sns: { instagram: 'https://instagram.com/kimsoohyun' } },
 ];
 
 // 1 Vote

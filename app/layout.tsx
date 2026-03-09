@@ -5,12 +5,12 @@ import Footer from '@/components/Footer'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'PLES - 프로듀서가 만드는 아티스트',
+  title: 'PLES - 프로듀서가 만드는 국가대표 아티스트',
   description:
     'PLES는 프로듀서가 직접 참여하여 아티스트를 응원하고 성장시키는 플랫폼입니다. 투표, 갤러리, 랭킹 등 다양한 기능을 통해 프로듀서와 아티스트가 함께합니다.',
   keywords: ['PLES', '프로듀서', '아티스트', '투표', '랭킹', 'K-POP'],
   openGraph: {
-    title: 'PLES - 프로듀서가 만드는 아티스트',
+    title: 'PLES - 프로듀서가 만드는 국가대표 아티스트',
     description:
       '프로듀서가 직접 참여하여 아티스트를 응원하고 성장시키는 플랫폼',
     type: 'website',

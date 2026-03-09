@@ -215,7 +215,7 @@ export default function LoginPage() {
                 animation: 'tagline-gradient-flow 6s ease infinite',
               }}
             >
-              아티스트
+              국가대표 아티스트
             </span>
           </h2>
           <p className="mt-5 text-gray-500 text-sm leading-relaxed max-w-sm">
@@ -478,13 +478,13 @@ export default function LoginPage() {
               <form onSubmit={handleSignup} className="flex flex-col gap-0">
                 <div className="pb-5">
                   <label className="block text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">
-                    실명
+                    이름
                   </label>
                   <input
                     type="text"
                     value={realName}
                     onChange={(e) => setRealName(e.target.value)}
-                    placeholder="실명을 입력하세요"
+                    placeholder="이름을 입력하세요"
                     className={inputGlowClass}
                     onFocus={(e) => { e.target.style.animation = 'input-glow-pulse 2s ease-in-out infinite'; }}
                     onBlur={(e) => { e.target.style.animation = 'none'; }}
@@ -686,6 +686,9 @@ export default function LoginPage() {
                 </button>
                 <p className="text-center text-xs text-gray-400 mt-4">
                   이메일 확인 불필요, 바로 로그인됩니다
+                </p>
+                <p className="text-center text-xs text-gray-400 mt-2">
+                  회원가입 시 수익화를 위해 정보를 제공하는 것에 동의합니다.
                 </p>
               </form>
             )}

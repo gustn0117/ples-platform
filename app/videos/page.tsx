@@ -101,10 +101,10 @@ export default function VideosPage() {
             <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-500">
               <VideoIcon className="w-5 h-5" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">영상 리워드</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">미디어 리워드</h1>
           </div>
           <p className="text-gray-500 ml-[52px] text-sm">
-            영상을 시청하고 매 영상당 <span className="text-gray-900 font-semibold">{REWARD_POINTS}P</span>를 적립하세요
+            미디어를 시청하고 매 미디어당 <span className="text-gray-900 font-semibold">{REWARD_POINTS}P</span>를 적립하세요
           </p>
 
           {/* Daily Progress Card */}
@@ -178,7 +178,7 @@ export default function VideosPage() {
           {!user && (
             <div className="mt-8 bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 text-center shadow-sm">
               <p className="text-gray-500 text-sm mb-3">
-                로그인하면 영상 시청 시 포인트를 적립할 수 있어요
+                로그인하면 미디어 시청 시 포인트를 적립할 수 있어요
               </p>
               <Link
                 href="/login"
@@ -208,8 +208,8 @@ export default function VideosPage() {
         ) : videos.length === 0 ? (
           <div className="text-center py-24">
             <div className="mb-4 text-gray-300"><VideoIcon className="w-12 h-12 mx-auto" /></div>
-            <h3 className="text-lg font-bold text-gray-600 mb-1">등록된 영상이 없습니다</h3>
-            <p className="text-sm text-gray-500">곧 새로운 영상이 업로드될 예정입니다</p>
+            <h3 className="text-lg font-bold text-gray-600 mb-1">등록된 미디어가 없습니다</h3>
+            <p className="text-sm text-gray-500">곧 새로운 미디어가 업로드될 예정입니다</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
@@ -331,7 +331,7 @@ export default function VideosPage() {
               <div className="text-center">
                 <span className="block mb-4 text-gray-300"><VideoIcon className="w-16 h-16 mx-auto" /></span>
                 <p className="text-sm font-semibold text-gray-900 mb-1 px-4">{activeVideo.title}</p>
-                <p className="text-xs text-gray-500 mb-6">영상 재생 중...</p>
+                <p className="text-xs text-gray-500 mb-6">미디어 재생 중...</p>
 
                 {/* Countdown */}
                 {counting && countdown > 0 && (
@@ -371,7 +371,7 @@ export default function VideosPage() {
                     ) : (
                       <div className="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-600 rounded-2xl border border-gray-200">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4.5 12.75l6 6 9-13.5" /></svg>
-                        <span className="text-sm font-semibold">이미 적립된 영상입니다</span>
+                        <span className="text-sm font-semibold">이미 적립된 미디어입니다</span>
                       </div>
                     )}
                   </div>

@@ -7,7 +7,7 @@ const SERVICE_LINKS = [
   { label: '투표', href: '/vote' },
   { label: '아티스트', href: '/artists' },
   { label: '갤러리', href: '/artworks' },
-  { label: '영상', href: '/videos' },
+  { label: '미디어', href: '/videos' },
   { label: '랭킹', href: '/ranking' },
 ]
 
@@ -108,7 +108,7 @@ export default function Footer() {
               </div>
             </Link>
             <p className="mt-3 text-sm text-gray-400 leading-relaxed">
-              프로듀서가 만드는 아티스트
+              프로듀서가 만드는 국가대표 아티스트
             </p>
 
             {/* Social icons - with tooltips and stagger */}
@@ -219,7 +219,7 @@ export default function Footer() {
 
             <div className="flex items-center gap-4">
               <p className="text-xs text-gray-300 tracking-wide">
-                프로듀서가 만드는 아티스트
+                프로듀서가 만드는 국가대표 아티스트
               </p>
 
               {/* Back to top button */}

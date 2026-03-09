@@ -72,7 +72,7 @@ export default function AdminDashboard() {
       ),
     },
     {
-      label: '전체 영상',
+      label: '전체 미디어',
       value: stats.videos,
       unit: '개',
       color: 'text-emerald-600',

@@ -92,8 +92,8 @@ export default function Home() {
     },
     {
       icon: IconPlay,
-      title: '영상 리워드',
-      desc: '영상을 시청하고 포인트를 받으세요',
+      title: '미디어 리워드',
+      desc: '미디어를 시청하고 포인트를 받으세요',
       href: '/videos',
       accent: 'from-gray-900 to-gray-700',
     },
@@ -137,7 +137,7 @@ export default function Home() {
                   <span className="absolute inset-0 rounded-full bg-gray-900 ring-pulse" />
                 </span>
                 <span className="text-xs font-semibold text-gray-600 tracking-wider uppercase">
-                  프로듀서가 만드는 아티스트
+                  프로듀서가 만드는 국가대표 아티스트
                 </span>
               </div>
 
@@ -155,7 +155,7 @@ export default function Home() {
                   <span className="whitespace-nowrap">프로듀서가 만드는</span>
                   <br />
                   <span className="relative inline-block">
-                    <span className="whitespace-nowrap">아티스트</span>
+                    <span className="whitespace-nowrap">국가대표 아티스트</span>
                     <svg className="absolute -bottom-2 left-0 w-full h-3 text-gray-300" viewBox="0 0 200 12" preserveAspectRatio="none">
                       <path d="M0 8 Q50 0, 100 8 Q150 16, 200 8" stroke="currentColor" strokeWidth="3" fill="none" />
                     </svg>

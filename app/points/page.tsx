@@ -24,7 +24,7 @@ const CHARGE_OPTIONS = [5000, 10000, 30000, 50000];
 
 function getCategoryIcon(category: string) {
   if (category.includes('투표')) return <IconVote className="w-4 h-4" />;
-  if (category.includes('영상') || category.includes('시청')) return <IconPlay className="w-4 h-4" />;
+  if (category.includes('영상') || category.includes('미디어') || category.includes('시청')) return <IconPlay className="w-4 h-4" />;
   if (category.includes('구매') || category.includes('작품')) return <IconShoppingBag className="w-4 h-4" />;
   if (category.includes('충전')) return <IconCoin className="w-4 h-4" />;
   return <IconCoin className="w-4 h-4" />;
@@ -32,7 +32,7 @@ function getCategoryIcon(category: string) {
 
 function getCategoryLabel(category: string): string {
   if (category.includes('투표')) return '투표참여';
-  if (category.includes('영상') || category.includes('시청')) return '영상시청';
+  if (category.includes('영상') || category.includes('미디어') || category.includes('시청')) return '미디어시청';
   if (category.includes('충전')) return '포인트충전';
   if (category.includes('구매') || category.includes('작품')) return '작품구매';
   return category.split(' - ')[0] || category;
@@ -351,7 +351,7 @@ export default function PointsPage() {
             </p>
             <p className="text-gray-400 text-sm">
               {filter === '전체'
-                ? '투표, 영상 시청 등 활동으로 포인트를 모아보세요'
+                ? '투표, 미디어 시청 등 활동으로 포인트를 모아보세요'
                 : filter === '적립'
                 ? '활동에 참여하면 포인트가 적립됩니다'
                 : '갤러리에서 포인트를 사용해보세요'}
