@@ -738,22 +738,16 @@ export default function Home() {
             ctaSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
           }`}
         >
-          <div className="relative py-36 sm:py-44 bg-gray-900 overflow-hidden">
-            {/* Mesh gradient dark background */}
-            <div className="absolute inset-0 mesh-gradient-dark" />
-
+          <div className="relative py-36 sm:py-44 bg-gradient-to-b from-gray-50 to-white overflow-hidden">
             {/* Animated gradient background */}
             <div
-              className="absolute inset-0 opacity-60"
+              className="absolute inset-0 opacity-40"
               style={{
-                background: 'linear-gradient(135deg, #111827 0%, #1f2937 25%, #111827 50%, #374151 75%, #111827 100%)',
+                background: 'linear-gradient(135deg, #f9fafb 0%, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%, #f9fafb 100%)',
                 backgroundSize: '400% 400%',
                 animation: 'gradient-shift 8s ease infinite',
               }}
             />
-
-            {/* Noise overlay for texture */}
-            <div className="absolute inset-0 noise-overlay pointer-events-none" />
 
             {/* Animated floating particles (small dots) */}
             {[
@@ -772,7 +766,7 @@ export default function Home() {
             ].map((particle, i) => (
               <div
                 key={i}
-                className="absolute rounded-full bg-white/[0.08] animate-float"
+                className="absolute rounded-full bg-gray-900/[0.06] animate-float"
                 style={{
                   top: particle.top,
                   left: particle.left,
@@ -785,23 +779,22 @@ export default function Home() {
             ))}
 
             {/* Floating decorative elements */}
-            <div className="absolute top-12 left-[10%] w-32 h-32 rounded-full border border-white/[0.06] animate-float-slow" />
-            <div className="absolute bottom-16 right-[8%] w-48 h-48 rounded-full border border-white/[0.04] animate-float-reverse" />
-            <div className="absolute top-1/2 left-[5%] -translate-y-1/2 w-64 h-64 rounded-full bg-white/[0.015] blur-3xl animate-float" />
-            <div className="absolute top-20 right-[20%] w-3 h-3 rounded-full bg-white/10 animate-float" />
-            <div className="absolute bottom-24 left-[25%] w-2 h-2 rounded-full bg-white/10 animate-float-reverse" />
-            <div className="absolute top-1/3 right-[12%] w-20 h-20 rounded-2xl border border-white/[0.05] rotate-12 animate-float-slow" />
-            {/* Additional decorative elements — rotating squares and gradient rings */}
-            <div className="absolute top-[15%] left-[18%] w-6 h-6 border border-white/[0.08] animate-spin-slow" />
-            <div className="absolute bottom-[20%] right-[15%] w-8 h-8 border border-white/[0.06] rotate-45 animate-spin-reverse-slow" />
-            <div className="absolute top-[60%] right-[25%] w-4 h-4 border border-white/[0.1] animate-spin-slow" />
-            <div className="absolute bottom-[35%] left-[12%] w-5 h-5 border border-white/[0.07] rotate-12 animate-spin-reverse-slow" />
-            <div className="absolute top-[25%] right-[5%] w-24 h-24 rounded-full border border-white/[0.03] animate-float" style={{ boxShadow: 'inset 0 0 20px rgba(255,255,255,0.02)' }} />
-            <div className="absolute bottom-[10%] left-[8%] w-16 h-16 rounded-full border border-white/[0.05] animate-float-reverse" style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.02) 0%, transparent 70%)' }} />
+            <div className="absolute top-12 left-[10%] w-32 h-32 rounded-full border border-gray-200/60 animate-float-slow" />
+            <div className="absolute bottom-16 right-[8%] w-48 h-48 rounded-full border border-gray-200/40 animate-float-reverse" />
+            <div className="absolute top-1/2 left-[5%] -translate-y-1/2 w-64 h-64 rounded-full bg-gray-200/20 blur-3xl animate-float" />
+            <div className="absolute top-20 right-[20%] w-3 h-3 rounded-full bg-gray-300/40 animate-float" />
+            <div className="absolute bottom-24 left-[25%] w-2 h-2 rounded-full bg-gray-300/40 animate-float-reverse" />
+            <div className="absolute top-1/3 right-[12%] w-20 h-20 rounded-2xl border border-gray-200/50 rotate-12 animate-float-slow" />
+            <div className="absolute top-[15%] left-[18%] w-6 h-6 border border-gray-200/60 animate-spin-slow" />
+            <div className="absolute bottom-[20%] right-[15%] w-8 h-8 border border-gray-200/50 rotate-45 animate-spin-reverse-slow" />
+            <div className="absolute top-[60%] right-[25%] w-4 h-4 border border-gray-300/50 animate-spin-slow" />
+            <div className="absolute bottom-[35%] left-[12%] w-5 h-5 border border-gray-200/50 rotate-12 animate-spin-reverse-slow" />
+            <div className="absolute top-[25%] right-[5%] w-24 h-24 rounded-full border border-gray-200/30 animate-float" />
+            <div className="absolute bottom-[10%] left-[8%] w-16 h-16 rounded-full border border-gray-200/40 animate-float-reverse" />
 
             <div className="relative z-10 text-center px-6 sm:px-8">
               <div
-                className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/10 border border-white/10 text-xs font-semibold text-gray-300 mb-12 backdrop-blur-sm"
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gray-900/5 border border-gray-200 text-xs font-semibold text-gray-500 mb-12"
                 style={{
                   opacity: ctaSection.isVisible ? 1 : 0,
                   transform: ctaSection.isVisible ? 'translateY(0)' : 'translateY(1rem)',
@@ -822,7 +815,7 @@ export default function Home() {
                 <span
                   className="inline-block text-6xl sm:text-7xl lg:text-9xl"
                   style={{
-                    background: 'linear-gradient(120deg, #e5e7eb 0%, #ffffff 40%, #9ca3af 60%, #e5e7eb 100%)',
+                    background: 'linear-gradient(120deg, #374151 0%, #111827 40%, #6b7280 60%, #374151 100%)',
                     backgroundSize: '200% auto',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
@@ -833,10 +826,10 @@ export default function Home() {
                   지금 바로
                 </span>
                 <br />
-                <span className="text-white inline-block" style={{ transform: 'translateX(0.15em)', marginTop: '0.1em' }}>참여하세요</span>
+                <span className="text-gray-900 inline-block" style={{ transform: 'translateX(0.15em)', marginTop: '0.1em' }}>참여하세요</span>
               </h2>
               <p
-                className="mt-8 text-lg sm:text-xl text-gray-400 max-w-lg mx-auto leading-relaxed"
+                className="mt-8 text-lg sm:text-xl text-gray-500 max-w-lg mx-auto leading-relaxed"
                 style={{
                   opacity: ctaSection.isVisible ? 1 : 0,
                   transform: ctaSection.isVisible ? 'translateY(0)' : 'translateY(1rem)',
@@ -855,9 +848,9 @@ export default function Home() {
               >
                 <Link
                   href={user ? '/vote' : '/login'}
-                  className="group relative inline-flex items-center justify-center gap-2.5 px-12 py-5 bg-white text-gray-900 text-sm font-bold rounded-2xl hover:bg-gray-50 transition-all duration-300 hover:shadow-2xl hover:shadow-white/20 hover:-translate-y-1 overflow-hidden"
+                  className="group relative inline-flex items-center justify-center gap-2.5 px-12 py-5 bg-gray-900 text-white text-sm font-bold rounded-2xl hover:bg-gray-800 transition-all duration-300 hover:shadow-2xl hover:shadow-gray-900/20 hover:-translate-y-1 overflow-hidden"
                 >
-                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-200/30 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
                   <span className="relative z-10 flex items-center gap-2.5">
                     무료로 시작하기
                     <IconArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
@@ -865,7 +858,7 @@ export default function Home() {
                 </Link>
                 <Link
                   href="/artists"
-                  className="inline-flex items-center justify-center gap-2.5 px-10 py-5 text-sm font-semibold text-white/90 rounded-2xl border-2 border-white/20 hover:border-white/40 hover:text-white hover:bg-white/10 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:shadow-white/5"
+                  className="inline-flex items-center justify-center gap-2.5 px-10 py-5 text-sm font-semibold text-gray-700 rounded-2xl border-2 border-gray-200 hover:border-gray-300 hover:text-gray-900 hover:bg-gray-50 transition-all duration-300 hover:shadow-lg hover:shadow-gray-200/50"
                 >
                   아티스트 둘러보기
                   <IconArrowRight className="w-4 h-4 opacity-60" />
