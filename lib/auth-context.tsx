@@ -8,8 +8,6 @@ import {
   useCallback,
   type ReactNode,
 } from 'react'
-import { supabase } from '@/lib/supabase'
-import type { User, Session } from '@supabase/supabase-js'
 
 export interface Profile {
   id: string
@@ -21,10 +19,17 @@ export interface Profile {
   created_at: string
 }
 
+interface MockUser {
+  id: string
+  email: string
+  nickname: string
+  password: string
+}
+
 interface AuthContextType {
-  user: User | null
+  user: { id: string; email: string } | null
   profile: Profile | null
-  session: Session | null
+  session: { user: { id: string; email: string } } | null
   loading: boolean
   login: (email: string, password: string) => Promise<{ error: string | null }>
   signup: (
@@ -38,81 +43,95 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-async function fetchProfile(userId: string): Promise<Profile | null> {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .single()
+const USERS_KEY = 'ples_mock_users'
+const SESSION_KEY = 'ples_mock_session'
 
-  if (error) {
-    console.error('프로필 조회 실패:', error.message)
+function getStoredUsers(): MockUser[] {
+  if (typeof window === 'undefined') return []
+  try {
+    const raw = localStorage.getItem(USERS_KEY)
+    return raw ? JSON.parse(raw) : []
+  } catch {
+    return []
+  }
+}
+
+function saveUsers(users: MockUser[]) {
+  localStorage.setItem(USERS_KEY, JSON.stringify(users))
+}
+
+function getStoredSession(): MockUser | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = localStorage.getItem(SESSION_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch {
     return null
   }
+}
 
-  return data as Profile
+function saveSession(user: MockUser | null) {
+  if (user) {
+    localStorage.setItem(SESSION_KEY, JSON.stringify(user))
+  } else {
+    localStorage.removeItem(SESSION_KEY)
+  }
+}
+
+function userToProfile(u: MockUser): Profile {
+  return {
+    id: u.id,
+    nickname: u.nickname,
+    email: u.email,
+    avatar_url: null,
+    points: 0,
+    is_admin: false,
+    created_at: new Date().toISOString(),
+  }
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<{ id: string; email: string } | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
-  const [session, setSession] = useState<Session | null>(null)
+  const [session, setSession] = useState<{ user: { id: string; email: string } } | null>(null)
   const [loading, setLoading] = useState(true)
 
   const refreshProfile = useCallback(async () => {
-    if (!user) return
-    const p = await fetchProfile(user.id)
-    setProfile(p)
-  }, [user])
+    const stored = getStoredSession()
+    if (stored) {
+      setProfile(userToProfile(stored))
+    }
+  }, [])
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(async ({ data: { session: s } }) => {
-      setSession(s)
-      setUser(s?.user ?? null)
-
-      if (s?.user) {
-        const p = await fetchProfile(s.user.id)
-        setProfile(p)
-      }
-
-      setLoading(false)
-    })
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, s) => {
-      setSession(s)
-      setUser(s?.user ?? null)
-
-      if (event === 'SIGNED_IN' && s?.user) {
-        const p = await fetchProfile(s.user.id)
-        setProfile(p)
-      }
-
-      if (event === 'SIGNED_OUT') {
-        setProfile(null)
-      }
-    })
-
-    return () => {
-      subscription.unsubscribe()
+    const stored = getStoredSession()
+    if (stored) {
+      const u = { id: stored.id, email: stored.email }
+      setUser(u)
+      setSession({ user: u })
+      setProfile(userToProfile(stored))
     }
+    setLoading(false)
   }, [])
 
   const login = async (
     email: string,
     password: string
   ): Promise<{ error: string | null }> => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+    const users = getStoredUsers()
+    const found = users.find(
+      (u) => u.email === email && u.password === password
+    )
 
-    if (error) {
-      return { error: error.message }
+    if (!found) {
+      return { error: '이메일 또는 비밀번호가 올바르지 않습니다.' }
     }
+
+    const u = { id: found.id, email: found.email }
+    setUser(u)
+    setSession({ user: u })
+    setProfile(userToProfile(found))
+    saveSession(found)
 
     return { error: null }
   }
@@ -122,42 +141,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     password: string,
     nickname: string
   ): Promise<{ error: string | null }> => {
-    const { data, error } = await supabase.auth.signUp({
+    const users = getStoredUsers()
+
+    if (users.find((u) => u.email === email)) {
+      return { error: '이미 가입된 이메일입니다.' }
+    }
+
+    const newUser: MockUser = {
+      id: crypto.randomUUID(),
       email,
+      nickname,
       password,
-      options: {
-        data: { nickname },
-      },
-    })
-
-    if (error) {
-      return { error: error.message }
     }
 
-    // Create profile record
-    if (data.user) {
-      const { error: profileError } = await supabase.from('profiles').insert({
-        id: data.user.id,
-        email,
-        nickname,
-        points: 0,
-        is_admin: false,
-      })
-
-      if (profileError) {
-        console.error('프로필 생성 실패:', profileError.message)
-        return { error: '계정은 생성되었으나 프로필 생성에 실패했습니다.' }
-      }
-    }
+    users.push(newUser)
+    saveUsers(users)
 
     return { error: null }
   }
 
   const logout = async () => {
-    await supabase.auth.signOut()
     setUser(null)
     setProfile(null)
     setSession(null)
+    saveSession(null)
   }
 
   return (
