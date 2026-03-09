@@ -49,9 +49,14 @@ const KEYS = {
 
 // ============ Initialize ============
 
+const DATA_VERSION = '2';
+
 export function initStore() {
   if (typeof window === 'undefined') return;
-  if (localStorage.getItem(KEYS.INIT_DONE)) return;
+  if (localStorage.getItem(KEYS.INIT_DONE) === DATA_VERSION) return;
+
+  // Clear old data and re-initialize with latest mock data
+  Object.values(KEYS).forEach((key) => localStorage.removeItem(key));
 
   setItem(KEYS.ARTISTS, defaultArtists);
   setItem(KEYS.VOTES, defaultVotes);
@@ -65,7 +70,7 @@ export function initStore() {
   setItem(KEYS.USER_PURCHASED, []);
   setItem(KEYS.USER_WATCH_TODAY, { date: '', count: 0 });
   setItem(KEYS.CHARGE_RATE, 1.2);
-  localStorage.setItem(KEYS.INIT_DONE, '1');
+  localStorage.setItem(KEYS.INIT_DONE, DATA_VERSION);
 }
 
 // ============ Artists ============

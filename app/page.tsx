@@ -25,36 +25,6 @@ interface Artist {
   likes: number;
 }
 
-function useAnimatedNumber(target: number, duration = 2000) {
-  const [value, setValue] = useState(0);
-  const [started, setStarted] = useState(false);
-  const [finished, setFinished] = useState(false);
-
-  const start = useCallback(() => setStarted(true), []);
-
-  useEffect(() => {
-    if (!started) return;
-    let startTime: number;
-    let animationFrame: number;
-
-    const animate = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setValue(Math.floor(eased * target));
-      if (progress < 1) {
-        animationFrame = requestAnimationFrame(animate);
-      } else {
-        setFinished(true);
-      }
-    };
-
-    animationFrame = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationFrame);
-  }, [started, target, duration]);
-
-  return { value, start, finished };
-}
 
 function useFadeInOnScroll(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null);
@@ -83,33 +53,9 @@ export default function Home() {
   const [hotArtists, setHotArtists] = useState<Artist[]>([]);
   const [artistsLoading, setArtistsLoading] = useState(true);
 
-  const statsRef = useRef<HTMLDivElement>(null);
-  const [statsVisible, setStatsVisible] = useState(false);
-
-  const voteCount = useAnimatedNumber(15000, 2000);
-  const artistNum = useAnimatedNumber(30, 1800);
-
   const featuresSection = useFadeInOnScroll();
   const hotSection = useFadeInOnScroll();
   const ctaSection = useFadeInOnScroll();
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setStatsVisible(true);
-          voteCount.start();
-          artistNum.start();
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.2 }
-    );
-
-    if (statsRef.current) observer.observe(statsRef.current);
-    return () => observer.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   useEffect(() => {
     initStore();
@@ -165,11 +111,6 @@ export default function Home() {
       href: '/points',
       accent: 'from-gray-700 to-gray-500',
     },
-  ];
-
-  const statItems = [
-    { label: '아티스트 투표', value: voteCount.value, suffix: '+', icon: IconVote, finished: voteCount.finished },
-    { label: '등록 아티스트', value: artistNum.value, suffix: '+', icon: IconUsers, finished: artistNum.finished },
   ];
 
   const rankMedals = ['#111827', '#6b7280', '#9ca3af', '#d1d5db', '#e5e7eb'];
@@ -355,62 +296,6 @@ export default function Home() {
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40 z-10 animate-scroll-bounce">
           <span className="text-[10px] uppercase tracking-[0.2em] text-gray-400 font-medium">Scroll</span>
           <div className="w-px h-8 bg-gradient-to-b from-gray-300 to-transparent" />
-        </div>
-      </section>
-
-      {/* =============================================
-          STATS SECTION — Visual cards with depth
-          ============================================= */}
-      <section ref={statsRef} className="py-28 relative">
-        <div className="max-w-6xl mx-auto px-6 sm:px-8">
-          <div
-            className={`grid grid-cols-1 sm:grid-cols-2 gap-6 transition-all duration-700 ${
-              statsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-          >
-            {statItems.map((stat, i) => (
-              <div
-                key={stat.label}
-                className="group relative overflow-hidden rounded-3xl bg-white border border-gray-100 p-10 inner-shadow-strong hover:shadow-lg transition-all duration-500"
-                style={{
-                  transitionDelay: `${i * 150}ms`,
-                  opacity: statsVisible ? 1 : 0,
-                  transform: statsVisible ? 'translateY(0)' : 'translateY(2rem)',
-                  transition: `opacity 0.7s ease ${i * 150}ms, transform 0.7s ease ${i * 150}ms, box-shadow 0.5s ease`,
-                }}
-              >
-                {/* Decorative dot-pattern background */}
-                <div className="absolute inset-0 dot-pattern opacity-40 pointer-events-none" />
-
-                {/* Floating icon pattern at top-right */}
-                <div className="absolute -top-4 -right-4 opacity-[0.04]">
-                  <stat.icon className="w-32 h-32 text-gray-900" />
-                </div>
-                <div className="absolute bottom-2 right-12 opacity-[0.02]">
-                  <stat.icon className="w-20 h-20 text-gray-900" />
-                </div>
-
-                {/* Gradient accent bar at top */}
-                <div className="absolute top-0 left-8 right-8 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
-
-                {/* Gradient accent line at bottom — appears on hover */}
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-gray-900 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                <div className="relative z-10">
-                  {/* Icon badge — rotates slightly on hover */}
-                  <div className="w-12 h-12 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
-                    <stat.icon className="w-5 h-5 text-gray-600" />
-                  </div>
-
-                  <div className="text-5xl sm:text-6xl font-bold text-gray-900 tracking-tight tabular-nums">
-                    {stat.value.toLocaleString()}
-                    <span className={`text-gray-300 ml-0.5 text-4xl inline-block ${stat.finished ? 'animate-suffix-bounce' : ''}`}>{stat.suffix}</span>
-                  </div>
-                  <p className="mt-4 text-sm text-gray-400 font-medium">{stat.label}</p>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
