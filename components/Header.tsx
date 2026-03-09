@@ -11,6 +11,7 @@ const NAV_LINKS = [
   { href: '/artworks', label: '마켓' },
   { href: '/videos', label: '영상' },
   { href: '/ranking', label: '랭킹' },
+  { href: '/about', label: '회사소개' },
 ]
 
 export default function Header() {
