@@ -144,7 +144,7 @@ export default function ArtistsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white">
-        <div className="border-b border-gray-100">
+        <div className="bg-gray-50/50 border-b border-gray-100">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
             <div className="skeleton-heading w-40 mb-3" />
             <div className="skeleton-text w-72" />
@@ -152,7 +152,7 @@ export default function ArtistsPage() {
         </div>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
           <div className="skeleton h-12 rounded-xl mb-8" />
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {[...Array(8)].map((_, i) => (
               <div key={i} className="rounded-2xl border border-gray-100 overflow-hidden">
                 <div className="aspect-square skeleton rounded-none" />
@@ -172,45 +172,44 @@ export default function ArtistsPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Page Header */}
-      <div className="border-b border-gray-100">
+      <div className="bg-gray-50/50 border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
-          <div className="flex items-center gap-3 mb-2">
-            <IconMicrophone className="w-8 h-8 text-gray-900" />
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-xl bg-gray-900 flex items-center justify-center">
+              <IconMicrophone className="w-5 h-5 text-white" />
+            </div>
             <h1 className="text-3xl font-bold text-gray-900">아티스트</h1>
           </div>
-          <p className="text-gray-400">좋아하는 아티스트를 응원하고 투자하세요</p>
+          <p className="text-gray-400 ml-[52px]">좋아하는 아티스트를 응원하고 투자하세요</p>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
         {/* Search Bar */}
         <div className="relative mb-6">
-          <IconSearch className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <IconSearch className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="아티스트 이름 또는 장르로 검색..."
-            className="w-full pl-12 pr-4 py-3.5 border border-gray-200 rounded-xl bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 transition-all"
+            className="w-full pl-12 pr-4 py-3.5 border border-gray-200 rounded-2xl bg-gray-50/50 text-sm text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-900/5 focus:border-gray-300 focus:bg-white transition-all duration-300"
           />
         </div>
 
         {/* Sort Tabs */}
-        <div className="flex gap-6 mb-8 border-b border-gray-100">
+        <div className="flex gap-1.5 mb-8 p-1 bg-gray-50 rounded-xl border border-gray-100 w-fit">
           {sortTabs.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setSortBy(tab.key)}
-              className={`pb-3 text-sm font-medium transition-colors relative ${
+              className={`px-5 py-2 text-sm font-medium rounded-lg transition-all duration-300 ${
                 sortBy === tab.key
-                  ? 'text-gray-900'
+                  ? 'bg-white text-gray-900 shadow-sm'
                   : 'text-gray-400 hover:text-gray-600'
               }`}
             >
               {tab.label}
-              {sortBy === tab.key && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900 rounded-full" />
-              )}
             </button>
           ))}
         </div>
@@ -224,24 +223,35 @@ export default function ArtistsPage() {
             <p className="text-gray-400">검색 결과가 없습니다</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {filteredArtists.map((artist) => {
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            {filteredArtists.map((artist, index) => {
               const isLiked = likedArtists.has(artist.id);
               const isLiking = likingInProgress === artist.id;
 
               return (
                 <div
                   key={artist.id}
-                  className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden group"
+                  className="bg-white rounded-2xl border border-gray-100 hover:shadow-lg hover:border-gray-200 hover:-translate-y-1 transition-all duration-500 overflow-hidden group"
+                  style={{ animationDelay: `${index * 50}ms` }}
                 >
                   {/* Letter Avatar Area */}
                   <div
-                    className="aspect-square bg-gray-50 rounded-t-2xl flex items-center justify-center cursor-pointer relative"
+                    className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center cursor-pointer relative overflow-hidden"
                     onClick={() => setSelectedArtist(artist)}
                   >
-                    <div className="w-20 h-20 bg-gray-900 text-white rounded-2xl flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition-transform duration-300">
+                    {/* Hover overlay */}
+                    <div className="absolute inset-0 bg-gray-900/0 group-hover:bg-gray-900/5 transition-colors duration-500" />
+                    <div className="w-20 h-20 bg-gray-900 text-white rounded-2xl flex items-center justify-center text-2xl font-bold group-hover:scale-110 group-hover:rounded-xl transition-all duration-500 shadow-lg shadow-gray-900/10">
                       {artist.name.charAt(0)}
                     </div>
+                    {/* Rank for top 3 */}
+                    {sortBy === 'popular' && index < 3 && (
+                      <div className={`absolute top-3 left-3 w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold ${
+                        index === 0 ? 'bg-gray-900 text-white' : 'bg-white text-gray-700 shadow-sm border border-gray-100'
+                      }`}>
+                        {index + 1}
+                      </div>
+                    )}
                   </div>
 
                   {/* Info */}
@@ -252,20 +262,20 @@ export default function ArtistsPage() {
                     >
                       {artist.name}
                     </h3>
-                    <span className="inline-block mt-1 mb-3 text-xs text-gray-400 bg-gray-50 border border-gray-100 rounded-full px-2.5 py-0.5">
+                    <span className="inline-block mt-1.5 mb-3 text-[11px] text-gray-400 bg-gray-50 border border-gray-100 rounded-full px-2.5 py-0.5">
                       {artist.genre}
                     </span>
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 text-sm text-gray-400">
                         <div className="flex items-center gap-1">
-                          <IconHeart className="w-4 h-4" />
-                          <span>{artist.likes.toLocaleString()}</span>
+                          <IconHeart className="w-3.5 h-3.5" />
+                          <span className="text-xs tabular-nums">{artist.likes.toLocaleString()}</span>
                         </div>
                         {(artist.investments || 0) > 0 && (
                           <div className="flex items-center gap-1">
-                            <IconTrendingUp className="w-4 h-4" />
-                            <span>{artist.investments?.toLocaleString()}</span>
+                            <IconTrendingUp className="w-3.5 h-3.5" />
+                            <span className="text-xs tabular-nums">{artist.investments?.toLocaleString()}</span>
                           </div>
                         )}
                       </div>
@@ -276,8 +286,9 @@ export default function ArtistsPage() {
                           toggleLike(artist.id);
                         }}
                         disabled={isLiking}
-                        className={`p-1.5 rounded-full transition-all ${
-                          isLiking ? 'opacity-50 cursor-not-allowed' : ''
+                        className={`p-2 rounded-xl transition-all duration-300 ${
+                          isLiking ? 'opacity-50 cursor-not-allowed' :
+                          isLiked ? 'bg-red-50 hover:bg-red-100' : 'hover:bg-gray-50'
                         }`}
                       >
                         {isLiked ? (
@@ -298,53 +309,53 @@ export default function ArtistsPage() {
       {/* Detail Modal */}
       {selectedArtist && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4"
           onClick={() => setSelectedArtist(null)}
         >
           <div
-            className="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl"
+            className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl animate-scaleIn"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Artist header */}
-            <div className="relative bg-gray-50 p-10 text-center">
+            <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 p-12 text-center">
               <button
                 onClick={() => setSelectedArtist(null)}
-                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white border border-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-900 transition-colors"
+                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm border border-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-900 hover:bg-white transition-all duration-200"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
-              <div className="w-24 h-24 bg-gray-900 text-white rounded-2xl flex items-center justify-center text-4xl font-bold mx-auto mb-4">
+              <div className="w-28 h-28 bg-gray-900 text-white rounded-3xl flex items-center justify-center text-5xl font-bold mx-auto mb-5 shadow-xl shadow-gray-900/10">
                 {selectedArtist.name.charAt(0)}
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-1">{selectedArtist.name}</h3>
-              <span className="inline-block text-sm text-gray-400 bg-white border border-gray-100 rounded-full px-3 py-1">
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">{selectedArtist.name}</h3>
+              <span className="inline-flex items-center text-sm text-gray-400 bg-white border border-gray-100 rounded-full px-4 py-1.5 shadow-sm">
                 {selectedArtist.genre}
               </span>
             </div>
 
             {/* Stats */}
             <div className="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100">
-              <div className="p-5 text-center">
+              <div className="p-6 text-center">
                 <div className="flex items-center justify-center gap-1.5 mb-1">
-                  <IconHeart className="w-4 h-4 text-gray-400" />
-                  <p className="text-2xl font-bold text-gray-900">{selectedArtist.likes.toLocaleString()}</p>
+                  <IconHeart className="w-4 h-4 text-red-400" />
+                  <p className="text-2xl font-bold text-gray-900 tabular-nums">{selectedArtist.likes.toLocaleString()}</p>
                 </div>
-                <p className="text-xs text-gray-400">좋아요</p>
+                <p className="text-xs text-gray-400 font-medium">좋아요</p>
               </div>
-              <div className="p-5 text-center">
+              <div className="p-6 text-center">
                 <div className="flex items-center justify-center gap-1.5 mb-1">
                   <IconTrendingUp className="w-4 h-4 text-gray-400" />
-                  <p className="text-2xl font-bold text-gray-900">{(selectedArtist.investments || 0).toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-gray-900 tabular-nums">{(selectedArtist.investments || 0).toLocaleString()}</p>
                 </div>
-                <p className="text-xs text-gray-400">투자</p>
+                <p className="text-xs text-gray-400 font-medium">투자</p>
               </div>
             </div>
 
             {/* Description */}
             <div className="p-6">
-              <h4 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">소개</h4>
+              <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">소개</h4>
               <p className="text-sm text-gray-600 leading-relaxed">
                 {selectedArtist.description || '아직 소개가 등록되지 않았습니다.'}
               </p>
@@ -355,10 +366,10 @@ export default function ArtistsPage() {
               <button
                 onClick={() => toggleLike(selectedArtist.id)}
                 disabled={likingInProgress === selectedArtist.id}
-                className={`w-full py-3.5 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${
+                className={`w-full py-4 rounded-2xl text-sm font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${
                   likedArtists.has(selectedArtist.id)
                     ? 'border border-gray-200 text-gray-600 hover:bg-gray-50 bg-white'
-                    : 'bg-gray-900 text-white hover:bg-gray-800'
+                    : 'bg-gray-900 text-white hover:bg-gray-800 hover:shadow-lg hover:shadow-gray-900/10'
                 }`}
               >
                 {likedArtists.has(selectedArtist.id) ? (

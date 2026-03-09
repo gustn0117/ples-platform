@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
-import { IconVote, IconTrophy, IconCoin, IconCheck } from '@/components/icons';
+import { IconVote, IconTrophy, IconCoin, IconCheck, IconSparkle } from '@/components/icons';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -113,11 +113,13 @@ export default function LoginPage() {
     },
   ];
 
+  const inputClass = "w-full px-4 py-3.5 text-sm bg-gray-50/50 border border-gray-200 rounded-2xl outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-900/5 focus:bg-white transition-all duration-300 placeholder:text-gray-300";
+
   return (
     <div className="min-h-[calc(100vh-64px)] flex bg-white">
       {/* Left Panel - Desktop only */}
       <div className="hidden lg:flex lg:w-1/2 bg-gray-900 relative overflow-hidden">
-        {/* Subtle grid pattern */}
+        {/* Grid pattern */}
         <div
           className="absolute inset-0 opacity-[0.04]"
           style={{
@@ -126,38 +128,56 @@ export default function LoginPage() {
             backgroundSize: '48px 48px',
           }}
         />
+        {/* Glow */}
+        <div className="absolute top-1/4 right-0 w-96 h-96 bg-gray-700/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-1/4 w-64 h-64 bg-gray-700/10 rounded-full blur-3xl" />
+
         <div className="relative z-10 flex flex-col justify-center px-16 xl:px-20 w-full">
           {/* Logo */}
-          <Link href="/" className="inline-block mb-12">
+          <Link href="/" className="inline-block mb-14">
             <span className="text-3xl font-bold tracking-tight text-white">PLES</span>
           </Link>
 
           {/* Tagline */}
-          <h2 className="text-3xl xl:text-4xl font-bold text-white tracking-tight leading-snug">
+          <h2 className="text-4xl xl:text-5xl font-bold text-white tracking-tight leading-tight">
             팬이 만드는
             <br />
-            아티스트 플랫폼
+            <span className="text-gray-400">아티스트 플랫폼</span>
           </h2>
-          <p className="mt-4 text-gray-400 text-sm leading-relaxed max-w-sm">
+          <p className="mt-5 text-gray-500 text-sm leading-relaxed max-w-sm">
             투표하고, 응원하고, 시청하면서 포인트를 쌓는 새로운 참여형 플랫폼
           </p>
 
           {/* Divider */}
-          <div className="w-10 h-px bg-gray-700 my-10" />
+          <div className="w-12 h-px bg-gray-700 my-12" />
 
           {/* Feature bullets */}
           <div className="space-y-6">
             {panelFeatures.map((feature) => (
-              <div key={feature.title} className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-gray-800 flex items-center justify-center flex-shrink-0">
+              <div key={feature.title} className="flex items-start gap-4 group">
+                <div className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:bg-white/10 transition-colors duration-300">
                   <feature.icon className="w-5 h-5 text-gray-400" />
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold text-white">{feature.title}</h3>
-                  <p className="mt-0.5 text-xs text-gray-500">{feature.desc}</p>
+                  <p className="mt-1 text-xs text-gray-500 leading-relaxed">{feature.desc}</p>
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Social proof */}
+          <div className="mt-14 flex items-center gap-4">
+            <div className="flex -space-x-1.5">
+              {['A', 'B', 'C'].map((l, i) => (
+                <div key={l} className="w-7 h-7 rounded-full bg-gray-700 text-gray-300 text-[10px] font-semibold flex items-center justify-center border-2 border-gray-900" style={{ zIndex: 3 - i }}>
+                  {l}
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-gray-500">
+              <span className="text-gray-300 font-medium">1,000+</span> 팬들이 참여 중
+            </p>
           </div>
         </div>
       </div>
@@ -167,12 +187,16 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           {/* Logo & Heading */}
           <div className="text-center mb-10">
-            <Link href="/" className="inline-block lg:hidden">
+            <Link href="/" className="inline-block lg:hidden mb-8">
               <span className="text-2xl font-bold tracking-tight text-gray-900">
                 PLES
               </span>
             </Link>
-            <h1 className="mt-6 lg:mt-0 text-2xl font-bold text-gray-900">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-50 border border-gray-100 text-xs font-medium text-gray-400 mb-5">
+              <IconSparkle className="w-3 h-3" />
+              {tab === 'login' ? 'Welcome back' : 'Join us'}
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900">
               {tab === 'login' ? '로그인' : '회원가입'}
             </h1>
             <p className="mt-2 text-sm text-gray-400">
@@ -183,33 +207,28 @@ export default function LoginPage() {
           </div>
 
           {/* Card */}
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
+          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
             {/* Tab Switcher */}
-            <div className="flex mb-8 border-b border-gray-100 relative">
-              {/* Animated tab indicator */}
+            <div className="flex mb-8 p-1 bg-gray-50 rounded-xl relative">
               <div
-                className="absolute bottom-0 h-0.5 bg-gray-900 transition-all duration-300 ease-out"
+                className="absolute top-1 h-[calc(100%-8px)] bg-white rounded-lg shadow-sm transition-all duration-300 ease-out"
                 style={{
-                  left: tab === 'login' ? '0%' : '50%',
-                  width: '50%',
+                  left: tab === 'login' ? '4px' : '50%',
+                  width: 'calc(50% - 4px)',
                 }}
               />
               <button
                 onClick={() => { setTab('login'); clearMessages(); }}
-                className={`flex-1 pb-3 text-sm font-medium transition-colors duration-200 ${
-                  tab === 'login'
-                    ? 'text-gray-900'
-                    : 'text-gray-400 hover:text-gray-600'
+                className={`relative z-10 flex-1 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200 ${
+                  tab === 'login' ? 'text-gray-900' : 'text-gray-400 hover:text-gray-600'
                 }`}
               >
                 로그인
               </button>
               <button
                 onClick={() => { setTab('register'); clearMessages(); }}
-                className={`flex-1 pb-3 text-sm font-medium transition-colors duration-200 ${
-                  tab === 'register'
-                    ? 'text-gray-900'
-                    : 'text-gray-400 hover:text-gray-600'
+                className={`relative z-10 flex-1 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200 ${
+                  tab === 'register' ? 'text-gray-900' : 'text-gray-400 hover:text-gray-600'
                 }`}
               >
                 회원가입
@@ -218,16 +237,23 @@ export default function LoginPage() {
 
             {/* Error Message */}
             {error && (
-              <div className="mb-6 p-3.5 rounded-xl bg-red-50 border border-red-100">
+              <div className="mb-6 p-3.5 rounded-2xl bg-red-50 border border-red-100 flex items-center gap-2">
+                <div className="w-5 h-5 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-3 h-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </div>
                 <p className="text-sm text-red-600">{error}</p>
               </div>
             )}
 
             {/* Success Message */}
             {success && (
-              <div className="mb-6 p-3.5 rounded-xl bg-green-50 border border-green-100 flex items-center gap-2">
-                <IconCheck className="w-4 h-4 text-green-500 flex-shrink-0" />
-                <p className="text-sm text-green-600">{success}</p>
+              <div className="mb-6 p-3.5 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center gap-2">
+                <div className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                  <IconCheck className="w-3 h-3 text-emerald-600" />
+                </div>
+                <p className="text-sm text-emerald-600">{success}</p>
               </div>
             )}
 
@@ -235,7 +261,7 @@ export default function LoginPage() {
             {tab === 'login' && (
               <form onSubmit={handleLogin} className="flex flex-col gap-5">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">
                     이메일
                   </label>
                   <input
@@ -243,11 +269,11 @@ export default function LoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="example@email.com"
-                    className="w-full px-4 py-3.5 text-sm bg-white border border-gray-200 rounded-xl outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all duration-200 placeholder:text-gray-300"
+                    className={inputClass}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">
                     비밀번호
                   </label>
                   <input
@@ -255,13 +281,13 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="비밀번호를 입력하세요"
-                    className="w-full px-4 py-3.5 text-sm bg-white border border-gray-200 rounded-xl outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all duration-200 placeholder:text-gray-300"
+                    className={inputClass}
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3.5 mt-2 bg-gray-900 text-white text-sm font-medium rounded-xl hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center gap-2"
+                  className="w-full py-4 mt-2 bg-gray-900 text-white text-sm font-semibold rounded-2xl hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-lg hover:shadow-gray-900/10 hover:-translate-y-px flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <>
@@ -282,7 +308,7 @@ export default function LoginPage() {
             {tab === 'register' && (
               <form onSubmit={handleSignup} className="flex flex-col gap-5">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">
                     닉네임
                   </label>
                   <input
@@ -290,11 +316,11 @@ export default function LoginPage() {
                     value={nickname}
                     onChange={(e) => setNickname(e.target.value)}
                     placeholder="사용할 닉네임을 입력하세요"
-                    className="w-full px-4 py-3.5 text-sm bg-white border border-gray-200 rounded-xl outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all duration-200 placeholder:text-gray-300"
+                    className={inputClass}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">
                     이메일
                   </label>
                   <input
@@ -302,11 +328,11 @@ export default function LoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="example@email.com"
-                    className="w-full px-4 py-3.5 text-sm bg-white border border-gray-200 rounded-xl outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all duration-200 placeholder:text-gray-300"
+                    className={inputClass}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">
                     비밀번호
                   </label>
                   <input
@@ -314,11 +340,11 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="6자 이상 입력하세요"
-                    className="w-full px-4 py-3.5 text-sm bg-white border border-gray-200 rounded-xl outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all duration-200 placeholder:text-gray-300"
+                    className={inputClass}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">
                     비밀번호 확인
                   </label>
                   <input
@@ -326,13 +352,13 @@ export default function LoginPage() {
                     value={passwordConfirm}
                     onChange={(e) => setPasswordConfirm(e.target.value)}
                     placeholder="비밀번호를 다시 입력하세요"
-                    className="w-full px-4 py-3.5 text-sm bg-white border border-gray-200 rounded-xl outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all duration-200 placeholder:text-gray-300"
+                    className={inputClass}
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3.5 mt-2 bg-gray-900 text-white text-sm font-medium rounded-xl hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center gap-2"
+                  className="w-full py-4 mt-2 bg-gray-900 text-white text-sm font-semibold rounded-2xl hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-lg hover:shadow-gray-900/10 hover:-translate-y-px flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <>
@@ -354,7 +380,7 @@ export default function LoginPage() {
           </div>
 
           {/* Bottom note */}
-          <p className="text-center text-xs text-gray-400 mt-6">
+          <p className="text-center text-xs text-gray-300 mt-6">
             1인 1계정 기준으로 운영됩니다
           </p>
         </div>

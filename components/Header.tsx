@@ -54,11 +54,14 @@ export default function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/70">
+      <header className="sticky top-0 z-50 w-full border-b border-gray-100/80 bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/70">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Logo */}
-          <Link href="/" className="flex items-center">
-            <span className="text-xl font-bold tracking-tight text-gray-900">
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="w-7 h-7 bg-gray-900 rounded-lg flex items-center justify-center group-hover:rounded-xl transition-all duration-300">
+              <span className="text-[10px] font-bold text-white tracking-tight">P</span>
+            </div>
+            <span className="text-lg font-bold tracking-tight text-gray-900">
               PLES
             </span>
           </Link>
@@ -215,10 +218,15 @@ export default function Header() {
                 </Link>
                 <Link
                   href="/login?tab=signup"
-                  className="rounded-xl bg-gray-900 px-5 py-2.5 text-sm font-medium text-white transition-all duration-300 hover:bg-black hover:shadow-lg hover:shadow-black/10 hover:-translate-y-px"
+                  className="rounded-xl bg-gray-900 px-5 py-2.5 text-sm font-medium text-white transition-all duration-300 hover:bg-black hover:shadow-lg hover:shadow-black/10 hover:-translate-y-px group"
                   style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
                 >
-                  시작하기
+                  <span className="flex items-center gap-1.5">
+                    시작하기
+                    <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </span>
                 </Link>
               </div>
             )}

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth-context';
 import Link from 'next/link';
-import { IconVote, IconCoin, IconCheck } from '@/components/icons';
+import { IconVote, IconCoin, IconCheck, IconSparkle } from '@/components/icons';
 
 interface VoteOption {
   id: string;
@@ -141,7 +141,7 @@ export default function VotePage() {
             </p>
             <Link
               href="/login"
-              className="inline-flex items-center justify-center px-8 py-3 bg-gray-900 text-white text-sm font-medium rounded-xl hover:bg-gray-800 transition-colors"
+              className="inline-flex items-center justify-center px-8 py-3.5 bg-gray-900 text-white text-sm font-medium rounded-2xl hover:bg-gray-800 transition-all duration-300 hover:shadow-lg hover:shadow-gray-900/10"
             >
               로그인하러 가기
             </Link>
@@ -154,7 +154,7 @@ export default function VotePage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white">
-        <div className="border-b border-gray-100">
+        <div className="bg-gray-50/50 border-b border-gray-100">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16">
             <div className="skeleton-heading w-56 mb-3" />
             <div className="skeleton-text w-80" />
@@ -182,18 +182,20 @@ export default function VotePage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Page Header */}
-      <div className="border-b border-gray-100">
+      <div className="bg-gray-50/50 border-b border-gray-100">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16">
-          <div className="flex items-center gap-3 mb-2">
-            <IconVote className="w-8 h-8 text-gray-900" />
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-xl bg-gray-900 flex items-center justify-center">
+              <IconVote className="w-5 h-5 text-white" />
+            </div>
             <h1 className="text-3xl font-bold text-gray-900">국민 프로듀서 투표</h1>
           </div>
-          <p className="text-gray-400">투표에 참여하고 포인트를 적립하세요</p>
+          <p className="text-gray-400 ml-[52px]">투표에 참여하고 포인트를 적립하세요</p>
           {profile && (
-            <div className="mt-5 inline-flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-100 rounded-full">
+            <div className="mt-6 ml-[52px] inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-100 rounded-2xl shadow-sm">
               <IconCoin className="w-4 h-4 text-gray-400" />
               <span className="text-xs text-gray-400">보유 포인트</span>
-              <span className="text-sm font-semibold text-gray-900">
+              <span className="text-sm font-bold text-gray-900 tabular-nums">
                 {profile.points.toLocaleString()}P
               </span>
             </div>
@@ -204,7 +206,7 @@ export default function VotePage() {
       {/* Vote List */}
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
         {votes.length === 0 ? (
-          <div className="text-center py-24 bg-white rounded-2xl border border-gray-100">
+          <div className="text-center py-24 bg-white rounded-3xl border border-gray-100">
             <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-4">
               <IconVote className="w-6 h-6 text-gray-300" />
             </div>
@@ -221,26 +223,26 @@ export default function VotePage() {
               return (
                 <div
                   key={vote.id}
-                  className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
+                  className="bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-500"
                 >
                   {/* Vote Header */}
                   <div className="p-8 pb-5">
-                    <div className="flex items-start justify-between gap-4 mb-3">
-                      <h2 className="text-xl font-semibold text-gray-900">{vote.title}</h2>
+                    <div className="flex items-start justify-between gap-4 mb-4">
+                      <h2 className="text-xl font-bold text-gray-900 leading-snug">{vote.title}</h2>
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className="inline-flex items-center gap-1 bg-gray-50 border border-gray-100 text-gray-600 rounded-full px-3 py-1 text-xs font-medium">
+                        <span className="inline-flex items-center gap-1.5 bg-gray-50 border border-gray-100 text-gray-600 rounded-xl px-3 py-1.5 text-xs font-semibold">
                           <IconCoin className="w-3.5 h-3.5" />
                           +{vote.reward_points || 10}P
                         </span>
                         {hasVoted && (
-                          <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 rounded-full px-3 py-1 text-xs font-medium">
+                          <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 rounded-xl px-3 py-1.5 text-xs font-semibold">
                             <IconCheck className="w-3.5 h-3.5" />
-                            투표 완료
+                            완료
                           </span>
                         )}
                         {!hasVoted && (
                           <span
-                            className={`rounded-full px-3 py-1 text-xs font-medium ${
+                            className={`rounded-xl px-3 py-1.5 text-xs font-semibold ${
                               vote.is_active
                                 ? 'bg-gray-900 text-white'
                                 : 'bg-gray-100 text-gray-400'
@@ -252,9 +254,9 @@ export default function VotePage() {
                       </div>
                     </div>
                     {vote.description && (
-                      <p className="text-sm text-gray-500 mb-1">{vote.description}</p>
+                      <p className="text-sm text-gray-500 mb-2">{vote.description}</p>
                     )}
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-gray-300 font-medium">
                       마감일 {new Date(vote.ends_at).toLocaleDateString('ko-KR')} · {total.toLocaleString()}명 참여
                     </p>
                   </div>
@@ -273,40 +275,40 @@ export default function VotePage() {
                               setSelectedOptions({ ...selectedOptions, [vote.id]: option.id });
                           }}
                           disabled={!vote.is_active || hasVoted || isVoting}
-                          className={`relative w-full text-left p-4 rounded-xl border transition-all ${
+                          className={`relative w-full text-left p-4 rounded-2xl border-2 transition-all duration-300 ${
                             isSelected
                               ? 'border-gray-900 bg-gray-50'
-                              : 'border-gray-200 hover:border-gray-300 bg-white'
+                              : 'border-gray-100 hover:border-gray-200 bg-white'
                           } ${!vote.is_active || hasVoted ? 'cursor-default' : 'cursor-pointer'}`}
                         >
                           <div className="relative flex items-center justify-between">
                             <div className="flex items-center gap-3">
                               {/* Radio indicator */}
                               <div
-                                className={`w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-300 ${
                                   isSelected
-                                    ? 'border-gray-900 bg-gray-900'
+                                    ? 'border-gray-900 bg-gray-900 scale-105'
                                     : 'border-gray-300'
                                 }`}
                               >
                                 {isSelected && (
-                                  <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                                  <div className="w-2 h-2 rounded-full bg-white" />
                                 )}
                               </div>
-                              <span className="font-medium text-gray-900 text-sm">{option.label}</span>
+                              <span className={`font-medium text-sm ${isSelected ? 'text-gray-900' : 'text-gray-700'}`}>{option.label}</span>
                             </div>
                             {(hasVoted || !vote.is_active) && (
-                              <span className="text-sm font-semibold text-gray-900 tabular-nums">
+                              <span className="text-sm font-bold text-gray-900 tabular-nums">
                                 {percentage}%
                               </span>
                             )}
                           </div>
 
-                          {/* Progress bar - shown after vote */}
+                          {/* Progress bar */}
                           {(hasVoted || !vote.is_active) && (
-                            <div className="mt-3 w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+                            <div className="mt-3 w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
                               <div
-                                className="bg-gray-900 h-3 rounded-full transition-all duration-1000 ease-out"
+                                className="bg-gray-900 h-2.5 rounded-full transition-all duration-1000 ease-out"
                                 style={{ width: `${percentage}%` }}
                               />
                             </div>
@@ -319,11 +321,11 @@ export default function VotePage() {
                   {/* Footer / Action */}
                   <div className="px-8 pb-8 pt-2">
                     {justVoted ? (
-                      <div className="flex items-center justify-center gap-2.5 py-3.5 bg-emerald-50 border border-emerald-100 rounded-xl">
+                      <div className="flex items-center justify-center gap-2.5 py-4 bg-emerald-50 border border-emerald-100 rounded-2xl animate-fade-in-up">
                         <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center">
                           <IconCheck className="w-3.5 h-3.5 text-white" />
                         </div>
-                        <span className="text-sm font-medium text-emerald-700">
+                        <span className="text-sm font-semibold text-emerald-700">
                           투표 완료! +{vote.reward_points || 10}P 적립되었습니다
                         </span>
                       </div>
@@ -331,9 +333,9 @@ export default function VotePage() {
                       <button
                         onClick={() => handleVote(vote.id)}
                         disabled={!selectedOptions[vote.id] || isVoting}
-                        className={`w-full py-3.5 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${
+                        className={`w-full py-4 rounded-2xl text-sm font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${
                           selectedOptions[vote.id] && !isVoting
-                            ? 'bg-gray-900 text-white hover:bg-gray-800'
+                            ? 'bg-gray-900 text-white hover:bg-gray-800 hover:shadow-lg hover:shadow-gray-900/10 hover:-translate-y-px'
                             : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                         }`}
                       >
@@ -350,14 +352,14 @@ export default function VotePage() {
                         )}
                       </button>
                     ) : hasVoted ? (
-                      <div className="flex items-center justify-center gap-2.5 py-3.5 bg-gray-50 rounded-xl">
+                      <div className="flex items-center justify-center gap-2.5 py-4 bg-gray-50 rounded-2xl">
                         <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
                           <IconCheck className="w-3 h-3 text-white" />
                         </div>
                         <span className="text-sm text-gray-500 font-medium">투표 완료</span>
                       </div>
                     ) : (
-                      <div className="text-center py-3.5 bg-gray-50 rounded-xl">
+                      <div className="text-center py-4 bg-gray-50 rounded-2xl">
                         <span className="text-sm text-gray-400">종료된 투표입니다</span>
                       </div>
                     )}
