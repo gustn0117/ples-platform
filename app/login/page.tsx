@@ -201,11 +201,11 @@ export default function LoginPage() {
           </Link>
 
           {/* Tagline */}
-          <h2 className="text-4xl xl:text-5xl font-bold text-white tracking-tight leading-tight">
-            프로듀서가 만드는
+          <h2 className="text-3xl xl:text-4xl font-bold text-white tracking-tight leading-tight">
+            <span className="whitespace-nowrap">프로듀서가 만드는</span>
             <br />
             <span
-              className="inline-block"
+              className="inline-block whitespace-nowrap"
               style={{
                 background: 'linear-gradient(90deg, #9ca3af, #e5e7eb, #9ca3af, #6b7280)',
                 backgroundSize: '300% 100%',
