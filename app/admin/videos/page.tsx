@@ -58,7 +58,6 @@ export default function AdminVideosPage() {
     } else {
       addVideo({
         title: form.title,
-        thumbnail: '🎬',
         duration: form.duration,
         pointReward: form.pointReward,
         watched: false,

@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/auth-context';
 import { initStore, getArtists, getUserLiked, toggleLike } from '@/lib/store';
 import type { Artist } from '@/lib/mock-data';
 import { IconMicrophone, IconSearch, IconHeart, IconHeartFilled, IconCheck, IconTrendingUp } from '@/components/icons';
+import { ArtistIcon } from '@/lib/icons';
 
 type SortKey = 'popular' | 'latest' | 'investments';
 
@@ -169,8 +170,8 @@ export default function ArtistsPage() {
                     className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center cursor-pointer relative"
                     onClick={() => setSelectedArtist(artist)}
                   >
-                    <span className="text-5xl group-hover:scale-110 transition-transform duration-300">
-                      {artist.image}
+                    <span className="group-hover:scale-110 transition-transform duration-300 text-gray-400">
+                      <ArtistIcon genre={artist.genre} className="w-12 h-12" />
                     </span>
                   </div>
 
@@ -237,7 +238,7 @@ export default function ArtistsPage() {
                 </svg>
               </button>
 
-              <span className="text-6xl block mb-4">{selectedArtist.image}</span>
+              <span className="block mb-4 text-gray-400"><ArtistIcon genre={selectedArtist.genre} className="w-16 h-16 mx-auto" /></span>
               <h3 className="text-xl font-bold text-gray-900 mb-1">{selectedArtist.name}</h3>
               <span className="inline-block text-xs text-gray-400 bg-white border border-gray-100 rounded-full px-3 py-1">
                 {selectedArtist.genre}

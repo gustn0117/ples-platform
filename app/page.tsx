@@ -21,7 +21,6 @@ import {
 interface Artist {
   id: string;
   name: string;
-  emoji: string;
   genre: string;
   likes: number;
 }
@@ -120,7 +119,7 @@ export default function Home() {
     const top5 = [...allArtists]
       .sort((a, b) => b.likes - a.likes)
       .slice(0, 5)
-      .map((a) => ({ id: String(a.id), name: a.name, emoji: a.image, genre: a.genre, likes: a.likes }));
+      .map((a) => ({ id: String(a.id), name: a.name, genre: a.genre, likes: a.likes }));
     setHotArtists(top5);
     setArtistsLoading(false);
   }, []);

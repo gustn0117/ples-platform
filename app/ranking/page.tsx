@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { initStore, getArtists } from '@/lib/store';
 import { type Artist } from '@/lib/mock-data';
+import { ArtistIcon, CrownIcon } from '@/lib/icons';
 
 export default function RankingPage() {
   const [artists, setArtists] = useState<Artist[]>([]);
@@ -50,7 +51,7 @@ export default function RankingPage() {
                 <span className="text-xs font-bold text-white">2</span>
               </div>
               <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center mb-3 shadow-lg">
-                <span className="text-3xl sm:text-4xl">{top3[1].image}</span>
+                <span className="text-white"><ArtistIcon genre={top3[1].genre} className="w-8 h-8 sm:w-10 sm:h-10" /></span>
               </div>
               <div className="bg-white rounded-2xl border border-gray-200 px-4 py-3 text-center w-full shadow-sm">
                 <h3 className="text-sm font-bold text-gray-900 truncate">{top3[1].name}</h3>
@@ -62,11 +63,11 @@ export default function RankingPage() {
 
             {/* 1st Place - Center (larger) */}
             <div className="flex flex-col items-center flex-1 max-w-[180px] -mt-6">
-              <div className="text-2xl mb-1">👑</div>
+              <div className="mb-1 text-yellow-500"><CrownIcon className="w-7 h-7 mx-auto" /></div>
               <div className="relative">
                 <div className="absolute inset-0 rounded-2xl bg-gray-900/15 blur-xl scale-110" />
                 <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-2xl bg-gradient-to-br from-gray-800 to-gray-950 flex items-center justify-center mb-3 shadow-xl">
-                  <span className="text-5xl sm:text-6xl">{top3[0].image}</span>
+                  <span className="text-white"><ArtistIcon genre={top3[0].genre} className="w-12 h-12 sm:w-16 sm:h-16" /></span>
                 </div>
               </div>
               <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gray-900 to-gray-700 flex items-center justify-center -mt-1 mb-2 border-2 border-white shadow-md">
@@ -86,7 +87,7 @@ export default function RankingPage() {
                 <span className="text-xs font-bold text-gray-600">3</span>
               </div>
               <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-gray-500 to-gray-700 flex items-center justify-center mb-3 shadow-lg">
-                <span className="text-2xl sm:text-3xl">{top3[2].image}</span>
+                <span className="text-white"><ArtistIcon genre={top3[2].genre} className="w-7 h-7 sm:w-8 sm:h-8" /></span>
               </div>
               <div className="bg-white rounded-2xl border border-gray-200 px-4 py-3 text-center w-full shadow-sm">
                 <h3 className="text-sm font-bold text-gray-900 truncate">{top3[2].name}</h3>
@@ -143,7 +144,7 @@ export default function RankingPage() {
               {/* Artist: Emoji + Name */}
               <div className="col-span-5 sm:col-span-4 flex items-center gap-2 sm:gap-3 min-w-0">
                 <div className="w-10 h-10 rounded-xl bg-gray-900 flex items-center justify-center shrink-0">
-                  <span className="text-lg">{artist.image}</span>
+                  <span className="text-white"><ArtistIcon genre={artist.genre} className="w-5 h-5" /></span>
                 </div>
                 <span className="font-semibold text-gray-900 text-sm truncate">{artist.name}</span>
               </div>

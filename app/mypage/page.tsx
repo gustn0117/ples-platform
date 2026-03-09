@@ -25,6 +25,7 @@ import {
   IconArrowRight,
   IconWallet,
 } from '@/components/icons';
+import { ArtistIcon } from '@/lib/icons';
 
 type TabKey = 'votes' | 'artists' | 'purchases' | 'videos';
 
@@ -126,7 +127,7 @@ export default function MyPage() {
   // Build liked artist names
   const likedArtistList = likedIds
     .map((id) => allArtists.find((a) => a.id === id))
-    .filter(Boolean) as { id: number; name: string; genre: string; image: string }[];
+    .filter(Boolean) as { id: number; name: string; genre: string }[];
 
   // Build watched video titles
   const watchedVideoList = watchedIds
@@ -294,7 +295,7 @@ export default function MyPage() {
                 {likedArtistList.map((artist) => (
                   <div key={artist.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors group">
                     <div className="w-10 h-10 rounded-xl bg-gray-900 flex items-center justify-center shrink-0">
-                      <span className="text-lg">{artist.image}</span>
+                      <span className="text-white"><ArtistIcon genre={artist.genre} className="w-5 h-5" /></span>
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-gray-900 truncate">{artist.name}</p>

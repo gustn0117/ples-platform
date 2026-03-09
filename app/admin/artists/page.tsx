@@ -51,7 +51,6 @@ export default function AdminArtistsPage() {
       addArtist({
         name: form.name,
         genre: form.genre,
-        image: '🎵',
         likes: 0,
         description: form.description || undefined,
       })

@@ -6,6 +6,7 @@ import { initStore, getArtworks, getUserPoints, purchaseArtwork, getPointHistory
 import Link from 'next/link';
 import { IconShoppingBag, IconCoin, IconWallet, IconCheck, IconPalette } from '@/components/icons';
 import type { Artwork } from '@/lib/mock-data';
+import { ArtworkIcon } from '@/lib/icons';
 
 const CATEGORIES = ['전체', '앨범', '포스터', '포토카드', '머천다이즈', '디지털'] as const;
 type Category = typeof CATEGORIES[number];
@@ -195,8 +196,8 @@ export default function ArtworksPage() {
                 >
                   {/* Image Area */}
                   <div className="relative aspect-square bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center overflow-hidden">
-                    <span className="text-5xl group-hover:scale-110 transition-transform duration-500">
-                      {artwork.image}
+                    <span className="group-hover:scale-110 transition-transform duration-500 text-gray-400">
+                      <ArtworkIcon category={artwork.category} className="w-12 h-12" />
                     </span>
 
                     {/* Sold Out Overlay */}
@@ -318,8 +319,8 @@ export default function ArtworksPage() {
                 {/* Product Summary */}
                 <div className="mx-5 mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
                   <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-gray-100 rounded-xl border border-gray-200 flex items-center justify-center shrink-0 text-2xl">
-                      {selectedArtwork.image}
+                    <div className="w-14 h-14 bg-gray-100 rounded-xl border border-gray-200 flex items-center justify-center shrink-0 text-gray-400">
+                      <ArtworkIcon category={selectedArtwork.category} className="w-7 h-7" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="font-semibold text-gray-900 truncate">{selectedArtwork.title}</p>

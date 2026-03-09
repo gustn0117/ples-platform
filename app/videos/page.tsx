@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/auth-context';
 import { initStore, getVideos, getUserWatched, watchVideo, getTodayWatchCount, getUserPoints } from '@/lib/store';
 import type { Video } from '@/lib/mock-data';
 import Link from 'next/link';
+import { VideoIcon, CoinIcon, ChartIcon, PartyIcon } from '@/lib/icons';
 
 const MAX_DAILY = 5;
 const REWARD_POINTS = 20;
@@ -97,8 +98,8 @@ export default function VideosPage() {
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-lg">
-              🎬
+            <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-500">
+              <VideoIcon className="w-5 h-5" />
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">영상 리워드</h1>
           </div>
@@ -111,7 +112,7 @@ export default function VideosPage() {
             <div className="mt-8 bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2.5">
-                  <span className="text-lg">📊</span>
+                  <ChartIcon className="w-5 h-5 text-gray-500" />
                   <div>
                     <span className="text-sm font-bold text-gray-900">오늘의 시청</span>
                     <span className="text-sm text-gray-500 ml-2">
@@ -156,7 +157,7 @@ export default function VideosPage() {
                               : 'bg-gray-100 text-gray-400'
                         }`}
                       >
-                        {done ? '✓' : i + 1}
+                        {done ? (<svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4.5 12.75l6 6 9-13.5" /></svg>) : i + 1}
                       </div>
                     </div>
                   );
@@ -166,7 +167,7 @@ export default function VideosPage() {
               {limitReached && (
                 <div className="mt-4 text-center">
                   <span className="inline-flex items-center gap-1.5 text-xs font-medium text-green-600 bg-green-50 px-4 py-2 rounded-full border border-green-200">
-                    🎉 오늘의 시청 리워드를 모두 받으셨어요! 내일 다시 방문해주세요
+                    <PartyIcon className="w-4 h-4 inline" /> 오늘의 시청 리워드를 모두 받으셨어요! 내일 다시 방문해주세요
                   </span>
                 </div>
               )}
@@ -206,7 +207,7 @@ export default function VideosPage() {
           </div>
         ) : videos.length === 0 ? (
           <div className="text-center py-24">
-            <div className="text-5xl mb-4">🎥</div>
+            <div className="mb-4 text-gray-300"><VideoIcon className="w-12 h-12 mx-auto" /></div>
             <h3 className="text-lg font-bold text-gray-600 mb-1">등록된 영상이 없습니다</h3>
             <p className="text-sm text-gray-500">곧 새로운 영상이 업로드될 예정입니다</p>
           </div>
@@ -227,8 +228,8 @@ export default function VideosPage() {
                     onClick={() => canEarn && openWatch(video)}
                   >
                     {/* Emoji thumbnail */}
-                    <span className="text-5xl sm:text-6xl opacity-60 group-hover:opacity-80 transition-opacity duration-300">
-                      {video.thumbnail}
+                    <span className="opacity-60 group-hover:opacity-80 transition-opacity duration-300 text-gray-400">
+                      <VideoIcon className="w-12 h-12 sm:w-14 sm:h-14" />
                     </span>
 
                     {/* Play button overlay */}
@@ -246,7 +247,7 @@ export default function VideosPage() {
                     {isWatched && (
                       <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
                         <div className="flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-xl border border-gray-200 shadow-sm">
-                          <span className="text-green-500 text-sm">✓</span>
+                          <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4.5 12.75l6 6 9-13.5" /></svg>
                           <span className="text-sm font-semibold text-gray-600">적립 완료</span>
                         </div>
                       </div>
@@ -271,11 +272,11 @@ export default function VideosPage() {
 
                     <div className="flex items-center justify-between mb-3">
                       <span className="flex items-center gap-1 text-xs font-bold text-yellow-600 bg-yellow-50 px-2.5 py-1 rounded-lg border border-yellow-200">
-                        🪙 +{video.pointReward}P
+                        <CoinIcon className="w-3.5 h-3.5" /> +{video.pointReward}P
                       </span>
                       {isWatched ? (
                         <span className="flex items-center gap-1 text-xs text-green-600 font-medium">
-                          ✓ 적립 완료
+                          <svg className="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4.5 12.75l6 6 9-13.5" /></svg> 적립 완료
                         </span>
                       ) : limitReached && user ? (
                         <span className="text-xs text-gray-400">한도 초과</span>
@@ -287,7 +288,7 @@ export default function VideosPage() {
                     {/* CTA */}
                     {isWatched ? (
                       <div className="w-full py-2.5 rounded-xl bg-gray-100 text-center text-xs font-medium text-gray-400 flex items-center justify-center gap-1.5">
-                        ✓ 시청 완료
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4.5 12.75l6 6 9-13.5" /></svg> 시청 완료
                       </div>
                     ) : !user ? (
                       <Link
@@ -328,7 +329,7 @@ export default function VideosPage() {
             {/* Player Area */}
             <div className="relative aspect-video bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100 flex items-center justify-center">
               <div className="text-center">
-                <span className="text-6xl block mb-4">{activeVideo.thumbnail}</span>
+                <span className="block mb-4 text-gray-300"><VideoIcon className="w-16 h-16 mx-auto" /></span>
                 <p className="text-sm font-semibold text-gray-900 mb-1 px-4">{activeVideo.title}</p>
                 <p className="text-xs text-gray-500 mb-6">영상 재생 중...</p>
 
@@ -362,14 +363,14 @@ export default function VideosPage() {
                     {earnedPoints > 0 ? (
                       <>
                         <div className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-2xl shadow-lg shadow-indigo-500/20 animate-bounce">
-                          <span className="text-lg">🪙</span>
+                          <CoinIcon className="w-5 h-5" />
                           <span className="text-base font-bold">+{earnedPoints}P 적립!</span>
                         </div>
                         <span className="text-xs text-gray-500">포인트가 적립되었습니다</span>
                       </>
                     ) : (
                       <div className="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-600 rounded-2xl border border-gray-200">
-                        <span>✓</span>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4.5 12.75l6 6 9-13.5" /></svg>
                         <span className="text-sm font-semibold">이미 적립된 영상입니다</span>
                       </div>
                     )}
@@ -381,7 +382,7 @@ export default function VideosPage() {
             {/* Modal Footer */}
             <div className="px-5 py-4 flex items-center justify-between border-t border-gray-200">
               <span className="flex items-center gap-1.5 text-xs font-bold text-yellow-600 bg-yellow-50 px-3 py-1.5 rounded-xl border border-yellow-200">
-                🪙 +{activeVideo.pointReward}P
+                <CoinIcon className="w-3.5 h-3.5" /> +{activeVideo.pointReward}P
               </span>
               <button
                 onClick={closeModal}
@@ -403,7 +404,7 @@ export default function VideosPage() {
       {toast && (
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 animate-bounce">
           <div className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-semibold text-sm shadow-2xl shadow-indigo-500/30 flex items-center gap-2">
-            🪙 {toast}
+            <CoinIcon className="w-4 h-4" /> {toast}
           </div>
         </div>
       )}

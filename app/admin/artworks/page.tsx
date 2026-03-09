@@ -73,7 +73,6 @@ export default function AdminArtworksPage() {
       addArtwork({
         title: form.title,
         artist: form.artist,
-        image: '🎨',
         category: form.category,
         price: form.price,
         pointPrice: form.pointPrice,
