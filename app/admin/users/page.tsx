@@ -1,279 +1,74 @@
+// app/admin/users/page.tsx
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
-
-interface UserProfile {
-  id: string
-  nickname: string
-  email: string
-  phone: string | null
-  avatar_url: string | null
-  points: number
-  is_admin: boolean
-  created_at: string
-}
+import { initStore } from '@/lib/store'
 
 export default function AdminUsersPage() {
-  const { session } = useAuth()
-  const [users, setUsers] = useState<UserProfile[]>([])
-  const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState('')
-  const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-  const [total, setTotal] = useState(0)
-  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null)
-  const [detailOpen, setDetailOpen] = useState(false)
-
-  const fetchUsers = useCallback(async () => {
-    if (!session?.access_token) return
-    setLoading(true)
-    try {
-      const params = new URLSearchParams({ page: String(page) })
-      if (search) params.set('search', search)
-
-      const res = await fetch(`/api/admin/users?${params}`, {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      })
-      if (res.ok) {
-        const data = await res.json()
-        setUsers(data.users)
-        setTotalPages(data.totalPages)
-        setTotal(data.total)
-      }
-    } catch (err) {
-      console.error('회원 조회 실패:', err)
-    } finally {
-      setLoading(false)
-    }
-  }, [session, page, search])
+  const { profile } = useAuth()
 
   useEffect(() => {
-    fetchUsers()
-  }, [fetchUsers])
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    setPage(1)
-    fetchUsers()
-  }
-
-  const toggleAdmin = async (userId: string, currentStatus: boolean) => {
-    if (!session?.access_token) return
-    if (!confirm(currentStatus ? '관리자 권한을 해제하시겠습니까?' : '관리자 권한을 부여하시겠습니까?')) return
-
-    try {
-      const res = await fetch('/api/admin/users', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          userId,
-          updates: { is_admin: !currentStatus },
-        }),
-      })
-      if (res.ok) {
-        setUsers((prev) =>
-          prev.map((u) => (u.id === userId ? { ...u, is_admin: !currentStatus } : u))
-        )
-      }
-    } catch (err) {
-      console.error('권한 변경 실패:', err)
-    }
-  }
+    initStore()
+  }, [])
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">회원관리</h1>
-        <span className="text-sm text-gray-500">총 {total}명</span>
+      <h1 className="text-xl font-semibold text-gray-900">회원관리</h1>
+
+      {/* Notice */}
+      <div className="bg-amber-50/80 border border-amber-200/60 rounded-xl p-5 flex gap-3">
+        <svg className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+        </svg>
+        <div>
+          <p className="text-sm text-amber-800 font-medium mb-0.5">Mock 환경 안내</p>
+          <p className="text-xs text-amber-700/80">
+            Mock 환경에서는 단일 사용자만 지원됩니다. 실제 배포 시 데이터베이스 기반 사용자 관리로
+            전환해야 합니다.
+          </p>
+        </div>
       </div>
 
-      {/* Search */}
-      <form onSubmit={handleSearch} className="flex gap-2">
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="닉네임 또는 이메일 검색..."
-          className="flex-1 max-w-md px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
-        />
-        <button
-          type="submit"
-          className="px-4 py-2 bg-gray-700 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
-        >
-          검색
-        </button>
-      </form>
+      {/* Current User Info */}
+      {profile && (
+        <div className="bg-white rounded-xl border border-gray-100 p-6">
+          <h2 className="text-sm font-semibold text-gray-900 mb-5 flex items-center gap-2">
+            <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+            </svg>
+            현재 로그인 사용자
+          </h2>
 
-      {/* Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="px-6 py-3 text-left font-medium text-gray-500">닉네임</th>
-                <th className="px-6 py-3 text-left font-medium text-gray-500">이메일</th>
-                <th className="px-6 py-3 text-left font-medium text-gray-500">포인트</th>
-                <th className="px-6 py-3 text-left font-medium text-gray-500">관리자</th>
-                <th className="px-6 py-3 text-left font-medium text-gray-500">가입일</th>
-                <th className="px-6 py-3 text-left font-medium text-gray-500">관리</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {loading ? (
-                <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-gray-400">
-                    로딩 중...
-                  </td>
-                </tr>
-              ) : users.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-gray-400">
-                    회원이 없습니다.
-                  </td>
-                </tr>
-              ) : (
-                users.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 font-medium text-gray-900">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs font-bold">
-                          {user.nickname?.charAt(0) ?? '?'}
-                        </div>
-                        {user.nickname}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-gray-600">{user.email}</td>
-                    <td className="px-6 py-4 text-gray-600">{user.points?.toLocaleString()}P</td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                          user.is_admin
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-gray-100 text-gray-500'
-                        }`}
-                      >
-                        {user.is_admin ? '관리자' : '일반'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-gray-500">
-                      {new Date(user.created_at).toLocaleDateString('ko-KR')}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => {
-                            setSelectedUser(user)
-                            setDetailOpen(true)
-                          }}
-                          className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
-                        >
-                          상세
-                        </button>
-                        <button
-                          onClick={() => toggleAdmin(user.id, user.is_admin)}
-                          className={`px-3 py-1 text-xs rounded-md transition-colors ${
-                            user.is_admin
-                              ? 'bg-red-100 text-red-700 hover:bg-red-200'
-                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                          }`}
-                        >
-                          {user.is_admin ? '권한해제' : '관리자 부여'}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50">
-            <p className="text-sm text-gray-500">
-              {page} / {totalPages} 페이지
-            </p>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="px-3 py-1 text-sm border border-gray-300 rounded-md disabled:opacity-50 hover:bg-gray-100 transition-colors"
-              >
-                이전
-              </button>
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className="px-3 py-1 text-sm border border-gray-300 rounded-md disabled:opacity-50 hover:bg-gray-100 transition-colors"
-              >
-                다음
-              </button>
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-14 h-14 rounded-xl bg-gray-900 text-white flex items-center justify-center text-xl font-semibold">
+              {profile.nickname.charAt(0)}
+            </div>
+            <div>
+              <p className="text-base font-semibold text-gray-900">{profile.nickname}</p>
+              <p className="text-sm text-gray-400">{profile.email}</p>
             </div>
           </div>
-        )}
-      </div>
 
-      {/* User Detail Modal */}
-      {detailOpen && selectedUser && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setDetailOpen(false)}>
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-bold text-gray-900">회원 상세</h2>
-              <button onClick={() => setDetailOpen(false)} className="text-gray-400 hover:text-gray-600">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+          <div className="space-y-0 divide-y divide-gray-100">
+            <div className="flex justify-between py-3">
+              <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">사용자 ID</span>
+              <span className="text-sm text-gray-700 font-mono">{profile.id.slice(0, 16)}...</span>
             </div>
-
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-16 h-16 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-2xl font-bold">
-                {selectedUser.nickname?.charAt(0) ?? '?'}
-              </div>
-              <div>
-                <p className="text-lg font-semibold text-gray-900">{selectedUser.nickname}</p>
-                <p className="text-sm text-gray-500">{selectedUser.email}</p>
-              </div>
+            <div className="flex justify-between py-3">
+              <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">닉네임</span>
+              <span className="text-sm text-gray-700">{profile.nickname}</span>
             </div>
-
-            <div className="space-y-3">
-              <div className="flex justify-between py-2 border-b border-gray-100">
-                <span className="text-sm text-gray-500">전화번호</span>
-                <span className="text-sm text-gray-900">{selectedUser.phone ?? '미입력'}</span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-gray-100">
-                <span className="text-sm text-gray-500">포인트</span>
-                <span className="text-sm font-medium text-gray-900">{selectedUser.points?.toLocaleString()}P</span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-gray-100">
-                <span className="text-sm text-gray-500">관리자 여부</span>
-                <span className={`text-sm font-medium ${selectedUser.is_admin ? 'text-green-600' : 'text-gray-500'}`}>
-                  {selectedUser.is_admin ? '관리자' : '일반 회원'}
-                </span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-gray-100">
-                <span className="text-sm text-gray-500">가입일</span>
-                <span className="text-sm text-gray-900">
-                  {new Date(selectedUser.created_at).toLocaleString('ko-KR')}
-                </span>
-              </div>
-              <div className="flex justify-between py-2">
-                <span className="text-sm text-gray-500">ID</span>
-                <span className="text-xs text-gray-400 font-mono">{selectedUser.id.slice(0, 12)}...</span>
-              </div>
+            <div className="flex justify-between py-3">
+              <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">이메일</span>
+              <span className="text-sm text-gray-700">{profile.email}</span>
             </div>
-
-            <button
-              onClick={() => setDetailOpen(false)}
-              className="mt-6 w-full py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
-            >
-              닫기
-            </button>
+            <div className="flex justify-between py-3">
+              <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">가입일</span>
+              <span className="text-sm text-gray-700">
+                {new Date(profile.created_at).toLocaleDateString('ko-KR')}
+              </span>
+            </div>
           </div>
         </div>
       )}
