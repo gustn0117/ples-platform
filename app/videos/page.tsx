@@ -11,7 +11,7 @@ interface Video {
   title: string;
   thumbnail: string;
   duration: string;
-  point_reward: number;
+  reward_points: number;
   created_at: string;
 }
 
@@ -114,7 +114,7 @@ export default function VideosPage() {
 
     await supabase.from('points_transactions').insert({
       user_id: user.id,
-      amount: video.point_reward,
+      amount: video.reward_points,
       type: 'earn',
       category: '영상 시청',
       description: `${video.title} 시청 리워드`,
@@ -123,7 +123,7 @@ export default function VideosPage() {
     if (profile) {
       await supabase
         .from('profiles')
-        .update({ points: profile.points + video.point_reward })
+        .update({ points: profile.points + video.reward_points })
         .eq('id', user.id);
     }
 
@@ -268,7 +268,7 @@ export default function VideosPage() {
                   <div className="flex items-center justify-between">
                     <span className="flex items-center gap-1 text-xs font-bold text-gray-900 bg-gray-100 px-2.5 py-1 rounded-lg">
                       <IconCoin className="w-3.5 h-3.5" />
-                      +{video.point_reward}P
+                      +{video.reward_points}P
                     </span>
                     {isRewarded ? (
                       <span className="flex items-center gap-1 text-xs text-gray-400 font-medium">
@@ -337,7 +337,7 @@ export default function VideosPage() {
                   <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white rounded-xl">
                     <IconCheck className="w-4 h-4" />
                     <IconCoin className="w-4 h-4" />
-                    <span className="text-sm font-semibold">+{playingVideo.point_reward}P 적립!</span>
+                    <span className="text-sm font-semibold">+{playingVideo.reward_points}P 적립!</span>
                   </div>
                 )}
               </div>
@@ -347,7 +347,7 @@ export default function VideosPage() {
             <div className="px-5 py-4 flex justify-between items-center border-t border-gray-100">
               <span className="flex items-center gap-1 text-xs font-bold text-gray-900 bg-gray-100 px-2.5 py-1 rounded-lg">
                 <IconCoin className="w-3.5 h-3.5" />
-                +{playingVideo.point_reward}P
+                +{playingVideo.reward_points}P
               </span>
               <button
                 onClick={() => {

@@ -47,7 +47,7 @@ interface PurchaseRecord {
 interface WatchedVideo {
   id: string;
   watched_at: string;
-  videos: { title: string; thumbnail: string; point_reward: number } | null;
+  videos: { title: string; thumbnail: string; reward_points: number } | null;
 }
 
 export default function MyPage() {
@@ -135,7 +135,7 @@ export default function MyPage() {
       case 'videos': {
         const { data } = await supabase
           .from('video_watches')
-          .select('id, watched_at, videos(title, thumbnail, point_reward)')
+          .select('id, watched_at, videos(title, thumbnail, reward_points)')
           .eq('user_id', user.id)
           .order('watched_at', { ascending: false })
           .limit(20);
@@ -426,7 +426,7 @@ export default function MyPage() {
                           <div>
                             <p className="text-sm font-medium text-gray-900">{record.videos?.title || '삭제된 영상'}</p>
                             <p className="text-xs text-gray-400">
-                              +{record.videos?.point_reward || 0}P 적립
+                              +{record.videos?.reward_points || 0}P 적립
                             </p>
                           </div>
                         </div>

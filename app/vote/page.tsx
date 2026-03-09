@@ -18,8 +18,8 @@ interface Vote {
   title: string;
   description: string;
   is_active: boolean;
-  end_date: string;
-  point_reward: number;
+  ends_at: string;
+  reward_points: number;
   created_at: string;
   vote_options: VoteOption[];
 }
@@ -42,7 +42,7 @@ export default function VotePage() {
       const { data, error } = await supabase
         .from('votes')
         .select(`
-          id, title, description, is_active, end_date, point_reward, created_at,
+          id, title, description, is_active, ends_at, reward_points, created_at,
           vote_options (id, vote_id, label, vote_count)
         `)
         .order('created_at', { ascending: false });
@@ -94,7 +94,7 @@ export default function VotePage() {
       }
 
       const currentVote = votes.find((v) => v.id === voteId);
-      const pointReward = currentVote?.point_reward || 10;
+      const pointReward = currentVote?.reward_points || 10;
 
       await supabase.from('points_transactions').insert({
         user_id: user.id,
@@ -230,7 +230,7 @@ export default function VotePage() {
                       <div className="flex items-center gap-2 shrink-0">
                         <span className="inline-flex items-center gap-1 bg-gray-50 border border-gray-100 text-gray-600 rounded-full px-3 py-1 text-xs font-medium">
                           <IconCoin className="w-3.5 h-3.5" />
-                          +{vote.point_reward || 10}P
+                          +{vote.reward_points || 10}P
                         </span>
                         {hasVoted && (
                           <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 rounded-full px-3 py-1 text-xs font-medium">
@@ -255,7 +255,7 @@ export default function VotePage() {
                       <p className="text-sm text-gray-500 mb-1">{vote.description}</p>
                     )}
                     <p className="text-xs text-gray-400">
-                      마감일 {new Date(vote.end_date).toLocaleDateString('ko-KR')} · {total.toLocaleString()}명 참여
+                      마감일 {new Date(vote.ends_at).toLocaleDateString('ko-KR')} · {total.toLocaleString()}명 참여
                     </p>
                   </div>
 
@@ -324,7 +324,7 @@ export default function VotePage() {
                           <IconCheck className="w-3.5 h-3.5 text-white" />
                         </div>
                         <span className="text-sm font-medium text-emerald-700">
-                          투표 완료! +{vote.point_reward || 10}P 적립되었습니다
+                          투표 완료! +{vote.reward_points || 10}P 적립되었습니다
                         </span>
                       </div>
                     ) : vote.is_active && !hasVoted ? (

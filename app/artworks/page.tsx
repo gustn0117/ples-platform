@@ -11,10 +11,10 @@ interface Artwork {
   title: string;
   description: string;
   emoji: string;
-  artist: string;
+  artist_name: string;
   category: string;
-  price: number;
-  point_price: number;
+  price_cash: number;
+  price_points: number;
   stock: number;
   created_at: string;
 }
@@ -70,19 +70,19 @@ export default function ArtworksPage() {
       }
 
       if (paymentMethod === 'points') {
-        if (profile.points < selectedArtwork.point_price) {
+        if (profile.points < selectedArtwork.price_points) {
           alert('포인트가 부족합니다.');
           return;
         }
 
         await supabase
           .from('profiles')
-          .update({ points: profile.points - selectedArtwork.point_price })
+          .update({ points: profile.points - selectedArtwork.price_points })
           .eq('id', user.id);
 
         await supabase.from('points_transactions').insert({
           user_id: user.id,
-          amount: -selectedArtwork.point_price,
+          amount: -selectedArtwork.price_points,
           type: 'spend',
           description: `작품 구매: ${selectedArtwork.title}`,
         });
@@ -92,7 +92,7 @@ export default function ArtworksPage() {
         user_id: user.id,
         artwork_id: selectedArtwork.id,
         payment_method: paymentMethod,
-        amount: paymentMethod === 'cash' ? selectedArtwork.price : selectedArtwork.point_price,
+        amount: paymentMethod === 'cash' ? selectedArtwork.price_cash : selectedArtwork.price_points,
       });
 
       await supabase
@@ -259,15 +259,15 @@ export default function ArtworksPage() {
                   {/* Product Info */}
                   <div className="p-4">
                     <p className="font-medium text-gray-900 mb-0.5 truncate">{artwork.title}</p>
-                    <p className="text-sm text-gray-400 mb-3">{artwork.artist}</p>
+                    <p className="text-sm text-gray-400 mb-3">{artwork.artist_name}</p>
 
                     <div className="flex items-baseline gap-2 mb-4">
                       <span className="font-semibold text-gray-900">
-                        ₩{artwork.price.toLocaleString()}
+                        ₩{artwork.price_cash.toLocaleString()}
                       </span>
                       <span className="text-sm text-gray-400 inline-flex items-center gap-0.5">
                         <IconCoin className="w-3.5 h-3.5" />
-                        {artwork.point_price.toLocaleString()}P
+                        {artwork.price_points.toLocaleString()}P
                       </span>
                     </div>
 
@@ -351,7 +351,7 @@ export default function ArtworksPage() {
                     </div>
                     <div className="min-w-0">
                       <p className="font-medium text-gray-900 truncate">{selectedArtwork.title}</p>
-                      <p className="text-sm text-gray-400">{selectedArtwork.artist}</p>
+                      <p className="text-sm text-gray-400">{selectedArtwork.artist_name}</p>
                     </div>
                   </div>
                 </div>
@@ -378,7 +378,7 @@ export default function ArtworksPage() {
                         <div>
                           <p className="font-medium text-gray-900 text-sm">일반결제</p>
                           <p className="text-sm text-gray-400 mt-0.5">
-                            ₩{selectedArtwork.price.toLocaleString()}
+                            ₩{selectedArtwork.price_cash.toLocaleString()}
                           </p>
                         </div>
                       </div>
@@ -409,14 +409,14 @@ export default function ArtworksPage() {
                         <div>
                           <p className="font-medium text-gray-900 text-sm">포인트결제</p>
                           <p className="text-sm text-gray-400 mt-0.5">
-                            {selectedArtwork.point_price.toLocaleString()}P
+                            {selectedArtwork.price_points.toLocaleString()}P
                             {profile && (
                               <span className="ml-2 text-gray-300">
                                 (보유: {profile.points.toLocaleString()}P)
                               </span>
                             )}
                           </p>
-                          {profile && profile.points < selectedArtwork.point_price && (
+                          {profile && profile.points < selectedArtwork.price_points && (
                             <p className="text-xs text-red-400 mt-1.5 flex items-center gap-1">
                               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -450,7 +450,7 @@ export default function ArtworksPage() {
                     onClick={handlePurchase}
                     disabled={
                       purchasing ||
-                      (paymentMethod === 'points' && profile !== null && profile.points < selectedArtwork.point_price)
+                      (paymentMethod === 'points' && profile !== null && profile.points < selectedArtwork.price_points)
                     }
                     className="flex-1 py-3.5 rounded-xl bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
