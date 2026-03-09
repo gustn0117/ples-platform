@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth-context';
 import Link from 'next/link';
+import { IconVote, IconCoin, IconCheck } from '@/components/icons';
 
 interface VoteOption {
   id: string;
@@ -132,9 +133,7 @@ export default function VotePage() {
         <div className="min-h-[70vh] flex items-center justify-center px-4">
           <div className="text-center max-w-sm">
             <div className="w-16 h-16 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mx-auto mb-6">
-              <svg className="w-7 h-7 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-              </svg>
+              <IconVote className="w-7 h-7 text-gray-400" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">로그인이 필요합니다</h2>
             <p className="text-gray-400 mb-8 text-sm leading-relaxed">
@@ -157,19 +156,19 @@ export default function VotePage() {
       <div className="min-h-screen bg-white">
         <div className="border-b border-gray-100">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16">
-            <div className="h-8 bg-gray-100 rounded-lg w-56 animate-pulse mb-3" />
-            <div className="h-5 bg-gray-100 rounded-lg w-80 animate-pulse" />
+            <div className="skeleton-heading w-56 mb-3" />
+            <div className="skeleton-text w-80" />
           </div>
         </div>
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
           <div className="flex flex-col gap-6">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
-                <div className="h-6 bg-gray-100 rounded-lg w-3/4 animate-pulse" />
-                <div className="h-4 bg-gray-100 rounded-lg w-1/2 animate-pulse" />
+              <div key={i} className="rounded-2xl border border-gray-100 p-8 space-y-4">
+                <div className="skeleton-heading w-3/4" />
+                <div className="skeleton-text w-1/2" />
                 <div className="space-y-3 pt-2">
                   {[...Array(3)].map((_, j) => (
-                    <div key={j} className="h-14 bg-gray-100 rounded-xl animate-pulse" />
+                    <div key={j} className="skeleton h-14 rounded-xl" />
                   ))}
                 </div>
               </div>
@@ -185,10 +184,14 @@ export default function VotePage() {
       {/* Page Header */}
       <div className="border-b border-gray-100">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">국민 프로듀서 투표</h1>
+          <div className="flex items-center gap-3 mb-2">
+            <IconVote className="w-8 h-8 text-gray-900" />
+            <h1 className="text-3xl font-bold text-gray-900">국민 프로듀서 투표</h1>
+          </div>
           <p className="text-gray-400">투표에 참여하고 포인트를 적립하세요</p>
           {profile && (
             <div className="mt-5 inline-flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-100 rounded-full">
+              <IconCoin className="w-4 h-4 text-gray-400" />
               <span className="text-xs text-gray-400">보유 포인트</span>
               <span className="text-sm font-semibold text-gray-900">
                 {profile.points.toLocaleString()}P
@@ -203,9 +206,7 @@ export default function VotePage() {
         {votes.length === 0 ? (
           <div className="text-center py-24 bg-white rounded-2xl border border-gray-100">
             <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-4">
-              <svg className="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-              </svg>
+              <IconVote className="w-6 h-6 text-gray-300" />
             </div>
             <p className="text-gray-400">현재 진행 중인 투표가 없습니다</p>
           </div>
@@ -223,15 +224,17 @@ export default function VotePage() {
                   className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
                 >
                   {/* Vote Header */}
-                  <div className="p-6 pb-4">
-                    <div className="flex items-start justify-between gap-4 mb-2">
+                  <div className="p-8 pb-5">
+                    <div className="flex items-start justify-between gap-4 mb-3">
                       <h2 className="text-xl font-semibold text-gray-900">{vote.title}</h2>
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className="bg-gray-100 text-gray-600 rounded-full px-3 py-1 text-xs font-medium">
+                        <span className="inline-flex items-center gap-1 bg-gray-50 border border-gray-100 text-gray-600 rounded-full px-3 py-1 text-xs font-medium">
+                          <IconCoin className="w-3.5 h-3.5" />
                           +{vote.point_reward || 10}P
                         </span>
                         {hasVoted && (
-                          <span className="bg-gray-900 text-white rounded-full px-3 py-1 text-xs font-medium">
+                          <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 rounded-full px-3 py-1 text-xs font-medium">
+                            <IconCheck className="w-3.5 h-3.5" />
                             투표 완료
                           </span>
                         )}
@@ -257,7 +260,7 @@ export default function VotePage() {
                   </div>
 
                   {/* Options */}
-                  <div className="px-6 pb-4 flex flex-col gap-2.5">
+                  <div className="px-8 pb-5 flex flex-col gap-2.5">
                     {vote.vote_options.map((option) => {
                       const percentage = total > 0 ? Math.round((option.vote_count / total) * 100) : 0;
                       const isSelected = selectedOptions[vote.id] === option.id;
@@ -281,12 +284,12 @@ export default function VotePage() {
                               {/* Radio indicator */}
                               <div
                                 className={`w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-                                  isSelected || (hasVoted && selectedOptions[vote.id] === option.id)
+                                  isSelected
                                     ? 'border-gray-900 bg-gray-900'
                                     : 'border-gray-300'
                                 }`}
                               >
-                                {(isSelected || (hasVoted && selectedOptions[vote.id] === option.id)) && (
+                                {isSelected && (
                                   <div className="w-1.5 h-1.5 rounded-full bg-white" />
                                 )}
                               </div>
@@ -301,9 +304,9 @@ export default function VotePage() {
 
                           {/* Progress bar - shown after vote */}
                           {(hasVoted || !vote.is_active) && (
-                            <div className="mt-3 w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                            <div className="mt-3 w-full bg-gray-100 rounded-full h-3 overflow-hidden">
                               <div
-                                className="bg-gray-900 h-2 rounded-full transition-all duration-1000 ease-out"
+                                className="bg-gray-900 h-3 rounded-full transition-all duration-1000 ease-out"
                                 style={{ width: `${percentage}%` }}
                               />
                             </div>
@@ -314,13 +317,13 @@ export default function VotePage() {
                   </div>
 
                   {/* Footer / Action */}
-                  <div className="px-6 pb-6 pt-2">
+                  <div className="px-8 pb-8 pt-2">
                     {justVoted ? (
-                      <div className="flex items-center justify-center gap-2 py-3.5 bg-gray-50 border border-gray-100 rounded-xl">
-                        <svg className="w-4 h-4 text-gray-900" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                        <span className="text-sm font-medium text-gray-900">
+                      <div className="flex items-center justify-center gap-2.5 py-3.5 bg-emerald-50 border border-emerald-100 rounded-xl">
+                        <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center">
+                          <IconCheck className="w-3.5 h-3.5 text-white" />
+                        </div>
+                        <span className="text-sm font-medium text-emerald-700">
                           투표 완료! +{vote.point_reward || 10}P 적립되었습니다
                         </span>
                       </div>
@@ -347,11 +350,11 @@ export default function VotePage() {
                         )}
                       </button>
                     ) : hasVoted ? (
-                      <div className="flex items-center justify-center gap-2 py-3.5 bg-gray-50 rounded-xl">
-                        <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                        <span className="text-sm text-gray-400 font-medium">투표 완료</span>
+                      <div className="flex items-center justify-center gap-2.5 py-3.5 bg-gray-50 rounded-xl">
+                        <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
+                          <IconCheck className="w-3 h-3 text-white" />
+                        </div>
+                        <span className="text-sm text-gray-500 font-medium">투표 완료</span>
                       </div>
                     ) : (
                       <div className="text-center py-3.5 bg-gray-50 rounded-xl">

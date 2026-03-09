@@ -4,6 +4,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth-context';
 import Link from 'next/link';
+import {
+  IconCoin, IconVote, IconHeart, IconShoppingBag, IconPlay,
+  IconArrowRight, IconCheck, IconTrophy, IconWallet
+} from '@/components/icons';
 
 interface PointTransaction {
   id: string;
@@ -174,8 +178,10 @@ export default function MyPage() {
     return (
       <div className="min-h-[60vh] flex items-center justify-center px-4">
         <div className="text-center max-w-md">
-          <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center text-4xl mx-auto mb-6">
-            👤
+          <div className="w-20 h-20 rounded-2xl bg-gray-900 flex items-center justify-center mx-auto mb-6">
+            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0" />
+            </svg>
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-3">로그인이 필요해요</h2>
           <p className="text-gray-400 mb-8">
@@ -199,17 +205,24 @@ export default function MyPage() {
     : '';
 
   const statCards = [
-    { label: '보유 포인트', value: `${(profile?.points || 0).toLocaleString()}P` },
-    { label: '투표 수', value: `${stats.totalVotes}` },
-    { label: '좋아요', value: `${stats.likedArtists}` },
-    { label: '구매', value: `${stats.purchases}` },
+    { label: '보유 포인트', value: `${(profile?.points || 0).toLocaleString()}P`, icon: <IconCoin className="w-5 h-5 text-gray-500" /> },
+    { label: '투표 수', value: `${stats.totalVotes}`, icon: <IconVote className="w-5 h-5 text-gray-500" /> },
+    { label: '좋아요', value: `${stats.likedArtists}`, icon: <IconHeart className="w-5 h-5 text-gray-500" /> },
+    { label: '구매', value: `${stats.purchases}`, icon: <IconShoppingBag className="w-5 h-5 text-gray-500" /> },
   ];
 
   const tabItems = [
-    { key: 'votes' as const, label: '참여한 투표' },
-    { key: 'artists' as const, label: '좋아요 아티스트' },
-    { key: 'purchases' as const, label: '구매 내역' },
-    { key: 'videos' as const, label: '시청 영상' },
+    { key: 'votes' as const, label: '참여한 투표', icon: <IconVote className="w-4 h-4" /> },
+    { key: 'artists' as const, label: '좋아요 아티스트', icon: <IconHeart className="w-4 h-4" /> },
+    { key: 'purchases' as const, label: '구매 내역', icon: <IconShoppingBag className="w-4 h-4" /> },
+    { key: 'videos' as const, label: '시청 영상', icon: <IconPlay className="w-4 h-4" /> },
+  ];
+
+  const quickNavItems = [
+    { label: '포인트 관리', href: '/points', icon: <IconWallet className="w-5 h-5 text-gray-600" /> },
+    { label: '아티스트 랭킹', href: '/ranking', icon: <IconTrophy className="w-5 h-5 text-gray-600" /> },
+    { label: '영상 리워드', href: '/videos', icon: <IconPlay className="w-5 h-5 text-gray-600" /> },
+    { label: '마켓', href: '/market', icon: <IconShoppingBag className="w-5 h-5 text-gray-600" /> },
   ];
 
   return (
@@ -223,9 +236,9 @@ export default function MyPage() {
       {/* Profile Section */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8 mb-6">
         <div className="flex items-center gap-5">
-          {/* Avatar */}
-          <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
-            <span className="text-2xl font-bold text-gray-600">{nickname[0]}</span>
+          {/* Avatar - large letter avatar */}
+          <div className="w-20 h-20 rounded-2xl bg-gray-900 flex items-center justify-center shrink-0">
+            <span className="text-3xl font-bold text-white">{nickname[0]}</span>
           </div>
 
           <div className="flex-1 min-w-0">
@@ -236,9 +249,9 @@ export default function MyPage() {
                   setNewNickname(nickname);
                   setShowNicknameModal(true);
                 }}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-colors"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
               </button>
@@ -266,8 +279,13 @@ export default function MyPage() {
           {statCards.map((stat) => (
             <div
               key={stat.label}
-              className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 text-center"
+              className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5"
             >
+              <div className="flex items-center justify-between mb-3">
+                <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center">
+                  {stat.icon}
+                </div>
+              </div>
               <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
               <p className="text-xs text-gray-400 mt-1 font-medium">{stat.label}</p>
             </div>
@@ -283,12 +301,13 @@ export default function MyPage() {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`px-4 py-4 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
+              className={`flex items-center gap-1.5 px-4 py-4 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
                 activeTab === tab.key
                   ? 'border-gray-900 text-gray-900'
                   : 'border-transparent text-gray-400 hover:text-gray-600'
               }`}
             >
+              {tab.icon}
               {tab.label}
             </button>
           ))}
@@ -300,7 +319,7 @@ export default function MyPage() {
             <div className="space-y-4">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="flex items-center gap-3 animate-pulse">
-                  <div className="w-10 h-10 bg-gray-100 rounded-full" />
+                  <div className="w-10 h-10 bg-gray-100 rounded-xl" />
                   <div className="flex-1 space-y-2">
                     <div className="h-4 bg-gray-100 rounded w-2/3" />
                     <div className="h-3 bg-gray-100 rounded w-1/3" />
@@ -320,9 +339,14 @@ export default function MyPage() {
                   <div className="divide-y divide-gray-50">
                     {voteRecords.map((record) => (
                       <div key={record.id} className="flex items-center justify-between py-3">
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">{record.votes?.title || '삭제된 투표'}</p>
-                          <p className="text-xs text-gray-400 mt-0.5">{record.votes?.category || ''}</p>
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center">
+                            <IconVote className="w-4 h-4 text-gray-500" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">{record.votes?.title || '삭제된 투표'}</p>
+                            <p className="text-xs text-gray-400 mt-0.5">{record.votes?.category || ''}</p>
+                          </div>
                         </div>
                         <span className="text-xs text-gray-300 shrink-0 ml-4">
                           {new Date(record.created_at).toLocaleDateString('ko-KR')}
@@ -343,8 +367,8 @@ export default function MyPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {likedArtists.map((record) => (
                       <div key={record.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors">
-                        <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-lg">
-                          {record.artists?.thumbnail || '🎤'}
+                        <div className="w-10 h-10 rounded-xl bg-gray-900 flex items-center justify-center">
+                          <span className="text-sm font-bold text-white">{record.artists?.name?.[0] || '?'}</span>
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold text-gray-900 truncate">{record.artists?.name || '알 수 없음'}</p>
@@ -367,8 +391,8 @@ export default function MyPage() {
                     {purchaseRecords.map((record) => (
                       <div key={record.id} className="flex items-center justify-between py-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-lg">
-                            {record.artworks?.thumbnail || '🎨'}
+                          <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
+                            <IconShoppingBag className="w-4 h-4 text-gray-500" />
                           </div>
                           <div>
                             <p className="text-sm font-medium text-gray-900">{record.artworks?.title || '삭제된 작품'}</p>
@@ -396,8 +420,8 @@ export default function MyPage() {
                     {watchedVideos.map((record) => (
                       <div key={record.id} className="flex items-center justify-between py-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-lg">
-                            {record.videos?.thumbnail || '🎬'}
+                          <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
+                            <IconPlay className="w-4 h-4 text-gray-500" />
                           </div>
                           <div>
                             <p className="text-sm font-medium text-gray-900">{record.videos?.title || '삭제된 영상'}</p>
@@ -419,14 +443,34 @@ export default function MyPage() {
         </div>
       </div>
 
+      {/* Quick Nav Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+        {quickNavItems.map((item) => (
+          <Link
+            key={item.label}
+            href={item.href}
+            className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 hover:bg-gray-50 transition-colors group"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center">
+                {item.icon}
+              </div>
+              <IconArrowRight className="w-4 h-4 text-gray-300 group-hover:text-gray-500 transition-colors" />
+            </div>
+            <p className="text-sm font-semibold text-gray-900">{item.label}</p>
+          </Link>
+        ))}
+      </div>
+
       {/* Account Actions */}
-      <div className="flex gap-3 mb-16">
-        <button className="px-5 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-500 hover:bg-gray-50 transition-colors font-medium">
+      <div className="flex items-center gap-3 mb-16 pt-4 border-t border-gray-100">
+        <button className="text-sm text-gray-400 hover:text-gray-600 transition-colors font-medium">
           비밀번호 변경
         </button>
+        <span className="text-gray-200">|</span>
         <button
           onClick={() => setShowWithdrawModal(true)}
-          className="px-5 py-2.5 rounded-xl border border-gray-200 text-sm text-red-400 hover:bg-red-50 hover:border-red-200 transition-colors font-medium"
+          className="text-sm text-gray-400 hover:text-red-500 transition-colors font-medium"
         >
           회원 탈퇴
         </button>
@@ -436,9 +480,7 @@ export default function MyPage() {
       {nicknameSaved && (
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 animate-fade-in-up">
           <div className="px-6 py-3 bg-gray-900 text-white rounded-xl font-semibold text-sm shadow-xl flex items-center gap-2">
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-            </svg>
+            <IconCheck className="w-4 h-4" />
             닉네임이 변경되었습니다!
           </div>
         </div>

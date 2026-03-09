@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth-context';
 import Link from 'next/link';
+import { IconPlay, IconEye, IconClock, IconCoin, IconCheck } from '@/components/icons';
 
 interface Video {
   id: string;
@@ -141,8 +142,8 @@ export default function VideosPage() {
     return (
       <div className="min-h-[60vh] flex items-center justify-center px-4">
         <div className="text-center max-w-md">
-          <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center text-4xl mx-auto mb-6">
-            🎬
+          <div className="w-20 h-20 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-6">
+            <IconPlay className="w-10 h-10 text-gray-400" />
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-3">로그인이 필요해요</h2>
           <p className="text-gray-400 mb-8">
@@ -163,19 +164,25 @@ export default function VideosPage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-6">
       {/* Header */}
       <div className="py-16 pb-10">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">영상 리워드</h1>
+        <div className="flex items-center gap-3 mb-2">
+          <IconPlay className="w-7 h-7 text-gray-900" />
+          <h1 className="text-3xl font-bold text-gray-900">영상 리워드</h1>
+        </div>
         <p className="text-gray-400">영상을 시청하고 포인트를 적립하세요</p>
       </div>
 
       {/* Daily Progress */}
       <div className="mb-10">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-600">오늘 {dailyCount}/{maxDaily} 시청</span>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <IconEye className="w-4 h-4 text-gray-500" />
+            <span className="text-sm font-medium text-gray-600">오늘 {dailyCount}/{maxDaily} 시청</span>
+          </div>
           {limitReached && (
             <span className="text-xs text-gray-400">내일 다시 방문해주세요</span>
           )}
         </div>
-        <div className="w-full h-1 bg-gray-100 rounded-full overflow-hidden">
+        <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
           <div
             className="h-full bg-gray-900 rounded-full transition-all duration-500"
             style={{ width: `${(dailyCount / maxDaily) * 100}%` }}
@@ -188,7 +195,7 @@ export default function VideosPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-              <div className="aspect-video bg-gray-100 animate-pulse" />
+              <div className="aspect-video bg-gray-100 animate-pulse m-3 rounded-2xl" />
               <div className="p-5 space-y-3">
                 <div className="h-4 bg-gray-100 animate-pulse rounded w-3/4" />
                 <div className="h-3 bg-gray-100 animate-pulse rounded w-1/2" />
@@ -198,8 +205,8 @@ export default function VideosPage() {
         </div>
       ) : videos.length === 0 ? (
         <div className="text-center py-24">
-          <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-3xl mx-auto mb-4">
-            📭
+          <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-4">
+            <IconPlay className="w-8 h-8 text-gray-300" />
           </div>
           <h3 className="text-lg font-bold text-gray-700 mb-1">등록된 영상이 없습니다</h3>
           <p className="text-sm text-gray-400">곧 새로운 영상이 업로드될 예정입니다</p>
@@ -218,16 +225,16 @@ export default function VideosPage() {
               >
                 {/* Thumbnail */}
                 <div
-                  className="relative aspect-video bg-gray-50 rounded-xl m-3 flex items-center justify-center cursor-pointer overflow-hidden"
+                  className="relative aspect-video bg-gray-50 rounded-2xl m-3 flex items-center justify-center cursor-pointer overflow-hidden"
                   onClick={() => canEarnReward && handleWatch(video)}
                 >
-                  <span className="text-5xl">{video.thumbnail}</span>
+                  <IconPlay className="w-12 h-12 text-gray-300" />
 
                   {/* Hover play overlay */}
                   {canEarnReward && (
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200">
-                      <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center shadow-sm">
-                        <svg className="w-5 h-5 text-gray-700 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <div className="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center shadow-sm">
+                        <svg className="w-6 h-6 text-gray-700 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
                           <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
                         </svg>
                       </div>
@@ -237,17 +244,18 @@ export default function VideosPage() {
                   {/* Rewarded overlay */}
                   {isRewarded && (
                     <div className="absolute inset-0 bg-gray-900/10 flex items-center justify-center">
-                      <div className={`flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-full shadow-sm text-sm font-medium text-gray-600 ${showReward ? 'animate-bounce' : ''}`}>
-                        <svg className="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                        적립 완료
+                      <div className={`flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm ${showReward ? 'animate-bounce' : ''}`}>
+                        <div className="w-5 h-5 rounded-full bg-gray-900 flex items-center justify-center">
+                          <IconCheck className="w-3 h-3 text-white" />
+                        </div>
+                        <span className="text-sm font-semibold text-gray-700">적립 완료</span>
                       </div>
                     </div>
                   )}
 
                   {/* Duration badge */}
-                  <span className="absolute bottom-2 right-2 text-xs text-gray-500 bg-white/80 px-2 py-0.5 rounded-md font-medium backdrop-blur-sm">
+                  <span className="absolute bottom-2 right-2 flex items-center gap-1 text-xs text-gray-500 bg-white/80 px-2 py-1 rounded-lg font-medium backdrop-blur-sm">
+                    <IconClock className="w-3 h-3" />
                     {video.duration}
                   </span>
                 </div>
@@ -258,11 +266,15 @@ export default function VideosPage() {
                     {video.title}
                   </h3>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-gray-900 bg-gray-100 px-2.5 py-1 rounded-lg">
+                    <span className="flex items-center gap-1 text-xs font-bold text-gray-900 bg-gray-100 px-2.5 py-1 rounded-lg">
+                      <IconCoin className="w-3.5 h-3.5" />
                       +{video.point_reward}P
                     </span>
                     {isRewarded ? (
-                      <span className="text-xs text-gray-400 font-medium">적립 완료</span>
+                      <span className="flex items-center gap-1 text-xs text-gray-400 font-medium">
+                        <IconCheck className="w-3.5 h-3.5" />
+                        적립 완료
+                      </span>
                     ) : limitReached ? (
                       <span className="text-xs text-gray-300">일일 한도 초과</span>
                     ) : (
@@ -280,9 +292,7 @@ export default function VideosPage() {
       {rewardAnimation && (
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 animate-fade-in-up">
           <div className="px-6 py-3 bg-gray-900 text-white rounded-xl font-semibold text-sm shadow-xl flex items-center gap-2">
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-            </svg>
+            <IconCheck className="w-4 h-4" />
             포인트가 적립되었습니다!
           </div>
         </div>
@@ -295,20 +305,22 @@ export default function VideosPage() {
             {/* Player area */}
             <div className="relative aspect-video bg-gray-50 flex items-center justify-center">
               <div className="text-center">
-                <span className="text-6xl block mb-4">{playingVideo.thumbnail}</span>
+                <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                  <IconPlay className="w-8 h-8 text-gray-400" />
+                </div>
                 <p className="text-sm font-semibold text-gray-900 mb-1">{playingVideo.title}</p>
                 <p className="text-xs text-gray-400 mb-6">영상 재생 중...</p>
 
-                {/* Countdown */}
+                {/* Countdown with circular progress */}
                 {isCountingDown && countdown > 0 && (
                   <div className="inline-flex items-center gap-3 px-5 py-2.5 bg-white rounded-xl shadow-sm border border-gray-100">
-                    <div className="relative w-8 h-8">
-                      <svg className="w-8 h-8 transform -rotate-90" viewBox="0 0 36 36">
-                        <circle cx="18" cy="18" r="16" fill="none" stroke="#f3f4f6" strokeWidth="2" />
+                    <div className="relative w-10 h-10">
+                      <svg className="w-10 h-10 transform -rotate-90" viewBox="0 0 40 40">
+                        <circle cx="20" cy="20" r="18" fill="none" stroke="#f3f4f6" strokeWidth="2" />
                         <circle
-                          cx="18" cy="18" r="16" fill="none"
-                          stroke="#111827" strokeWidth="2" strokeLinecap="round"
-                          strokeDasharray={`${(countdown / 3) * 100.53} 100.53`}
+                          cx="20" cy="20" r="18" fill="none"
+                          stroke="#111827" strokeWidth="2.5" strokeLinecap="round"
+                          strokeDasharray={`${(countdown / 3) * 113.1} 113.1`}
                           className="transition-all duration-1000"
                         />
                       </svg>
@@ -320,12 +332,12 @@ export default function VideosPage() {
                   </div>
                 )}
 
+                {/* Success state */}
                 {isCountingDown && countdown === 0 && (
                   <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white rounded-xl">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    <span className="text-sm font-semibold">포인트 적립!</span>
+                    <IconCheck className="w-4 h-4" />
+                    <IconCoin className="w-4 h-4" />
+                    <span className="text-sm font-semibold">+{playingVideo.point_reward}P 적립!</span>
                   </div>
                 )}
               </div>
@@ -333,7 +345,8 @@ export default function VideosPage() {
 
             {/* Footer */}
             <div className="px-5 py-4 flex justify-between items-center border-t border-gray-100">
-              <span className="text-xs font-bold text-gray-900 bg-gray-100 px-2.5 py-1 rounded-lg">
+              <span className="flex items-center gap-1 text-xs font-bold text-gray-900 bg-gray-100 px-2.5 py-1 rounded-lg">
+                <IconCoin className="w-3.5 h-3.5" />
                 +{playingVideo.point_reward}P
               </span>
               <button

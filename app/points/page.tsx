@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth-context';
 import Link from 'next/link';
+import { IconWallet, IconCoin, IconGift, IconClock, IconVote, IconPlay, IconShoppingBag, IconCheck } from '@/components/icons';
 
 interface PointTransaction {
   id: string;
@@ -22,6 +23,14 @@ const chargeOptions = [
 ];
 
 type FilterType = '전체' | '적립' | '사용';
+
+function getCategoryIcon(category: string) {
+  if (category.includes('투표') || category.includes('투표')) return <IconVote className="w-4 h-4 text-gray-500" />;
+  if (category.includes('영상') || category.includes('시청')) return <IconPlay className="w-4 h-4 text-gray-500" />;
+  if (category.includes('구매') || category.includes('작품')) return <IconShoppingBag className="w-4 h-4 text-gray-500" />;
+  if (category.includes('충전')) return <IconCoin className="w-4 h-4 text-gray-500" />;
+  return <IconCoin className="w-4 h-4 text-gray-500" />;
+}
 
 export default function PointsPage() {
   const { user, profile, refreshProfile } = useAuth();
@@ -101,8 +110,8 @@ export default function PointsPage() {
     return (
       <div className="min-h-[60vh] flex items-center justify-center px-4">
         <div className="text-center max-w-md">
-          <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center text-4xl mx-auto mb-6">
-            💰
+          <div className="w-20 h-20 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-6">
+            <IconWallet className="w-10 h-10 text-gray-400" />
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-3">로그인이 필요해요</h2>
           <p className="text-gray-400 mb-8">
@@ -123,29 +132,42 @@ export default function PointsPage() {
     <div className="max-w-4xl mx-auto px-4 sm:px-6">
       {/* Header */}
       <div className="py-16 pb-10">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">포인트</h1>
+        <div className="flex items-center gap-3 mb-2">
+          <IconWallet className="w-7 h-7 text-gray-900" />
+          <h1 className="text-3xl font-bold text-gray-900">포인트</h1>
+        </div>
         <p className="text-gray-400">포인트 적립 및 사용 내역을 확인하고 충전하세요</p>
       </div>
 
       {/* Balance Card */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm border-l-4 border-l-amber-400 p-8 mb-8">
-        <p className="text-sm text-gray-400 font-medium mb-1">보유 포인트</p>
-        <p className="text-4xl font-bold text-gray-900 tracking-tight mb-4">
-          {(profile?.points || 0).toLocaleString()}
-          <span className="text-lg text-gray-400 ml-1 font-medium">P</span>
-        </p>
-        <button
-          onClick={() => setShowChargeSection(!showChargeSection)}
-          className="px-5 py-2.5 rounded-xl bg-gray-900 text-white font-semibold text-sm hover:bg-gray-800 transition-colors"
-        >
-          {showChargeSection ? '충전 닫기' : '포인트 충전하기'}
-        </button>
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-8">
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
+            <IconCoin className="w-6 h-6 text-gray-600" />
+          </div>
+          <div>
+            <p className="text-sm text-gray-400 font-medium mb-1">보유 포인트</p>
+            <p className="text-4xl font-bold text-gray-900 tracking-tight mb-4">
+              {(profile?.points || 0).toLocaleString()}
+              <span className="text-lg text-gray-400 ml-1 font-medium">P</span>
+            </p>
+            <button
+              onClick={() => setShowChargeSection(!showChargeSection)}
+              className="px-5 py-2.5 rounded-xl bg-gray-900 text-white font-semibold text-sm hover:bg-gray-800 transition-colors"
+            >
+              {showChargeSection ? '충전 닫기' : '포인트 충전하기'}
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Charge Section */}
       {showChargeSection && (
         <div className="mb-8 bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8">
-          <h2 className="text-lg font-bold text-gray-900 mb-1">포인트 충전</h2>
+          <div className="flex items-center gap-2 mb-1">
+            <IconGift className="w-5 h-5 text-gray-700" />
+            <h2 className="text-lg font-bold text-gray-900">포인트 충전</h2>
+          </div>
           <p className="text-sm text-gray-400 mb-6">충전할 금액을 선택하세요</p>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
@@ -202,9 +224,7 @@ export default function PointsPage() {
       {chargeSuccess && (
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 animate-fade-in-up">
           <div className="px-6 py-3 bg-gray-900 text-white rounded-xl font-semibold text-sm shadow-xl flex items-center gap-2">
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-            </svg>
+            <IconCheck className="w-4 h-4" />
             포인트가 충전되었습니다!
           </div>
         </div>
@@ -212,7 +232,10 @@ export default function PointsPage() {
 
       {/* History Section */}
       <div className="mb-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">포인트 내역</h2>
+        <div className="flex items-center gap-2 mb-4">
+          <IconClock className="w-5 h-5 text-gray-700" />
+          <h2 className="text-lg font-bold text-gray-900">포인트 내역</h2>
+        </div>
         {/* Filter Tabs - underline style */}
         <div className="flex gap-6 border-b border-gray-100">
           {filters.map((f) => (
@@ -237,9 +260,12 @@ export default function PointsPage() {
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="px-6 py-4 border-t border-gray-50 first:border-0 animate-pulse">
               <div className="flex items-center justify-between">
-                <div className="space-y-2">
-                  <div className="h-4 bg-gray-100 animate-pulse rounded w-32" />
-                  <div className="h-3 bg-gray-100 animate-pulse rounded w-24" />
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 bg-gray-100 rounded-xl" />
+                  <div className="space-y-2">
+                    <div className="h-4 bg-gray-100 animate-pulse rounded w-32" />
+                    <div className="h-3 bg-gray-100 animate-pulse rounded w-24" />
+                  </div>
                 </div>
                 <div className="h-5 bg-gray-100 animate-pulse rounded w-20" />
               </div>
@@ -248,19 +274,10 @@ export default function PointsPage() {
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-16">
-          {/* Table header */}
-          <div className="hidden sm:grid grid-cols-12 gap-4 px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider border-b border-gray-100">
-            <div className="col-span-2">날짜</div>
-            <div className="col-span-2">구분</div>
-            <div className="col-span-4">내용</div>
-            <div className="col-span-2 text-right">포인트</div>
-            <div className="col-span-2 text-right">잔액</div>
-          </div>
-
           {transactionsWithBalance.length === 0 ? (
             <div className="py-20 text-center">
-              <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center text-2xl mx-auto mb-3">
-                📋
+              <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-3">
+                <IconClock className="w-7 h-7 text-gray-300" />
               </div>
               <p className="text-gray-400 text-sm">내역이 없습니다</p>
             </div>
@@ -268,38 +285,34 @@ export default function PointsPage() {
             transactionsWithBalance.map((item) => (
               <div
                 key={item.id}
-                className="grid grid-cols-1 sm:grid-cols-12 gap-1 sm:gap-4 px-6 py-4 border-t border-gray-50 hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-3 px-6 py-4 border-t border-gray-50 first:border-0 hover:bg-gray-50 transition-colors"
               >
-                <div className="sm:col-span-2 text-sm text-gray-400">
-                  {new Date(item.created_at).toLocaleDateString('ko-KR')}
+                {/* Category Icon */}
+                <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
+                  {getCategoryIcon(item.category)}
                 </div>
-                <div className="sm:col-span-2">
-                  <span
-                    className={`inline-flex px-2.5 py-0.5 rounded-lg text-xs font-semibold ${
-                      item.type === 'earn'
-                        ? 'bg-gray-100 text-gray-600'
-                        : 'bg-gray-100 text-red-500'
-                    }`}
-                  >
-                    {item.type === 'earn' ? '적립' : '사용'}
-                  </span>
-                </div>
-                <div className="sm:col-span-4">
-                  <p className="text-sm text-gray-800 font-medium">{item.description || item.category}</p>
-                  <p className="text-xs text-gray-400 sm:hidden mt-0.5">
+
+                {/* Description */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-gray-900 font-medium truncate">{item.description || item.category}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">
                     {new Date(item.created_at).toLocaleDateString('ko-KR')}
                   </p>
                 </div>
-                <div
-                  className={`sm:col-span-2 text-sm font-bold text-right ${
-                    item.type === 'earn' ? 'text-green-600' : 'text-red-500'
-                  }`}
-                >
-                  {item.type === 'earn' ? '+' : '-'}
-                  {Math.abs(item.amount).toLocaleString()}P
-                </div>
-                <div className="sm:col-span-2 text-sm text-gray-400 text-right font-medium">
-                  {item.balance.toLocaleString()}P
+
+                {/* Amount & Balance */}
+                <div className="text-right shrink-0">
+                  <p
+                    className={`text-sm font-bold ${
+                      item.type === 'earn' ? 'text-green-600' : 'text-red-500'
+                    }`}
+                  >
+                    {item.type === 'earn' ? '+' : '-'}
+                    {Math.abs(item.amount).toLocaleString()}P
+                  </p>
+                  <p className="text-xs text-gray-400 font-medium mt-0.5">
+                    {item.balance.toLocaleString()}P
+                  </p>
                 </div>
               </div>
             ))

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
+import { IconTrophy, IconCrown, IconHeart, IconTrendingUp } from '@/components/icons';
 
 interface ArtistRanking {
   id: string;
@@ -101,8 +102,15 @@ export default function RankingPage() {
   });
 
   const top3 = sortedArtists.slice(0, 3);
-  const rankBadges = ['🥇', '🥈', '🥉'];
   const tabs: TabType[] = ['종합', '좋아요', '투자'];
+
+  const getScore = (artist: ArtistRanking) => {
+    switch (activeTab) {
+      case '좋아요': return artist.likes;
+      case '투자': return artist.investments;
+      default: return artist.total;
+    }
+  };
 
   if (loading) {
     return (
@@ -114,7 +122,7 @@ export default function RankingPage() {
         <div className="grid grid-cols-3 gap-6 mb-12">
           {[1, 2, 3].map((i) => (
             <div key={i} className="flex flex-col items-center">
-              <div className="w-20 h-20 rounded-full bg-gray-100 animate-pulse mb-3" />
+              <div className="w-20 h-20 rounded-2xl bg-gray-100 animate-pulse mb-3" />
               <div className="h-4 bg-gray-100 animate-pulse rounded w-16 mb-2" />
               <div className="h-3 bg-gray-100 animate-pulse rounded w-12" />
             </div>
@@ -133,7 +141,10 @@ export default function RankingPage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-6">
       {/* Header */}
       <div className="py-16 pb-10">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">아티스트 랭킹</h1>
+        <div className="flex items-center gap-3 mb-2">
+          <IconTrophy className="w-7 h-7 text-gray-900" />
+          <h1 className="text-3xl font-bold text-gray-900">아티스트 랭킹</h1>
+        </div>
         <p className="text-gray-400">인기 아티스트 순위를 확인하세요</p>
       </div>
 
@@ -159,48 +170,46 @@ export default function RankingPage() {
         <div className="flex items-end justify-center gap-4 sm:gap-8 mb-16">
           {/* #2 - Left */}
           <div className="flex flex-col items-center">
-            <span className="text-2xl mb-2">🥈</span>
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gray-100 flex items-center justify-center mb-3">
-              <span className="text-3xl sm:text-4xl">{top3[1].image}</span>
+            <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center mb-3">
+              <span className="text-sm font-bold text-gray-600">2</span>
+            </div>
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gray-900 flex items-center justify-center mb-3">
+              <span className="text-2xl sm:text-3xl font-bold text-white">{top3[1].name[0]}</span>
             </div>
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-3 text-center">
               <h3 className="text-sm font-bold text-gray-900">{top3[1].name}</h3>
               <p className="text-lg font-bold text-gray-700 mt-1">
-                <AnimatedNumber
-                  value={activeTab === '좋아요' ? top3[1].likes : activeTab === '투자' ? top3[1].investments : top3[1].total}
-                />
+                <AnimatedNumber value={getScore(top3[1])} />
               </p>
             </div>
           </div>
 
           {/* #1 - Center (larger) */}
           <div className="flex flex-col items-center -mt-6">
-            <span className="text-3xl mb-2">🥇</span>
-            <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gray-100 flex items-center justify-center mb-3">
-              <span className="text-5xl sm:text-6xl">{top3[0].image}</span>
+            <IconCrown className="w-7 h-7 text-gray-900 mb-2" />
+            <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl bg-gray-900 flex items-center justify-center mb-3">
+              <span className="text-4xl sm:text-5xl font-bold text-white">{top3[0].name[0]}</span>
             </div>
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-4 text-center">
               <h3 className="text-base font-bold text-gray-900">{top3[0].name}</h3>
               <p className="text-2xl font-bold text-gray-900 mt-1">
-                <AnimatedNumber
-                  value={activeTab === '좋아요' ? top3[0].likes : activeTab === '투자' ? top3[0].investments : top3[0].total}
-                />
+                <AnimatedNumber value={getScore(top3[0])} />
               </p>
             </div>
           </div>
 
           {/* #3 - Right */}
           <div className="flex flex-col items-center mt-4">
-            <span className="text-2xl mb-2">🥉</span>
-            <div className="w-[72px] h-[72px] sm:w-20 sm:h-20 rounded-full bg-gray-100 flex items-center justify-center mb-3">
-              <span className="text-2xl sm:text-3xl">{top3[2].image}</span>
+            <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+              <span className="text-sm font-bold text-gray-400">3</span>
+            </div>
+            <div className="w-[72px] h-[72px] sm:w-20 sm:h-20 rounded-2xl bg-gray-900 flex items-center justify-center mb-3">
+              <span className="text-xl sm:text-2xl font-bold text-white">{top3[2].name[0]}</span>
             </div>
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-3 text-center">
               <h3 className="text-sm font-bold text-gray-900">{top3[2].name}</h3>
               <p className="text-lg font-bold text-gray-700 mt-1">
-                <AnimatedNumber
-                  value={activeTab === '좋아요' ? top3[2].likes : activeTab === '투자' ? top3[2].investments : top3[2].total}
-                />
+                <AnimatedNumber value={getScore(top3[2])} />
               </p>
             </div>
           </div>
@@ -226,14 +235,18 @@ export default function RankingPage() {
           >
             <div className="col-span-1">
               {index < 3 ? (
-                <span className="text-lg">{rankBadges[index]}</span>
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+                  index === 0 ? 'bg-gray-900 text-white' : index === 1 ? 'bg-gray-200 text-gray-700' : 'bg-gray-100 text-gray-500'
+                }`}>
+                  {index + 1}
+                </div>
               ) : (
-                <span className="text-sm font-bold text-gray-300 pl-1">{index + 1}</span>
+                <span className="text-sm font-bold text-gray-300 pl-1.5">{index + 1}</span>
               )}
             </div>
             <div className="col-span-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-lg">
-                {artist.image}
+              <div className="w-10 h-10 rounded-xl bg-gray-900 flex items-center justify-center">
+                <span className="text-sm font-bold text-white">{artist.name[0]}</span>
               </div>
               <span className="font-semibold text-gray-900 text-sm">{artist.name}</span>
             </div>
@@ -242,11 +255,17 @@ export default function RankingPage() {
                 {artist.genre}
               </span>
             </div>
-            <div className="col-span-2 text-right text-sm font-medium text-gray-600">
-              <AnimatedNumber value={artist.likes} />
+            <div className="col-span-2 text-right">
+              <span className="inline-flex items-center gap-1 text-sm font-medium text-gray-600">
+                <IconHeart className="w-3.5 h-3.5 text-gray-400" />
+                <AnimatedNumber value={artist.likes} />
+              </span>
             </div>
-            <div className="col-span-1 text-right text-sm font-medium text-gray-400">
-              <AnimatedNumber value={artist.investments} />
+            <div className="col-span-1 text-right">
+              <span className="inline-flex items-center gap-1 text-sm font-medium text-gray-400">
+                <IconTrendingUp className="w-3.5 h-3.5 text-gray-300" />
+                <AnimatedNumber value={artist.investments} />
+              </span>
             </div>
             <div className="col-span-2 text-right">
               <span className="text-sm font-bold text-gray-900">
@@ -258,8 +277,8 @@ export default function RankingPage() {
 
         {sortedArtists.length === 0 && (
           <div className="py-20 text-center">
-            <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center text-2xl mx-auto mb-3">
-              🏆
+            <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-3">
+              <IconTrophy className="w-7 h-7 text-gray-300" />
             </div>
             <p className="text-gray-400 text-sm">등록된 아티스트가 없습니다</p>
           </div>

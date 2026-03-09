@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth-context';
+import { IconMicrophone, IconSearch, IconHeart, IconHeartFilled, IconTrendingUp } from '@/components/icons';
 
 interface Artist {
   id: string;
@@ -145,20 +146,20 @@ export default function ArtistsPage() {
       <div className="min-h-screen bg-white">
         <div className="border-b border-gray-100">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
-            <div className="h-8 bg-gray-100 rounded-lg w-40 animate-pulse mb-3" />
-            <div className="h-5 bg-gray-100 rounded-lg w-72 animate-pulse" />
+            <div className="skeleton-heading w-40 mb-3" />
+            <div className="skeleton-text w-72" />
           </div>
         </div>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
-          <div className="h-12 bg-gray-100 rounded-xl animate-pulse mb-8" />
+          <div className="skeleton h-12 rounded-xl mb-8" />
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                <div className="aspect-square bg-gray-100 animate-pulse" />
+              <div key={i} className="rounded-2xl border border-gray-100 overflow-hidden">
+                <div className="aspect-square skeleton rounded-none" />
                 <div className="p-4 space-y-2">
-                  <div className="h-5 bg-gray-100 rounded animate-pulse w-2/3" />
-                  <div className="h-3 bg-gray-100 rounded animate-pulse w-1/2" />
-                  <div className="h-8 bg-gray-100 rounded-full animate-pulse w-20 mt-3" />
+                  <div className="skeleton-text w-2/3" />
+                  <div className="skeleton-text w-1/2 h-3" />
+                  <div className="skeleton h-8 rounded-full w-20 mt-3" />
                 </div>
               </div>
             ))}
@@ -173,7 +174,10 @@ export default function ArtistsPage() {
       {/* Page Header */}
       <div className="border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">아티스트</h1>
+          <div className="flex items-center gap-3 mb-2">
+            <IconMicrophone className="w-8 h-8 text-gray-900" />
+            <h1 className="text-3xl font-bold text-gray-900">아티스트</h1>
+          </div>
           <p className="text-gray-400">좋아하는 아티스트를 응원하고 투자하세요</p>
         </div>
       </div>
@@ -181,14 +185,7 @@ export default function ArtistsPage() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
         {/* Search Bar */}
         <div className="relative mb-6">
-          <svg
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
+          <IconSearch className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
             type="text"
             value={searchQuery}
@@ -222,9 +219,7 @@ export default function ArtistsPage() {
         {filteredArtists.length === 0 ? (
           <div className="text-center py-24 bg-white rounded-2xl border border-gray-100">
             <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-4">
-              <svg className="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
+              <IconSearch className="w-6 h-6 text-gray-300" />
             </div>
             <p className="text-gray-400">검색 결과가 없습니다</p>
           </div>
@@ -239,14 +234,14 @@ export default function ArtistsPage() {
                   key={artist.id}
                   className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden group"
                 >
-                  {/* Emoji Area */}
+                  {/* Letter Avatar Area */}
                   <div
                     className="aspect-square bg-gray-50 rounded-t-2xl flex items-center justify-center cursor-pointer relative"
                     onClick={() => setSelectedArtist(artist)}
                   >
-                    <span className="text-4xl sm:text-5xl group-hover:scale-110 transition-transform duration-300">
-                      {artist.emoji || '🎵'}
-                    </span>
+                    <div className="w-20 h-20 bg-gray-900 text-white rounded-2xl flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition-transform duration-300">
+                      {artist.name.charAt(0)}
+                    </div>
                   </div>
 
                   {/* Info */}
@@ -257,21 +252,19 @@ export default function ArtistsPage() {
                     >
                       {artist.name}
                     </h3>
-                    <p className="text-sm text-gray-400 mb-3">{artist.genre}</p>
+                    <span className="inline-block mt-1 mb-3 text-xs text-gray-400 bg-gray-50 border border-gray-100 rounded-full px-2.5 py-0.5">
+                      {artist.genre}
+                    </span>
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 text-sm text-gray-400">
                         <div className="flex items-center gap-1">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                          </svg>
+                          <IconHeart className="w-4 h-4" />
                           <span>{artist.likes.toLocaleString()}</span>
                         </div>
                         {(artist.investments || 0) > 0 && (
                           <div className="flex items-center gap-1">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                            </svg>
+                            <IconTrendingUp className="w-4 h-4" />
                             <span>{artist.investments?.toLocaleString()}</span>
                           </div>
                         )}
@@ -288,13 +281,9 @@ export default function ArtistsPage() {
                         }`}
                       >
                         {isLiked ? (
-                          <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                          </svg>
+                          <IconHeartFilled className="w-5 h-5 text-red-500" />
                         ) : (
-                          <svg className="w-5 h-5 text-gray-300 hover:text-red-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                          </svg>
+                          <IconHeart className="w-5 h-5 text-gray-300 hover:text-red-400 transition-colors" />
                         )}
                       </button>
                     </div>
@@ -326,20 +315,30 @@ export default function ArtistsPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
-              <span className="text-7xl mb-4 block">{selectedArtist.emoji || '🎵'}</span>
+              <div className="w-24 h-24 bg-gray-900 text-white rounded-2xl flex items-center justify-center text-4xl font-bold mx-auto mb-4">
+                {selectedArtist.name.charAt(0)}
+              </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-1">{selectedArtist.name}</h3>
-              <p className="text-sm text-gray-400">{selectedArtist.genre}</p>
+              <span className="inline-block text-sm text-gray-400 bg-white border border-gray-100 rounded-full px-3 py-1">
+                {selectedArtist.genre}
+              </span>
             </div>
 
             {/* Stats */}
             <div className="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100">
               <div className="p-5 text-center">
-                <p className="text-2xl font-bold text-gray-900">{selectedArtist.likes.toLocaleString()}</p>
-                <p className="text-xs text-gray-400 mt-1">좋아요</p>
+                <div className="flex items-center justify-center gap-1.5 mb-1">
+                  <IconHeart className="w-4 h-4 text-gray-400" />
+                  <p className="text-2xl font-bold text-gray-900">{selectedArtist.likes.toLocaleString()}</p>
+                </div>
+                <p className="text-xs text-gray-400">좋아요</p>
               </div>
               <div className="p-5 text-center">
-                <p className="text-2xl font-bold text-gray-900">{(selectedArtist.investments || 0).toLocaleString()}</p>
-                <p className="text-xs text-gray-400 mt-1">투자</p>
+                <div className="flex items-center justify-center gap-1.5 mb-1">
+                  <IconTrendingUp className="w-4 h-4 text-gray-400" />
+                  <p className="text-2xl font-bold text-gray-900">{(selectedArtist.investments || 0).toLocaleString()}</p>
+                </div>
+                <p className="text-xs text-gray-400">투자</p>
               </div>
             </div>
 
@@ -364,16 +363,12 @@ export default function ArtistsPage() {
               >
                 {likedArtists.has(selectedArtist.id) ? (
                   <>
-                    <svg className="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
+                    <IconHeartFilled className="w-4 h-4 text-red-500" />
                     좋아요 취소
                   </>
                 ) : (
                   <>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
+                    <IconHeart className="w-4 h-4" />
                     좋아요
                   </>
                 )}
