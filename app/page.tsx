@@ -71,21 +71,22 @@ export default function Home() {
   const statsRef = useRef<HTMLDivElement>(null);
   const [statsVisible, setStatsVisible] = useState(false);
 
-  const artistCount = useAnimatedNumber(128, 2000);
-  const voteCount = useAnimatedNumber(45230, 2500);
-  const fanCount = useAnimatedNumber(3847, 2200);
+  const voteCount = useAnimatedNumber(15000, 2000);
+  const artistNum = useAnimatedNumber(30, 1800);
+  const pointCount = useAnimatedNumber(100000, 2500);
 
   const featuresSection = useFadeInOnScroll();
   const hotSection = useFadeInOnScroll();
+  const ctaSection = useFadeInOnScroll();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setStatsVisible(true);
-          artistCount.start();
           voteCount.start();
-          fanCount.start();
+          artistNum.start();
+          pointCount.start();
           observer.disconnect();
         }
       },
@@ -94,6 +95,7 @@ export default function Home() {
 
     if (statsRef.current) observer.observe(statsRef.current);
     return () => observer.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -120,146 +122,137 @@ export default function Home() {
 
   const features = [
     {
-      icon: '🗳️',
+      icon: '\u{1F5F3}\uFE0F',
       title: '투표',
       desc: '매일 투표에 참여하고 포인트를 적립하세요',
       href: '/vote',
-      gradient: 'from-gray-500 to-gray-700',
     },
     {
-      icon: '🎤',
+      icon: '\u{1F3A4}',
       title: '아티스트',
       desc: '좋아하는 아티스트에게 투자하고 응원하세요',
       href: '/artists',
-      gradient: 'from-gray-400 to-gray-600',
     },
     {
-      icon: '🛍️',
+      icon: '\u{1F6CD}\uFE0F',
       title: '마켓',
       desc: '한정판 아트워크와 굿즈를 만나보세요',
       href: '/artworks',
-      gradient: 'from-gray-500 to-gray-700',
     },
     {
-      icon: '🎬',
+      icon: '\u{1F3AC}',
       title: '영상 리워드',
       desc: '영상을 시청하고 포인트를 받으세요',
       href: '/videos',
-      gradient: 'from-gray-400 to-gray-600',
     },
     {
-      icon: '🏆',
+      icon: '\u{1F3C6}',
       title: '랭킹',
       desc: '인기 아티스트 순위를 확인하세요',
       href: '/ranking',
-      gradient: 'from-gray-500 to-gray-700',
     },
     {
-      icon: '💰',
+      icon: '\u{1F4B0}',
       title: '포인트',
       desc: '포인트를 충전하고 다양한 혜택을 누리세요',
       href: '/points',
-      gradient: 'from-gray-400 to-gray-600',
     },
   ];
 
   return (
-    <div className="overflow-hidden">
+    <div className="overflow-hidden bg-white">
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center">
-        {/* Animated gradient background */}
-        <div className="absolute inset-0">
-          <div className="absolute top-20 left-10 w-96 h-96 bg-gray-200/50 rounded-full blur-[100px] animate-pulse" />
-          <div className="absolute bottom-20 right-10 w-80 h-80 bg-gray-200/40 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1s' }} />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gray-100 rounded-full blur-[120px]" />
-          {/* Floating particles */}
-          <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-gray-400/40 rounded-full animate-bounce" style={{ animationDuration: '3s' }} />
-          <div className="absolute top-1/3 right-1/3 w-1.5 h-1.5 bg-gray-300/30 rounded-full animate-bounce" style={{ animationDuration: '4s', animationDelay: '0.5s' }} />
-          <div className="absolute bottom-1/3 left-1/3 w-2.5 h-2.5 bg-gray-300/20 rounded-full animate-bounce" style={{ animationDuration: '3.5s', animationDelay: '1s' }} />
-        </div>
+      <section className="relative min-h-[calc(100vh-64px)] flex items-center">
+        {/* Subtle grid background */}
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)',
+            backgroundSize: '64px 64px',
+          }}
+        />
+        {/* Subtle top-to-bottom fade */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent" />
 
-        <div className="relative z-10 section-container py-20 w-full">
-          <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 glass rounded-full text-sm text-gray-600 mb-8 animate-slideUp">
-              <span className="w-2 h-2 bg-ples-green rounded-full animate-pulse" />
-              시즌 1 진행중
-            </div>
-
-            <h1 className="text-5xl sm:text-7xl font-bold leading-tight mb-6 animate-slideUp" style={{ animationDelay: '0.1s' }}>
-              팬이 만드는{' '}
-              <span className="gradient-text-primary">
-                아티스트 플랫폼
-              </span>
+        <div className="relative z-10 w-full max-w-5xl mx-auto px-6 sm:px-8 py-20">
+          <div className="max-w-3xl">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-gray-900 leading-[1.1]">
+              팬이 만드는
+              <br />
+              아티스트 플랫폼
             </h1>
 
-            <p className="text-lg sm:text-xl text-gray-500 mb-10 leading-relaxed animate-slideUp" style={{ animationDelay: '0.2s' }}>
-              투표하고, 응원하고, 구매하고, 시청하면서
+            <p className="mt-8 text-lg text-gray-400 leading-relaxed max-w-lg">
+              투표하고, 응원하고, 시청하면서 포인트를 쌓는
               <br />
-              포인트를 쌓는 참여형 플랫폼 <span className="text-gray-900 font-semibold">PLES</span>
+              새로운 참여형 아티스트 플랫폼
             </p>
 
-            <div className="animate-slideUp" style={{ animationDelay: '0.3s' }}>
+            <div className="mt-10 flex items-center gap-4">
               <Link
                 href={user ? '/vote' : '/login'}
-                className="btn-primary inline-flex items-center gap-2 px-8 py-4 text-lg animate-pulse-glow"
+                className="inline-flex items-center justify-center px-7 py-3.5 bg-gray-900 text-white text-sm font-medium rounded-xl hover:bg-gray-800 transition-colors"
               >
                 지금 시작하기
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
+              </Link>
+              <Link
+                href="#features"
+                className="inline-flex items-center justify-center px-7 py-3.5 bg-white text-gray-900 text-sm font-medium rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors"
+              >
+                더 알아보기
               </Link>
             </div>
           </div>
         </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 border-2 border-gray-300 rounded-full flex items-start justify-center p-1.5">
-            <div className="w-1.5 h-3 bg-gray-400 rounded-full animate-pulse" />
-          </div>
-        </div>
       </section>
 
-      {/* Stats Counter Section */}
-      <section ref={statsRef} className="py-16 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-gray-50 to-transparent" />
-        <div className="relative section-container">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      {/* Stats Section */}
+      <section ref={statsRef} className="py-20">
+        <div className="max-w-5xl mx-auto px-6 sm:px-8">
+          <div
+            className={`grid grid-cols-1 sm:grid-cols-3 transition-all duration-700 ${
+              statsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+            }`}
+          >
             {[
-              { label: '총 아티스트', value: artistCount.value, suffix: '명', icon: '🎤' },
-              { label: '누적 투표수', value: voteCount.value, suffix: '회', icon: '🗳️' },
-              { label: '활동 팬 수', value: fanCount.value, suffix: '명', icon: '💜' },
+              { label: '아티스트 투표', value: voteCount.value, suffix: '+' },
+              { label: '등록 아티스트', value: artistNum.value, suffix: '+' },
+              { label: '포인트 지급', value: pointCount.value, suffix: '+' },
             ].map((stat, i) => (
               <div
                 key={stat.label}
-                className={`text-center p-8 rounded-2xl glass card-hover transition-all duration-700 ${
-                  statsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                className={`text-center py-8 ${
+                  i < 2 ? 'sm:border-r sm:border-gray-100' : ''
                 }`}
                 style={{ transitionDelay: `${i * 100}ms` }}
               >
-                <span className="text-4xl mb-3 block">{stat.icon}</span>
-                <div className="text-4xl font-bold gradient-text-primary mb-2">
+                <div className="text-4xl sm:text-5xl font-bold text-gray-900 tracking-tight">
                   {stat.value.toLocaleString()}
-                  <span className="text-lg ml-1 text-gray-500">{stat.suffix}</span>
+                  <span className="text-gray-300">{stat.suffix}</span>
                 </div>
-                <p className="text-gray-500 text-sm font-medium">{stat.label}</p>
+                <p className="mt-2 text-sm text-gray-400 font-medium">{stat.label}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Feature Cards Section */}
-      <section className="py-20">
+      {/* Features Section */}
+      <section id="features" className="py-20 bg-gray-50">
         <div
           ref={featuresSection.ref}
-          className={`section-container transition-all duration-700 ${
+          className={`max-w-5xl mx-auto px-6 sm:px-8 transition-all duration-700 ${
             featuresSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
           }`}
         >
-          <div className="text-center mb-14">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-3">PLES의 핵심 기능</h2>
-            <p className="text-gray-500">팬과 아티스트를 연결하는 다양한 기능을 제공합니다</p>
+          <div className="mb-14">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">
+              플랫폼 기능
+            </h2>
+            <p className="mt-3 text-gray-400">
+              팬과 아티스트를 연결하는 다양한 기능을 제공합니다
+            </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -267,126 +260,130 @@ export default function Home() {
               <Link
                 key={feature.title}
                 href={feature.href}
-                className="group relative glass rounded-2xl p-6 card-hover overflow-hidden"
-                style={{ animationDelay: `${index * 0.1}s` }}
+                className="group bg-white rounded-2xl border border-gray-100 p-8 hover:shadow-md transition-all duration-300"
+                style={{
+                  transitionDelay: featuresSection.isVisible ? `${index * 50}ms` : '0ms',
+                }}
               >
-                <div className={`absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r ${feature.gradient} opacity-0 group-hover:opacity-100 transition-opacity`} />
-                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center text-2xl mb-4 shadow-lg group-hover:scale-110 transition-transform`}>
+                <div className="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-xl mb-5">
                   {feature.icon}
                 </div>
-                <h3 className="text-lg font-bold mb-2 group-hover:text-gray-900 transition-colors">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   {feature.title}
                 </h3>
-                <p className="text-sm text-gray-500 leading-relaxed">{feature.desc}</p>
-                <div className="mt-4 flex items-center text-sm text-gray-900 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                  자세히 보기
-                  <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </div>
+                <p className="text-sm text-gray-400 leading-relaxed">
+                  {feature.desc}
+                </p>
               </Link>
             ))}
           </div>
         </div>
       </section>
 
-      {/* HOT 아티스트 Section */}
+      {/* HOT Artists Section */}
       <section className="py-20">
         <div
           ref={hotSection.ref}
-          className={`section-container transition-all duration-700 ${
+          className={`max-w-5xl mx-auto px-6 sm:px-8 transition-all duration-700 ${
             hotSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
           }`}
         >
-          <div className="flex items-center justify-between mb-10">
+          <div className="flex items-end justify-between mb-10">
             <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-2xl">🔥</span>
-                <h2 className="text-3xl sm:text-4xl font-bold">HOT 아티스트</h2>
-              </div>
-              <p className="text-gray-500">지금 가장 인기있는 아티스트를 만나보세요</p>
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">
+                HOT 아티스트
+              </h2>
+              <p className="mt-3 text-gray-400">
+                지금 가장 인기있는 아티스트를 만나보세요
+              </p>
             </div>
             <Link
               href="/artists"
-              className="hidden sm:flex items-center gap-1 text-gray-900 font-medium text-sm hover:text-gray-500 transition-colors"
+              className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-gray-400 hover:text-gray-900 transition-colors"
             >
               전체보기
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
               </svg>
             </Link>
           </div>
 
           {artistsLoading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
               {[...Array(5)].map((_, i) => (
-                <div key={i} className="rounded-2xl overflow-hidden glass">
-                  <div className="aspect-square bg-gray-50 animate-pulse rounded-t-2xl" />
+                <div key={i} className="rounded-2xl border border-gray-100 overflow-hidden">
+                  <div className="aspect-square bg-gray-50 animate-pulse" />
                   <div className="p-4 space-y-2">
-                    <div className="h-4 bg-gray-100 rounded animate-pulse" />
-                    <div className="h-3 bg-gray-50 rounded animate-pulse w-2/3" />
+                    <div className="h-4 bg-gray-100 rounded-lg animate-pulse" />
+                    <div className="h-3 bg-gray-50 rounded-lg animate-pulse w-2/3" />
                   </div>
                 </div>
               ))}
             </div>
           ) : hotArtists.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
               {hotArtists.map((artist, index) => (
                 <Link
                   key={artist.id}
                   href="/artists"
-                  className="group glass rounded-2xl overflow-hidden card-hover"
-                  style={{ animationDelay: `${index * 0.1}s` }}
+                  className="group rounded-2xl border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-300 bg-white"
                 >
-                  <div className="relative aspect-square bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100 flex items-center justify-center">
-                    <span className="text-6xl group-hover:scale-110 transition-transform duration-300">
-                      {artist.emoji || '🎵'}
+                  <div className="relative aspect-square bg-gray-50 flex items-center justify-center">
+                    <span className="text-5xl group-hover:scale-110 transition-transform duration-300">
+                      {artist.emoji || '\u{1F3B5}'}
                     </span>
                     {index < 3 && (
-                      <div className="absolute top-3 left-3 w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center text-white text-sm font-bold shadow-lg">
+                      <div className="absolute top-3 left-3 w-7 h-7 rounded-full bg-gray-900 flex items-center justify-center text-white text-xs font-bold">
                         {index + 1}
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                   <div className="p-4">
-                    <h3 className="font-bold group-hover:text-gray-900 transition-colors">{artist.name}</h3>
-                    <p className="text-xs text-gray-500 mb-2">{artist.genre}</p>
-                    <div className="flex items-center gap-1 text-sm text-ples-gold">
-                      <span>💜</span>
-                      <span className="font-semibold">{artist.likes?.toLocaleString() || 0}</span>
+                    <h3 className="font-semibold text-gray-900 text-sm">{artist.name}</h3>
+                    <div className="flex items-center justify-between mt-1.5">
+                      <span className="text-xs text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full">
+                        {artist.genre}
+                      </span>
+                      <span className="text-xs text-gray-400 font-medium">
+                        {artist.likes?.toLocaleString() || 0}
+                      </span>
                     </div>
                   </div>
                 </Link>
               ))}
             </div>
           ) : (
-            <div className="text-center py-16 glass rounded-2xl">
-              <span className="text-5xl mb-4 block">🎵</span>
-              <p className="text-gray-500">아직 등록된 아티스트가 없습니다</p>
+            <div className="text-center py-20 rounded-2xl border border-gray-100 bg-gray-50">
+              <p className="text-gray-400">아직 등록된 아티스트가 없습니다</p>
             </div>
           )}
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 relative overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute top-10 left-20 w-64 h-64 bg-gray-200/50 rounded-full blur-[80px]" />
-          <div className="absolute bottom-10 right-20 w-48 h-48 bg-gray-200/40 rounded-full blur-[80px]" />
-        </div>
-        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4">지금 바로 시작하세요</h2>
-          <p className="text-gray-500 mb-8 text-lg">가입하고 첫 투표에 참여하면 바로 포인트를 받을 수 있어요</p>
-          <Link
-            href={user ? '/vote' : '/login'}
-            className="btn-primary inline-flex items-center gap-2 px-8 py-4 text-lg"
-          >
-            무료로 시작하기
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
-          </Link>
+      <section className="py-20">
+        <div
+          ref={ctaSection.ref}
+          className={`max-w-5xl mx-auto px-6 sm:px-8 text-center transition-all duration-700 ${
+            ctaSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
+          }`}
+        >
+          <div className="py-16 rounded-3xl bg-gray-50 border border-gray-100">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">
+              지금 바로 참여하세요
+            </h2>
+            <p className="mt-4 text-gray-400">
+              가입하고 첫 투표에 참여하면 바로 포인트를 받을 수 있어요
+            </p>
+            <div className="mt-8">
+              <Link
+                href={user ? '/vote' : '/login'}
+                className="inline-flex items-center justify-center px-8 py-3.5 bg-gray-900 text-white text-sm font-medium rounded-xl hover:bg-gray-800 transition-colors"
+              >
+                무료로 시작하기
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
     </div>

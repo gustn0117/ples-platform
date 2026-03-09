@@ -36,17 +36,10 @@ export default function ArtworksPage() {
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'points'>('cash');
   const [purchasing, setPurchasing] = useState(false);
   const [purchaseSuccess, setPurchaseSuccess] = useState(false);
-  const [animatedCards, setAnimatedCards] = useState(false);
 
   useEffect(() => {
     fetchArtworks();
   }, []);
-
-  useEffect(() => {
-    if (!loading) {
-      setTimeout(() => setAnimatedCards(true), 100);
-    }
-  }, [loading]);
 
   async function fetchArtworks() {
     try {
@@ -70,26 +63,22 @@ export default function ArtworksPage() {
     setPurchasing(true);
 
     try {
-      // Check stock
       if (selectedArtwork.stock <= 0) {
         alert('품절된 상품입니다.');
         return;
       }
 
       if (paymentMethod === 'points') {
-        // Check balance
         if (profile.points < selectedArtwork.point_price) {
           alert('포인트가 부족합니다.');
           return;
         }
 
-        // Deduct points
         await supabase
           .from('profiles')
           .update({ points: profile.points - selectedArtwork.point_price })
           .eq('id', user.id);
 
-        // Create points transaction
         await supabase.from('points_transactions').insert({
           user_id: user.id,
           amount: -selectedArtwork.point_price,
@@ -98,7 +87,6 @@ export default function ArtworksPage() {
         });
       }
 
-      // Create purchase record
       await supabase.from('purchases').insert({
         user_id: user.id,
         artwork_id: selectedArtwork.id,
@@ -106,13 +94,11 @@ export default function ArtworksPage() {
         amount: paymentMethod === 'cash' ? selectedArtwork.price : selectedArtwork.point_price,
       });
 
-      // Decrease stock
       await supabase
         .from('artworks')
         .update({ stock: selectedArtwork.stock - 1 })
         .eq('id', selectedArtwork.id);
 
-      // Update local state
       setArtworks((prev) =>
         prev.map((a) =>
           a.id === selectedArtwork.id ? { ...a, stock: a.stock - 1 } : a
@@ -141,172 +127,178 @@ export default function ArtworksPage() {
 
   if (loading) {
     return (
-      <div className="section-container py-12">
-        <div className="mb-10">
-          <div className="h-8 bg-gray-100 rounded-lg w-48 animate-pulse mb-3" />
-          <div className="h-5 bg-gray-50 rounded-lg w-80 animate-pulse" />
+      <div className="min-h-screen bg-white">
+        <div className="border-b border-gray-100">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+            <div className="h-8 bg-gray-100 rounded-lg w-32 animate-pulse mb-3" />
+            <div className="h-5 bg-gray-100 rounded-lg w-72 animate-pulse" />
+          </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="glass rounded-2xl overflow-hidden">
-              <div className="aspect-[4/3] bg-gray-50 animate-pulse" />
-              <div className="p-5 space-y-3">
-                <div className="h-4 bg-gray-100 rounded animate-pulse w-1/3" />
-                <div className="h-6 bg-gray-100 rounded animate-pulse" />
-                <div className="h-4 bg-gray-50 rounded animate-pulse w-2/3" />
-                <div className="h-10 bg-gray-50 rounded-xl animate-pulse mt-4" />
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+          <div className="flex gap-6 mb-8">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="h-5 bg-gray-100 rounded animate-pulse w-16 shrink-0" />
+            ))}
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                <div className="aspect-square bg-gray-100 animate-pulse" />
+                <div className="p-4 space-y-2">
+                  <div className="h-4 bg-gray-100 rounded animate-pulse w-2/3" />
+                  <div className="h-3 bg-gray-100 rounded animate-pulse w-1/2" />
+                  <div className="h-5 bg-gray-100 rounded animate-pulse w-1/3 mt-2" />
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="section-container py-12">
-      {/* Header */}
-      <div className="mb-10 animate-slideUp">
-        <div className="flex items-center gap-3 mb-2">
-          <span className="text-3xl">🛍️</span>
-          <h1 className="text-3xl font-bold">마켓</h1>
+    <div className="min-h-screen bg-white">
+      {/* Page Header */}
+      <div className="border-b border-gray-100">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">마켓</h1>
+          <p className="text-gray-400">한정판 아트워크와 굿즈를 구매하세요</p>
+          {profile && (
+            <div className="mt-5 inline-flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-100 rounded-full">
+              <span className="text-xs text-gray-400">보유 포인트</span>
+              <span className="text-sm font-semibold text-gray-900">
+                {profile.points.toLocaleString()}P
+              </span>
+            </div>
+          )}
         </div>
-        <p className="text-gray-500">한정판 아트워크와 굿즈를 현금 또는 포인트로 구매하세요</p>
-        {profile && (
-          <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 glass rounded-full">
-            <span className="text-sm">💰</span>
-            <span className="text-sm font-semibold text-ples-silver">
-              보유 포인트: {profile.points.toLocaleString()}P
-            </span>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+        {/* Category Filter */}
+        <div className="flex gap-6 mb-8 overflow-x-auto pb-px border-b border-gray-100 scrollbar-hide">
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat.key}
+              onClick={() => setSelectedCategory(cat.key)}
+              className={`pb-3 text-sm font-medium whitespace-nowrap transition-colors relative ${
+                selectedCategory === cat.key
+                  ? 'text-gray-900'
+                  : 'text-gray-400 hover:text-gray-600'
+              }`}
+            >
+              {cat.label}
+              {selectedCategory === cat.key && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900 rounded-full" />
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Product Grid */}
+        {filteredArtworks.length === 0 ? (
+          <div className="text-center py-24 bg-white rounded-2xl border border-gray-100">
+            <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-4">
+              <svg className="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+            </div>
+            <p className="text-gray-400">해당 카테고리에 상품이 없습니다</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {filteredArtworks.map((artwork) => {
+              const isSoldOut = artwork.stock <= 0;
+
+              return (
+                <div
+                  key={artwork.id}
+                  className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden group"
+                >
+                  {/* Product Image */}
+                  <div className="relative aspect-square bg-gray-50 rounded-t-xl flex items-center justify-center">
+                    <span className="text-4xl sm:text-5xl group-hover:scale-110 transition-transform duration-300">
+                      {artwork.emoji || '🎨'}
+                    </span>
+
+                    {/* Sold out overlay */}
+                    {isSoldOut && (
+                      <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
+                        <span className="text-gray-400 font-semibold text-sm border border-gray-200 rounded-lg px-4 py-2">
+                          품절
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Low stock */}
+                    {!isSoldOut && artwork.stock <= 5 && (
+                      <div className="absolute top-3 right-3">
+                        <span className="bg-gray-900 text-white rounded-full px-2.5 py-1 text-xs font-medium">
+                          남은 수량: {artwork.stock}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Category badge */}
+                    {artwork.category && (
+                      <div className="absolute top-3 left-3">
+                        <span className="bg-gray-100 text-gray-600 rounded-full px-3 py-1 text-xs">
+                          {artwork.category}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Product Info */}
+                  <div className="p-4">
+                    <p className="text-font-medium text-gray-900 mb-0.5 truncate">{artwork.title}</p>
+                    <p className="text-sm text-gray-400 mb-3">{artwork.artist}</p>
+
+                    <div className="flex items-baseline gap-2 mb-4">
+                      <span className="font-semibold text-gray-900">
+                        ₩{artwork.price.toLocaleString()}
+                      </span>
+                      <span className="text-sm text-gray-400">
+                        {artwork.point_price.toLocaleString()}P
+                      </span>
+                    </div>
+
+                    {!isSoldOut ? (
+                      <button
+                        onClick={() => {
+                          if (!user) {
+                            alert('로그인이 필요합니다.');
+                            return;
+                          }
+                          setSelectedArtwork(artwork);
+                          setPaymentMethod('cash');
+                          setPurchaseSuccess(false);
+                        }}
+                        className="w-full py-2.5 rounded-xl bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors"
+                      >
+                        구매하기
+                      </button>
+                    ) : (
+                      <button
+                        disabled
+                        className="w-full py-2.5 rounded-xl bg-gray-100 text-gray-400 text-sm font-medium cursor-not-allowed"
+                      >
+                        품절
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
 
-      {/* Category Filter */}
-      <div className="flex gap-2 mb-8 overflow-x-auto pb-2 animate-slideUp" style={{ animationDelay: '0.1s' }}>
-        {CATEGORIES.map((cat) => (
-          <button
-            key={cat.key}
-            onClick={() => {
-              setSelectedCategory(cat.key);
-              setAnimatedCards(false);
-              setTimeout(() => setAnimatedCards(true), 100);
-            }}
-            className={`px-5 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-              selectedCategory === cat.key
-                ? 'bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-lg shadow-black/5'
-                : 'glass text-gray-500 hover:text-gray-900 hover:bg-gray-100'
-            }`}
-          >
-            {cat.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Artworks Grid */}
-      {filteredArtworks.length === 0 ? (
-        <div className="text-center py-20 glass rounded-2xl">
-          <span className="text-5xl mb-4 block">🎨</span>
-          <p className="text-gray-500 text-lg">해당 카테고리에 작품이 없습니다</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredArtworks.map((artwork, index) => {
-            const isSoldOut = artwork.stock <= 0;
-
-            return (
-              <div
-                key={artwork.id}
-                className={`glass rounded-2xl overflow-hidden card-hover transition-all duration-500 ${
-                  animatedCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                }`}
-                style={{ transitionDelay: `${Math.min(index * 80, 400)}ms` }}
-              >
-                {/* Image */}
-                <div className="relative aspect-[4/3] bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100 flex items-center justify-center">
-                  <span className="text-6xl">{artwork.emoji || '🎨'}</span>
-                  {isSoldOut && (
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
-                      <span className="text-white font-bold text-lg px-5 py-2.5 border-2 border-gray-300 rounded-xl backdrop-blur-sm">
-                        품절
-                      </span>
-                    </div>
-                  )}
-                  {!isSoldOut && artwork.stock <= 5 && (
-                    <div className="absolute top-3 right-3 px-2.5 py-1 bg-red-500/80 backdrop-blur-sm rounded-full text-xs font-semibold text-white">
-                      잔여 {artwork.stock}개
-                    </div>
-                  )}
-                  {artwork.category && (
-                    <div className="absolute top-3 left-3 px-2.5 py-1 glass rounded-full text-xs font-medium text-gray-600">
-                      {artwork.category}
-                    </div>
-                  )}
-                </div>
-
-                {/* Info */}
-                <div className="p-5">
-                  <p className="text-xs text-ples-silver font-medium mb-1">{artwork.artist}</p>
-                  <h3 className="font-bold text-lg mb-1">{artwork.title}</h3>
-                  {artwork.description && (
-                    <p className="text-sm text-gray-500 mb-4 line-clamp-2">{artwork.description}</p>
-                  )}
-
-                  <div className="flex items-end justify-between mb-4">
-                    <div>
-                      <p className="text-xs text-gray-600">현금결제</p>
-                      <p className="text-lg font-bold">
-                        {artwork.price.toLocaleString()}
-                        <span className="text-sm text-gray-500">원</span>
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-ples-silver/60">포인트결제</p>
-                      <p className="text-lg font-bold text-ples-silver">
-                        {artwork.point_price.toLocaleString()}
-                        <span className="text-sm">P</span>
-                      </p>
-                    </div>
-                  </div>
-
-                  {!isSoldOut && artwork.stock > 5 && (
-                    <p className="text-xs text-gray-600 mb-3">재고 {artwork.stock}개 남음</p>
-                  )}
-
-                  {!isSoldOut ? (
-                    <button
-                      onClick={() => {
-                        if (!user) {
-                          alert('로그인이 필요합니다.');
-                          return;
-                        }
-                        setSelectedArtwork(artwork);
-                        setPaymentMethod('cash');
-                        setPurchaseSuccess(false);
-                      }}
-                      className="btn-primary w-full py-3"
-                    >
-                      구매하기
-                    </button>
-                  ) : (
-                    <button
-                      disabled
-                      className="w-full py-3 rounded-xl bg-gray-50 text-gray-400 font-semibold text-sm cursor-not-allowed"
-                    >
-                      품절
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
       {/* Purchase Modal */}
       {selectedArtwork && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4"
           onClick={() => {
             if (!purchasing) {
               setSelectedArtwork(null);
@@ -315,79 +307,94 @@ export default function ArtworksPage() {
           }}
         >
           <div
-            className="glass-strong rounded-3xl max-w-md w-full p-6 animate-fadeIn shadow-2xl shadow-black/5"
+            className="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {purchaseSuccess ? (
-              <div className="text-center py-8 animate-fadeIn">
-                <div className="w-16 h-16 rounded-full bg-ples-green/10 flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-ples-green" fill="currentColor" viewBox="0 0 20 20">
+              <div className="text-center py-12 px-6">
+                <div className="w-14 h-14 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-6 h-6 text-gray-900" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold mb-2">구매 완료!</h3>
-                <p className="text-gray-500 text-sm">주문이 성공적으로 처리되었습니다</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">구매 완료</h3>
+                <p className="text-sm text-gray-400">주문이 성공적으로 처리되었습니다</p>
               </div>
             ) : (
               <>
-                {/* Header */}
-                <div className="flex items-start justify-between mb-6">
+                {/* Modal Header */}
+                <div className="flex items-start justify-between p-6 pb-0">
                   <div>
-                    <h3 className="text-lg font-bold mb-1">{selectedArtwork.title}</h3>
-                    <p className="text-sm text-gray-500">{selectedArtwork.artist}</p>
+                    <h3 className="text-lg font-bold text-gray-900 mb-0.5">구매 확인</h3>
+                    <p className="text-sm text-gray-400">결제 방법을 선택해주세요</p>
                   </div>
                   <button
                     onClick={() => setSelectedArtwork(null)}
-                    className="w-8 h-8 rounded-full glass flex items-center justify-center text-gray-400 hover:text-gray-900 transition-colors"
+                    className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-gray-900 transition-colors"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
                 </div>
 
+                {/* Product Summary */}
+                <div className="mx-6 mt-5 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 bg-white rounded-xl border border-gray-100 flex items-center justify-center shrink-0">
+                      <span className="text-2xl">{selectedArtwork.emoji || '🎨'}</span>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-medium text-gray-900 truncate">{selectedArtwork.title}</p>
+                      <p className="text-sm text-gray-400">{selectedArtwork.artist}</p>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Payment Options */}
-                <div className="flex flex-col gap-3 mb-6">
+                <div className="p-6 flex flex-col gap-3">
+                  {/* Cash */}
                   <button
                     onClick={() => setPaymentMethod('cash')}
                     className={`p-4 rounded-xl border text-left transition-all ${
                       paymentMethod === 'cash'
-                        ? 'border-gray-300 bg-gray-50'
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? 'border-gray-900 bg-gray-50'
+                        : 'border-gray-200 hover:border-gray-300 bg-white'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-semibold">현금 결제</p>
-                        <p className="text-sm text-gray-500 mt-0.5">
-                          {selectedArtwork.price.toLocaleString()}원
+                        <p className="font-medium text-gray-900 text-sm">일반결제</p>
+                        <p className="text-sm text-gray-400 mt-0.5">
+                          ₩{selectedArtwork.price.toLocaleString()}
                         </p>
                       </div>
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                        paymentMethod === 'cash' ? 'border-gray-900 bg-gray-900' : 'border-gray-400'
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                        paymentMethod === 'cash' ? 'border-gray-900 bg-gray-900' : 'border-gray-300'
                       }`}>
                         {paymentMethod === 'cash' && (
-                          <div className="w-2 h-2 rounded-full bg-white" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-white" />
                         )}
                       </div>
                     </div>
                   </button>
 
+                  {/* Points */}
                   <button
                     onClick={() => setPaymentMethod('points')}
                     className={`p-4 rounded-xl border text-left transition-all ${
                       paymentMethod === 'points'
-                        ? 'border-gray-300 bg-gray-50'
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? 'border-gray-900 bg-gray-50'
+                        : 'border-gray-200 hover:border-gray-300 bg-white'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-semibold">포인트 결제</p>
-                        <p className="text-sm text-gray-500 mt-0.5">
+                        <p className="font-medium text-gray-900 text-sm">포인트결제</p>
+                        <p className="text-sm text-gray-400 mt-0.5">
                           {selectedArtwork.point_price.toLocaleString()}P
                           {profile && (
-                            <span className="text-ples-silver ml-2">
+                            <span className="ml-2 text-gray-300">
                               (보유: {profile.points.toLocaleString()}P)
                             </span>
                           )}
@@ -398,15 +405,15 @@ export default function ArtworksPage() {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             포인트가 부족합니다.{' '}
-                            <Link href="/points" className="underline hover:text-red-300">충전하기</Link>
+                            <Link href="/points" className="underline hover:text-red-500">충전하기</Link>
                           </p>
                         )}
                       </div>
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                        paymentMethod === 'points' ? 'border-gray-900 bg-gray-900' : 'border-gray-400'
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                        paymentMethod === 'points' ? 'border-gray-900 bg-gray-900' : 'border-gray-300'
                       }`}>
                         {paymentMethod === 'points' && (
-                          <div className="w-2 h-2 rounded-full bg-white" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-white" />
                         )}
                       </div>
                     </div>
@@ -414,10 +421,10 @@ export default function ArtworksPage() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-3">
+                <div className="px-6 pb-6 flex gap-3">
                   <button
                     onClick={() => setSelectedArtwork(null)}
-                    className="btn-ghost flex-1 py-3"
+                    className="flex-1 py-3.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
                   >
                     취소
                   </button>
@@ -427,11 +434,11 @@ export default function ArtworksPage() {
                       purchasing ||
                       (paymentMethod === 'points' && profile !== null && profile.points < selectedArtwork.point_price)
                     }
-                    className="btn-primary flex-1 py-3 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="flex-1 py-3.5 rounded-xl bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {purchasing ? (
                       <>
-                        <svg className="w-5 h-5 animate-spin" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                         </svg>

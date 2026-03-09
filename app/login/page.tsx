@@ -89,109 +89,113 @@ export default function LoginPage() {
     }
   };
 
-  return (
-    <div className="min-h-[90vh] flex items-center justify-center py-12 px-4 relative overflow-hidden">
-      {/* Background effects */}
-      <div className="absolute inset-0">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-gray-200/50 rounded-full blur-[80px]" />
-        <div className="absolute bottom-20 right-10 w-64 h-64 bg-gray-200/40 rounded-full blur-[80px]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gray-100 rounded-full blur-[100px]" />
-      </div>
+  const clearMessages = () => {
+    setError('');
+    setSuccess('');
+  };
 
-      <div className="relative z-10 w-full max-w-md animate-slideUp">
-        {/* Logo */}
-        <div className="text-center mb-8">
+  return (
+    <div className="min-h-[calc(100vh-64px)] flex items-center justify-center py-12 px-4 bg-white">
+      <div className="w-full max-w-md">
+        {/* Logo & Heading */}
+        <div className="text-center mb-10">
           <Link href="/" className="inline-block">
-            <div className="w-16 h-16 rounded-2xl bg-gray-900 flex items-center justify-center text-2xl font-bold text-white mx-auto mb-4 shadow-lg shadow-black/5">
-              P
-            </div>
+            <span className="text-2xl font-bold tracking-tight text-gray-900">
+              PLES
+            </span>
           </Link>
-          <h1 className="text-2xl font-bold">PLES에 오신 것을 환영합니다</h1>
-          <p className="text-gray-500 text-sm mt-2">참여하고 포인트를 적립하세요</p>
+          <h1 className="mt-6 text-2xl font-bold text-gray-900">
+            {tab === 'login' ? '로그인' : '회원가입'}
+          </h1>
+          <p className="mt-2 text-sm text-gray-400">
+            {tab === 'login'
+              ? '계정에 로그인하여 시작하세요'
+              : '새 계정을 만들어 시작하세요'}
+          </p>
         </div>
 
-        {/* Glass Card */}
-        <div className="glass-strong rounded-3xl p-8">
-          {/* Tabs */}
-          <div className="flex mb-8 bg-gray-50 rounded-2xl p-1.5">
+        {/* Card */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
+          {/* Tab Switcher */}
+          <div className="flex mb-8 border-b border-gray-100">
             <button
-              onClick={() => { setTab('login'); setError(''); setSuccess(''); }}
-              className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${
+              onClick={() => { setTab('login'); clearMessages(); }}
+              className={`flex-1 pb-3 text-sm font-medium transition-all relative ${
                 tab === 'login'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'text-gray-900'
+                  : 'text-gray-400 hover:text-gray-600'
               }`}
             >
               로그인
+              {tab === 'login' && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900" />
+              )}
             </button>
             <button
-              onClick={() => { setTab('register'); setError(''); setSuccess(''); }}
-              className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${
+              onClick={() => { setTab('register'); clearMessages(); }}
+              className={`flex-1 pb-3 text-sm font-medium transition-all relative ${
                 tab === 'register'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'text-gray-900'
+                  : 'text-gray-400 hover:text-gray-600'
               }`}
             >
               회원가입
+              {tab === 'register' && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900" />
+              )}
             </button>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 animate-slideUp">
-              <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <p className="text-sm text-red-400">{error}</p>
-              </div>
+            <div className="mb-6 p-3 rounded-xl bg-red-50">
+              <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
 
           {/* Success Message */}
           {success && (
-            <div className="mb-6 p-4 rounded-xl bg-ples-green/10 border border-ples-green/20 animate-slideUp">
-              <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-ples-green shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                <p className="text-sm text-ples-green">{success}</p>
-              </div>
+            <div className="mb-6 p-3 rounded-xl bg-green-50">
+              <p className="text-sm text-green-600">{success}</p>
             </div>
           )}
 
           {/* Login Form */}
           {tab === 'login' && (
-            <form onSubmit={handleLogin} className="flex flex-col gap-4">
+            <form onSubmit={handleLogin} className="flex flex-col gap-5">
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1.5">이메일</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  이메일
+                </label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="example@email.com"
-                  className="input-modern"
+                  className="w-full px-4 py-3 text-sm bg-white border border-gray-200 rounded-xl outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all placeholder:text-gray-300"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1.5">비밀번호</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  비밀번호
+                </label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="비밀번호를 입력하세요"
-                  className="input-modern"
+                  className="w-full px-4 py-3 text-sm bg-white border border-gray-200 rounded-xl outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all placeholder:text-gray-300"
                 />
               </div>
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-primary w-full py-3.5 mt-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3.5 mt-1 bg-gray-900 text-white text-sm font-medium rounded-xl hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
-                    <svg className="w-5 h-5 animate-spin" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
                     로그인 중...
@@ -205,56 +209,64 @@ export default function LoginPage() {
 
           {/* Signup Form */}
           {tab === 'register' && (
-            <form onSubmit={handleSignup} className="flex flex-col gap-4">
+            <form onSubmit={handleSignup} className="flex flex-col gap-5">
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1.5">닉네임</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  닉네임
+                </label>
                 <input
                   type="text"
                   value={nickname}
                   onChange={(e) => setNickname(e.target.value)}
                   placeholder="사용할 닉네임을 입력하세요"
-                  className="input-modern"
+                  className="w-full px-4 py-3 text-sm bg-white border border-gray-200 rounded-xl outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all placeholder:text-gray-300"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1.5">이메일</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  이메일
+                </label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="example@email.com"
-                  className="input-modern"
+                  className="w-full px-4 py-3 text-sm bg-white border border-gray-200 rounded-xl outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all placeholder:text-gray-300"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1.5">비밀번호</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  비밀번호
+                </label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="6자 이상 입력하세요"
-                  className="input-modern"
+                  className="w-full px-4 py-3 text-sm bg-white border border-gray-200 rounded-xl outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all placeholder:text-gray-300"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1.5">비밀번호 확인</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  비밀번호 확인
+                </label>
                 <input
                   type="password"
                   value={passwordConfirm}
                   onChange={(e) => setPasswordConfirm(e.target.value)}
                   placeholder="비밀번호를 다시 입력하세요"
-                  className="input-modern"
+                  className="w-full px-4 py-3 text-sm bg-white border border-gray-200 rounded-xl outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all placeholder:text-gray-300"
                 />
               </div>
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-primary w-full py-3.5 mt-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3.5 mt-1 bg-gray-900 text-white text-sm font-medium rounded-xl hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
-                    <svg className="w-5 h-5 animate-spin" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
                     가입 중...
@@ -263,15 +275,16 @@ export default function LoginPage() {
                   '회원가입'
                 )}
               </button>
-              <p className="text-center text-xs text-gray-500">
+              <p className="text-center text-xs text-gray-400">
                 이메일 확인 불필요, 바로 로그인됩니다
               </p>
             </form>
           )}
         </div>
 
-        <p className="text-center text-xs text-gray-600 mt-6">
-          1인 1계정 기준으로 운영됩니다. 중복 계정은 제한될 수 있습니다.
+        {/* Bottom note */}
+        <p className="text-center text-xs text-gray-400 mt-6">
+          1인 1계정 기준으로 운영됩니다
         </p>
       </div>
     </div>

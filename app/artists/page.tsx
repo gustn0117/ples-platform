@@ -24,18 +24,11 @@ export default function ArtistsPage() {
   const [likedArtists, setLikedArtists] = useState<Set<string>>(new Set());
   const [likingInProgress, setLikingInProgress] = useState<string | null>(null);
   const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
-  const [animatedCards, setAnimatedCards] = useState(false);
 
   useEffect(() => {
     fetchArtists();
     if (user) fetchUserLikes();
   }, [user]);
-
-  useEffect(() => {
-    if (!loading) {
-      setTimeout(() => setAnimatedCards(true), 100);
-    }
-  }, [loading]);
 
   async function fetchArtists() {
     try {
@@ -141,202 +134,219 @@ export default function ArtistsPage() {
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
 
+  const sortTabs = [
+    { key: 'popular' as const, label: '인기순' },
+    { key: 'latest' as const, label: '최신순' },
+    { key: 'investments' as const, label: '투자순' },
+  ];
+
   if (loading) {
     return (
-      <div className="section-container py-12">
-        <div className="mb-10">
-          <div className="h-8 bg-gray-100 rounded-lg w-48 animate-pulse mb-3" />
-          <div className="h-5 bg-gray-50 rounded-lg w-80 animate-pulse" />
+      <div className="min-h-screen bg-white">
+        <div className="border-b border-gray-100">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+            <div className="h-8 bg-gray-100 rounded-lg w-40 animate-pulse mb-3" />
+            <div className="h-5 bg-gray-100 rounded-lg w-72 animate-pulse" />
+          </div>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
-          {[...Array(10)].map((_, i) => (
-            <div key={i} className="rounded-2xl overflow-hidden glass">
-              <div className="aspect-square bg-gray-50 animate-pulse" />
-              <div className="p-4 space-y-2">
-                <div className="h-5 bg-gray-100 rounded animate-pulse" />
-                <div className="h-3 bg-gray-50 rounded animate-pulse w-2/3" />
-                <div className="h-8 bg-gray-50 rounded-full animate-pulse w-24 mt-3" />
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+          <div className="h-12 bg-gray-100 rounded-xl animate-pulse mb-8" />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                <div className="aspect-square bg-gray-100 animate-pulse" />
+                <div className="p-4 space-y-2">
+                  <div className="h-5 bg-gray-100 rounded animate-pulse w-2/3" />
+                  <div className="h-3 bg-gray-100 rounded animate-pulse w-1/2" />
+                  <div className="h-8 bg-gray-100 rounded-full animate-pulse w-20 mt-3" />
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="section-container py-12">
-      {/* Header */}
-      <div className="mb-10 animate-slideUp">
-        <div className="flex items-center gap-3 mb-2">
-          <span className="text-3xl">💜</span>
-          <h1 className="text-3xl font-bold">아티스트</h1>
+    <div className="min-h-screen bg-white">
+      {/* Page Header */}
+      <div className="border-b border-gray-100">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">아티스트</h1>
+          <p className="text-gray-400">좋아하는 아티스트를 응원하고 투자하세요</p>
         </div>
-        <p className="text-gray-500">좋아하는 아티스트에게 투자(좋아요)하고 응원하세요</p>
       </div>
 
-      {/* Search and Sort */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-8 animate-slideUp" style={{ animationDelay: '0.1s' }}>
-        <div className="relative flex-1">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+        {/* Search Bar */}
+        <div className="relative mb-6">
           <svg
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500"
+            className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="아티스트 이름 또는 장르로 검색..."
-            className="input-modern pl-12"
+            className="w-full pl-12 pr-4 py-3.5 border border-gray-200 rounded-xl bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 transition-all"
           />
         </div>
 
-        <div className="flex gap-2 shrink-0">
-          {[
-            { key: 'popular' as const, label: '인기순' },
-            { key: 'latest' as const, label: '최신순' },
-            { key: 'investments' as const, label: '투자순' },
-          ].map((sort) => (
+        {/* Sort Tabs */}
+        <div className="flex gap-6 mb-8 border-b border-gray-100">
+          {sortTabs.map((tab) => (
             <button
-              key={sort.key}
-              onClick={() => setSortBy(sort.key)}
-              className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                sortBy === sort.key
-                  ? 'bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-lg shadow-black/5'
-                  : 'glass text-gray-500 hover:text-gray-900 hover:bg-gray-100'
+              key={tab.key}
+              onClick={() => setSortBy(tab.key)}
+              className={`pb-3 text-sm font-medium transition-colors relative ${
+                sortBy === tab.key
+                  ? 'text-gray-900'
+                  : 'text-gray-400 hover:text-gray-600'
               }`}
             >
-              {sort.label}
+              {tab.label}
+              {sortBy === tab.key && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900 rounded-full" />
+              )}
             </button>
           ))}
         </div>
-      </div>
 
-      {/* Artists Grid */}
-      {filteredArtists.length === 0 ? (
-        <div className="text-center py-20 glass rounded-2xl">
-          <span className="text-5xl mb-4 block">🔍</span>
-          <p className="text-gray-500 text-lg">검색 결과가 없습니다</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
-          {filteredArtists.map((artist, index) => {
-            const isLiked = likedArtists.has(artist.id);
-            const isLiking = likingInProgress === artist.id;
+        {/* Artists Grid */}
+        {filteredArtists.length === 0 ? (
+          <div className="text-center py-24 bg-white rounded-2xl border border-gray-100">
+            <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-4">
+              <svg className="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <p className="text-gray-400">검색 결과가 없습니다</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {filteredArtists.map((artist) => {
+              const isLiked = likedArtists.has(artist.id);
+              const isLiking = likingInProgress === artist.id;
 
-            return (
-              <div
-                key={artist.id}
-                className={`glass rounded-2xl overflow-hidden card-hover transition-all duration-500 ${
-                  animatedCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                }`}
-                style={{ transitionDelay: `${Math.min(index * 50, 500)}ms` }}
-              >
-                {/* Image area */}
+              return (
                 <div
-                  className="relative aspect-square bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100 flex items-center justify-center cursor-pointer group"
-                  onClick={() => setSelectedArtist(artist)}
+                  key={artist.id}
+                  className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden group"
                 >
-                  <span className="text-5xl sm:text-6xl group-hover:scale-110 transition-transform duration-300">
-                    {artist.emoji || '🎵'}
-                  </span>
-                  {index < 3 && (
-                    <div className="absolute top-3 left-3 w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center text-white text-xs font-bold shadow-lg">
-                      {index + 1}
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                    <span className="text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 px-3 py-1.5 rounded-full backdrop-blur-sm">
-                      상세보기
-                    </span>
-                  </div>
-                </div>
-
-                {/* Info */}
-                <div className="p-4">
-                  <h3
-                    className="font-bold mb-0.5 cursor-pointer hover:text-gray-900 transition-colors truncate"
+                  {/* Emoji Area */}
+                  <div
+                    className="aspect-square bg-gray-50 rounded-t-2xl flex items-center justify-center cursor-pointer relative"
                     onClick={() => setSelectedArtist(artist)}
                   >
-                    {artist.name}
-                  </h3>
-                  <p className="text-xs text-gray-500 mb-3">{artist.genre}</p>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1 text-sm text-gray-500">
-                      <span className="text-xs">💜</span>
-                      <span>{artist.likes.toLocaleString()}</span>
-                    </div>
-                    <button
-                      onClick={() => toggleLike(artist.id)}
-                      disabled={isLiking}
-                      className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                        isLiked
-                          ? 'bg-ples-gold text-ples-dark shadow-lg shadow-ples-gold/20 hover:bg-ples-gold/80'
-                          : 'bg-gray-50 text-gray-500 hover:bg-ples-gold/10 hover:text-ples-gold border border-gray-200'
-                      } ${isLiking ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                      {isLiking ? '...' : isLiked ? '💜' : '🤍'}
-                    </button>
+                    <span className="text-4xl sm:text-5xl group-hover:scale-110 transition-transform duration-300">
+                      {artist.emoji || '🎵'}
+                    </span>
                   </div>
 
-                  {(artist.investments || 0) > 0 && (
-                    <div className="mt-2 text-xs text-gray-600">
-                      투자 {artist.investments?.toLocaleString()}회
+                  {/* Info */}
+                  <div className="p-4">
+                    <h3
+                      className="font-semibold text-gray-900 truncate cursor-pointer hover:text-gray-600 transition-colors"
+                      onClick={() => setSelectedArtist(artist)}
+                    >
+                      {artist.name}
+                    </h3>
+                    <p className="text-sm text-gray-400 mb-3">{artist.genre}</p>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 text-sm text-gray-400">
+                        <div className="flex items-center gap-1">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                          </svg>
+                          <span>{artist.likes.toLocaleString()}</span>
+                        </div>
+                        {(artist.investments || 0) > 0 && (
+                          <div className="flex items-center gap-1">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                            </svg>
+                            <span>{artist.investments?.toLocaleString()}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleLike(artist.id);
+                        }}
+                        disabled={isLiking}
+                        className={`p-1.5 rounded-full transition-all ${
+                          isLiking ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                      >
+                        {isLiked ? (
+                          <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                          </svg>
+                        ) : (
+                          <svg className="w-5 h-5 text-gray-300 hover:text-red-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                          </svg>
+                        )}
+                      </button>
                     </div>
-                  )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       {/* Detail Modal */}
       {selectedArtist && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4"
           onClick={() => setSelectedArtist(null)}
         >
           <div
-            className="glass-strong rounded-3xl max-w-lg w-full overflow-hidden animate-fadeIn shadow-2xl shadow-black/5"
+            className="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Artist header */}
-            <div className="relative bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100 p-8 text-center">
+            <div className="relative bg-gray-50 p-10 text-center">
               <button
                 onClick={() => setSelectedArtist(null)}
-                className="absolute top-4 right-4 w-8 h-8 rounded-full glass flex items-center justify-center text-gray-400 hover:text-gray-900 transition-colors"
+                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white border border-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-900 transition-colors"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
               <span className="text-7xl mb-4 block">{selectedArtist.emoji || '🎵'}</span>
-              <h3 className="text-2xl font-bold mb-1">{selectedArtist.name}</h3>
-              <p className="text-sm text-gray-500">{selectedArtist.genre}</p>
+              <h3 className="text-2xl font-bold text-gray-900 mb-1">{selectedArtist.name}</h3>
+              <p className="text-sm text-gray-400">{selectedArtist.genre}</p>
             </div>
 
             {/* Stats */}
             <div className="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100">
-              <div className="p-4 text-center">
-                <p className="text-2xl font-bold text-ples-silver">{selectedArtist.likes.toLocaleString()}</p>
-                <p className="text-xs text-gray-500 mt-1">좋아요</p>
+              <div className="p-5 text-center">
+                <p className="text-2xl font-bold text-gray-900">{selectedArtist.likes.toLocaleString()}</p>
+                <p className="text-xs text-gray-400 mt-1">좋아요</p>
               </div>
-              <div className="p-4 text-center">
-                <p className="text-2xl font-bold text-ples-gold">{(selectedArtist.investments || 0).toLocaleString()}</p>
-                <p className="text-xs text-gray-500 mt-1">투자</p>
+              <div className="p-5 text-center">
+                <p className="text-2xl font-bold text-gray-900">{(selectedArtist.investments || 0).toLocaleString()}</p>
+                <p className="text-xs text-gray-400 mt-1">투자</p>
               </div>
             </div>
 
             {/* Description */}
             <div className="p-6">
-              <h4 className="text-sm font-semibold text-gray-600 mb-2">소개</h4>
-              <p className="text-sm text-gray-500 leading-relaxed">
+              <h4 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">소개</h4>
+              <p className="text-sm text-gray-600 leading-relaxed">
                 {selectedArtist.description || '아직 소개가 등록되지 않았습니다.'}
               </p>
             </div>
@@ -346,13 +356,27 @@ export default function ArtistsPage() {
               <button
                 onClick={() => toggleLike(selectedArtist.id)}
                 disabled={likingInProgress === selectedArtist.id}
-                className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all ${
+                className={`w-full py-3.5 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${
                   likedArtists.has(selectedArtist.id)
-                    ? 'bg-ples-gold text-ples-dark hover:bg-ples-gold/80'
-                    : 'btn-primary'
+                    ? 'border border-gray-200 text-gray-600 hover:bg-gray-50 bg-white'
+                    : 'bg-gray-900 text-white hover:bg-gray-800'
                 }`}
               >
-                {likedArtists.has(selectedArtist.id) ? '💜 좋아요 취소' : '🤍 좋아요'}
+                {likedArtists.has(selectedArtist.id) ? (
+                  <>
+                    <svg className="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                    좋아요 취소
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                    좋아요
+                  </>
+                )}
               </button>
             </div>
           </div>
