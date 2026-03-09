@@ -12,6 +12,8 @@ const navItems = [
   { href: '/admin/votes', label: '투표관리', icon: '🗳️' },
   { href: '/admin/artworks', label: '마켓', icon: '🎨' },
   { href: '/admin/videos', label: '영상관리', icon: '🎬' },
+  { href: '/admin/points', label: '포인트 관리', icon: '💰' },
+  { href: '/admin/payments', label: '결제 내역', icon: '💳' },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

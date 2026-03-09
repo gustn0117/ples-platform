@@ -21,6 +21,31 @@ interface Stats {
   purchases: number;
 }
 
+interface VoteRecord {
+  id: string;
+  created_at: string;
+  votes: { title: string; category: string } | null;
+}
+
+interface LikedArtist {
+  id: string;
+  created_at: string;
+  artists: { name: string; genre: string; thumbnail: string } | null;
+}
+
+interface PurchaseRecord {
+  id: string;
+  created_at: string;
+  amount: number;
+  artworks: { title: string; artist_name: string; thumbnail: string } | null;
+}
+
+interface WatchedVideo {
+  id: string;
+  watched_at: string;
+  videos: { title: string; thumbnail: string; point_reward: number } | null;
+}
+
 export default function MyPage() {
   const { user, profile, refreshProfile } = useAuth();
   const [stats, setStats] = useState<Stats>({ points: 0, totalVotes: 0, likedArtists: 0, purchases: 0 });
@@ -30,6 +55,13 @@ export default function MyPage() {
   const [newNickname, setNewNickname] = useState('');
   const [savingNickname, setSavingNickname] = useState(false);
   const [nicknameSaved, setNicknameSaved] = useState(false);
+  const [activeTab, setActiveTab] = useState<'votes' | 'artists' | 'purchases' | 'videos'>('votes');
+  const [voteRecords, setVoteRecords] = useState<VoteRecord[]>([]);
+  const [likedArtists, setLikedArtists] = useState<LikedArtist[]>([]);
+  const [purchaseRecords, setPurchaseRecords] = useState<PurchaseRecord[]>([]);
+  const [watchedVideos, setWatchedVideos] = useState<WatchedVideo[]>([]);
+  const [tabLoading, setTabLoading] = useState(false);
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
 
   const fetchData = useCallback(async () => {
     if (!user) return;
@@ -62,9 +94,63 @@ export default function MyPage() {
     setLoading(false);
   }, [user, profile?.points]);
 
+  const fetchTabData = useCallback(async (tab: typeof activeTab) => {
+    if (!user) return;
+    setTabLoading(true);
+
+    switch (tab) {
+      case 'votes': {
+        const { data } = await supabase
+          .from('user_votes')
+          .select('id, created_at, votes(title, category)')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(20);
+        if (data) setVoteRecords(data as unknown as VoteRecord[]);
+        break;
+      }
+      case 'artists': {
+        const { data } = await supabase
+          .from('artist_likes')
+          .select('id, created_at, artists(name, genre, thumbnail)')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(20);
+        if (data) setLikedArtists(data as unknown as LikedArtist[]);
+        break;
+      }
+      case 'purchases': {
+        const { data } = await supabase
+          .from('purchases')
+          .select('id, created_at, amount, artworks(title, artist_name, thumbnail)')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(20);
+        if (data) setPurchaseRecords(data as unknown as PurchaseRecord[]);
+        break;
+      }
+      case 'videos': {
+        const { data } = await supabase
+          .from('video_watches')
+          .select('id, watched_at, videos(title, thumbnail, point_reward)')
+          .eq('user_id', user.id)
+          .order('watched_at', { ascending: false })
+          .limit(20);
+        if (data) setWatchedVideos(data as unknown as WatchedVideo[]);
+        break;
+      }
+    }
+
+    setTabLoading(false);
+  }, [user]);
+
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+    fetchTabData(activeTab);
+  }, [activeTab, fetchTabData]);
 
   const handleSaveNickname = async () => {
     if (!user || !newNickname.trim()) return;
@@ -288,12 +374,172 @@ export default function MyPage() {
         )}
       </div>
 
+      {/* Detailed History Tabs */}
+      <div className="mt-8 bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+        {/* Tab Navigation */}
+        <div className="flex border-b border-gray-100 overflow-x-auto">
+          {([
+            { key: 'votes' as const, label: '참여한 투표', icon: '🗳️' },
+            { key: 'artists' as const, label: '좋아요 아티스트', icon: '💜' },
+            { key: 'purchases' as const, label: '구매 내역', icon: '🎨' },
+            { key: 'videos' as const, label: '시청 완료 영상', icon: '🎬' },
+          ]).map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`flex items-center gap-1.5 px-5 py-4 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
+                activeTab === tab.key
+                  ? 'border-purple-500 text-purple-700 bg-purple-50/50'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <span>{tab.icon}</span>
+              <span>{tab.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Tab Content */}
+        <div className="p-6">
+          {tabLoading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-3 animate-pulse">
+                  <div className="w-10 h-10 bg-gray-100 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-gray-200 rounded w-2/3" />
+                    <div className="h-3 bg-gray-100 rounded w-1/3" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <>
+              {/* Votes Tab */}
+              {activeTab === 'votes' && (
+                voteRecords.length === 0 ? (
+                  <div className="text-center py-10">
+                    <span className="text-3xl block mb-2">🗳️</span>
+                    <p className="text-sm text-gray-500">참여한 투표가 없습니다</p>
+                  </div>
+                ) : (
+                  <div className="space-y-0 divide-y divide-gray-50">
+                    {voteRecords.map((record) => (
+                      <div key={record.id} className="flex items-center justify-between py-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-lg">🗳️</div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">{record.votes?.title || '삭제된 투표'}</p>
+                            <p className="text-xs text-gray-400">{record.votes?.category || ''}</p>
+                          </div>
+                        </div>
+                        <span className="text-xs text-gray-400">
+                          {new Date(record.created_at).toLocaleDateString('ko-KR')}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )
+              )}
+
+              {/* Artists Tab */}
+              {activeTab === 'artists' && (
+                likedArtists.length === 0 ? (
+                  <div className="text-center py-10">
+                    <span className="text-3xl block mb-2">💜</span>
+                    <p className="text-sm text-gray-500">좋아요한 아티스트가 없습니다</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {likedArtists.map((record) => (
+                      <div key={record.id} className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-purple-50 transition-colors">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center text-2xl">
+                          {record.artists?.thumbnail || '🎤'}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-gray-900 truncate">{record.artists?.name || '알 수 없음'}</p>
+                          <p className="text-xs text-gray-400">{record.artists?.genre || ''}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )
+              )}
+
+              {/* Purchases Tab */}
+              {activeTab === 'purchases' && (
+                purchaseRecords.length === 0 ? (
+                  <div className="text-center py-10">
+                    <span className="text-3xl block mb-2">🎨</span>
+                    <p className="text-sm text-gray-500">구매 내역이 없습니다</p>
+                  </div>
+                ) : (
+                  <div className="space-y-0 divide-y divide-gray-50">
+                    {purchaseRecords.map((record) => (
+                      <div key={record.id} className="flex items-center justify-between py-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-lg">
+                            {record.artworks?.thumbnail || '🎨'}
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">{record.artworks?.title || '삭제된 작품'}</p>
+                            <p className="text-xs text-gray-400">{record.artworks?.artist_name || ''}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-bold text-gray-900">{record.amount?.toLocaleString()}P</p>
+                          <p className="text-xs text-gray-400">{new Date(record.created_at).toLocaleDateString('ko-KR')}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )
+              )}
+
+              {/* Videos Tab */}
+              {activeTab === 'videos' && (
+                watchedVideos.length === 0 ? (
+                  <div className="text-center py-10">
+                    <span className="text-3xl block mb-2">🎬</span>
+                    <p className="text-sm text-gray-500">시청 완료한 영상이 없습니다</p>
+                  </div>
+                ) : (
+                  <div className="space-y-0 divide-y divide-gray-50">
+                    {watchedVideos.map((record) => (
+                      <div key={record.id} className="flex items-center justify-between py-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-lg">
+                            {record.videos?.thumbnail || '🎬'}
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">{record.videos?.title || '삭제된 영상'}</p>
+                            <p className="text-xs text-gray-400">
+                              +{record.videos?.point_reward || 0}P 적립
+                            </p>
+                          </div>
+                        </div>
+                        <span className="text-xs text-gray-400">
+                          {new Date(record.watched_at).toLocaleDateString('ko-KR')}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )
+              )}
+            </>
+          )}
+        </div>
+      </div>
+
       {/* Account Actions */}
       <div className="mt-8 flex flex-col sm:flex-row gap-3">
         <button className="px-5 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition-colors font-medium">
           비밀번호 변경
         </button>
-        <button className="px-5 py-2.5 rounded-xl border border-red-200 text-sm text-red-500 hover:bg-red-50 transition-colors font-medium">
+        <button
+          onClick={() => setShowWithdrawModal(true)}
+          className="px-5 py-2.5 rounded-xl border border-red-200 text-sm text-red-500 hover:bg-red-50 transition-colors font-medium"
+        >
           회원 탈퇴
         </button>
       </div>
@@ -306,6 +552,32 @@ export default function MyPage() {
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
             닉네임이 변경되었습니다!
+          </div>
+        </div>
+      )}
+
+      {/* Withdraw Modal */}
+      {showWithdrawModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 animate-fade-in-up shadow-2xl">
+            <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center text-2xl mx-auto mb-4">
+              ⚠️
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-1 text-center">회원 탈퇴</h3>
+            <p className="text-sm text-gray-500 mb-2 text-center">
+              탈퇴 시 모든 데이터(포인트, 투표 내역, 구매 내역 등)가 삭제되며 복구할 수 없습니다.
+            </p>
+            <div className="bg-gray-50 rounded-xl p-4 mb-5">
+              <p className="text-sm text-gray-700 font-medium mb-1">탈퇴 문의</p>
+              <p className="text-sm text-purple-600 font-semibold">support@ples.co.kr</p>
+              <p className="text-xs text-gray-400 mt-1">위 이메일로 탈퇴를 요청해주세요</p>
+            </div>
+            <button
+              onClick={() => setShowWithdrawModal(false)}
+              className="w-full py-3 rounded-xl text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors"
+            >
+              닫기
+            </button>
           </div>
         </div>
       )}

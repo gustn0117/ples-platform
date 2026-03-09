@@ -19,6 +19,7 @@ export default function VideosPage() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [watchedToday, setWatchedToday] = useState<Set<string>>(new Set());
+  const [everRewarded, setEverRewarded] = useState<Set<string>>(new Set());
   const [playingVideo, setPlayingVideo] = useState<Video | null>(null);
   const [countdown, setCountdown] = useState(3);
   const [isCountingDown, setIsCountingDown] = useState(false);
@@ -41,17 +42,28 @@ export default function VideosPage() {
     setLoading(false);
   }, []);
 
-  const fetchTodayWatches = useCallback(async () => {
+  const fetchWatchHistory = useCallback(async () => {
     if (!user) return;
-    const { data } = await supabase
-      .from('video_watches')
-      .select('video_id')
-      .eq('user_id', user.id)
-      .gte('watched_at', `${todayStr}T00:00:00`)
-      .lte('watched_at', `${todayStr}T23:59:59`);
 
-    if (data) {
-      setWatchedToday(new Set(data.map((w: { video_id: string }) => w.video_id)));
+    // Fetch all-time watches (to know which videos were ever rewarded)
+    const [allWatchesRes, todayWatchesRes] = await Promise.all([
+      supabase
+        .from('video_watches')
+        .select('video_id')
+        .eq('user_id', user.id),
+      supabase
+        .from('video_watches')
+        .select('video_id')
+        .eq('user_id', user.id)
+        .gte('watched_at', `${todayStr}T00:00:00`)
+        .lte('watched_at', `${todayStr}T23:59:59`),
+    ]);
+
+    if (allWatchesRes.data) {
+      setEverRewarded(new Set(allWatchesRes.data.map((w: { video_id: string }) => w.video_id)));
+    }
+    if (todayWatchesRes.data) {
+      setWatchedToday(new Set(todayWatchesRes.data.map((w: { video_id: string }) => w.video_id)));
     }
   }, [user, todayStr]);
 
@@ -60,8 +72,8 @@ export default function VideosPage() {
   }, [fetchVideos]);
 
   useEffect(() => {
-    fetchTodayWatches();
-  }, [fetchTodayWatches]);
+    fetchWatchHistory();
+  }, [fetchWatchHistory]);
 
   // Countdown timer logic
   useEffect(() => {
@@ -80,7 +92,9 @@ export default function VideosPage() {
 
   const handleWatch = (video: Video) => {
     if (!user) return;
-    if (watchedToday.has(video.id)) return;
+    // Already rewarded for this video (any time) - can still watch but no points
+    if (everRewarded.has(video.id)) return;
+    // Daily limit for NEW rewards
     if (watchedToday.size >= maxDaily) return;
     setPlayingVideo(video);
     setCountdown(3);
@@ -90,6 +104,12 @@ export default function VideosPage() {
   const handleComplete = async (video: Video) => {
     if (!user) return;
     setIsCountingDown(false);
+
+    // Double-check: only reward if never rewarded before for this video
+    if (everRewarded.has(video.id)) {
+      setPlayingVideo(null);
+      return;
+    }
 
     // Record the watch
     await supabase.from('video_watches').insert({
@@ -115,6 +135,7 @@ export default function VideosPage() {
         .eq('id', user.id);
     }
 
+    setEverRewarded(new Set([...everRewarded, video.id]));
     setWatchedToday(new Set([...watchedToday, video.id]));
     setRewardAnimation(video.id);
     setTimeout(() => setRewardAnimation(null), 2000);
@@ -202,24 +223,25 @@ export default function VideosPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {videos.map((video) => {
-            const isWatched = watchedToday.has(video.id);
+            const isRewarded = everRewarded.has(video.id);
             const showReward = rewardAnimation === video.id;
+            const canEarnReward = !isRewarded && !limitReached;
 
             return (
               <div
                 key={video.id}
                 className={`bg-white rounded-2xl border overflow-hidden card-hover ${
-                  isWatched ? 'border-green-200' : 'border-gray-100'
+                  isRewarded ? 'border-green-200' : 'border-gray-100'
                 }`}
               >
                 {/* Thumbnail */}
                 <div
                   className={`relative aspect-video flex items-center justify-center cursor-pointer group overflow-hidden ${
-                    isWatched
+                    isRewarded
                       ? 'bg-gradient-to-br from-green-800 to-green-900'
                       : 'bg-gradient-to-br from-gray-800 via-purple-900 to-gray-900'
                   }`}
-                  onClick={() => !isWatched && !limitReached && handleWatch(video)}
+                  onClick={() => canEarnReward && handleWatch(video)}
                 >
                   {/* Animated background circles */}
                   <div className="absolute inset-0 overflow-hidden">
@@ -230,7 +252,7 @@ export default function VideosPage() {
                   <span className="text-5xl relative z-10">{video.thumbnail}</span>
 
                   {/* Play overlay */}
-                  {!isWatched && !limitReached && (
+                  {canEarnReward && (
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
                       <div className="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center transform scale-75 group-hover:scale-100 transition-transform duration-300 shadow-lg">
                         <svg className="w-6 h-6 text-purple-600 ml-1" fill="currentColor" viewBox="0 0 20 20">
@@ -240,8 +262,8 @@ export default function VideosPage() {
                     </div>
                   )}
 
-                  {/* Watched overlay */}
-                  {isWatched && (
+                  {/* Rewarded overlay */}
+                  {isRewarded && (
                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                       <div className={`px-4 py-2 bg-green-500 text-white text-sm font-semibold rounded-full shadow-lg ${
                         showReward ? 'animate-bounce' : ''
@@ -264,18 +286,18 @@ export default function VideosPage() {
                   </h3>
                   <div className="flex items-center justify-between">
                     <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
-                      isWatched
+                      isRewarded
                         ? 'bg-green-50 text-green-600'
                         : 'bg-purple-50 text-purple-600'
                     }`}>
                       +{video.point_reward}P
                     </span>
-                    {isWatched ? (
+                    {isRewarded ? (
                       <span className="text-xs text-green-500 font-medium flex items-center gap-1">
                         <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
-                        시청 완료
+                        적립 완료
                       </span>
                     ) : limitReached ? (
                       <span className="text-xs text-gray-400">일일 한도 초과</span>

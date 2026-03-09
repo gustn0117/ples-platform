@@ -141,11 +141,13 @@ export default function Footer() {
               회사 정보
             </h3>
             <p className="mt-4 text-sm leading-relaxed text-gray-400">
-              주식회사 플레스
+              (주) 플레스
               <br />
-              대표: 홍길동
+              대표: 유리아
               <br />
-              사업자등록번호: 000-00-00000
+              사업자등록번호: 516-86-03447
+              <br />
+              서울특별시 강남구 테헤란로82길 15, 1489호
             </p>
           </div>
         </div>
