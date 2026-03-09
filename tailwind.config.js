@@ -20,13 +20,15 @@ module.exports = {
           900: '#171717',
         },
         ples: {
-          silver: '#c0c0c0',
-          light: '#e8e8e8',
+          silver: '#999999',
+          light: '#f7f7f7',
           accent: '#b0b0b0',
-          gold: '#c9b99a',
-          dark: '#141414',
-          surface: '#1c1c1c',
-          card: '#222222',
+          gold: '#a08c6a',
+          bg: '#ffffff',
+          surface: '#f5f5f5',
+          card: '#ffffff',
+          dark: '#1a1a1a',
+          border: '#e5e5e5',
         }
       },
       fontFamily: {

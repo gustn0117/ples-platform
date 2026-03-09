@@ -147,17 +147,17 @@ export default function VotePage() {
     return (
       <div className="section-container py-12">
         <div className="mb-10">
-          <div className="h-8 bg-white/10 rounded-lg w-64 animate-pulse mb-3" />
-          <div className="h-5 bg-white/5 rounded-lg w-96 animate-pulse" />
+          <div className="h-8 bg-gray-100 rounded-lg w-64 animate-pulse mb-3" />
+          <div className="h-5 bg-gray-50 rounded-lg w-96 animate-pulse" />
         </div>
         <div className="flex flex-col gap-8">
           {[...Array(3)].map((_, i) => (
             <div key={i} className="glass rounded-2xl p-6 space-y-4">
-              <div className="h-6 bg-white/10 rounded-lg w-3/4 animate-pulse" />
-              <div className="h-4 bg-white/5 rounded-lg w-1/2 animate-pulse" />
+              <div className="h-6 bg-gray-100 rounded-lg w-3/4 animate-pulse" />
+              <div className="h-4 bg-gray-50 rounded-lg w-1/2 animate-pulse" />
               <div className="space-y-3">
                 {[...Array(3)].map((_, j) => (
-                  <div key={j} className="h-14 bg-white/5 rounded-xl animate-pulse" />
+                  <div key={j} className="h-14 bg-gray-50 rounded-xl animate-pulse" />
                 ))}
               </div>
             </div>
@@ -214,14 +214,14 @@ export default function VotePage() {
                       className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium ${
                         vote.is_active
                           ? 'bg-ples-green/10 text-ples-green border border-ples-green/20'
-                          : 'bg-white/5 text-gray-500'
+                          : 'bg-gray-50 text-gray-500'
                       }`}
                     >
                       {vote.is_active ? '진행중' : '종료'}
                     </span>
                   </div>
                   {vote.description && (
-                    <p className="text-sm text-gray-400 mb-2">{vote.description}</p>
+                    <p className="text-sm text-gray-500 mb-2">{vote.description}</p>
                   )}
                   <p className="text-sm text-gray-600 mb-5">
                     마감일: {new Date(vote.end_date).toLocaleDateString('ko-KR')} · 참여 시 +{vote.point_reward || 10}P
@@ -244,14 +244,14 @@ export default function VotePage() {
                         disabled={!vote.is_active || hasVoted || isVoting}
                         className={`relative w-full text-left p-4 rounded-xl border transition-all overflow-hidden ${
                           isSelected
-                            ? 'border-white/20 bg-white/10'
-                            : 'border-white/10 hover:border-white/20'
+                            ? 'border-gray-300 bg-gray-100'
+                            : 'border-gray-200 hover:border-gray-300'
                         } ${!vote.is_active || hasVoted ? 'cursor-default' : 'cursor-pointer'}`}
                       >
                         {/* Animated Progress bar */}
                         {(hasVoted || !vote.is_active) && (
                           <div
-                            className="absolute inset-y-0 left-0 bg-gradient-to-r from-white/10 to-gray-400/5 rounded-xl transition-all duration-1000 ease-out"
+                            className="absolute inset-y-0 left-0 bg-gradient-to-r from-gray-100 to-gray-50 rounded-xl transition-all duration-1000 ease-out"
                             style={{ width: `${percentage}%` }}
                           />
                         )}
@@ -259,7 +259,7 @@ export default function VotePage() {
                           <div className="flex items-center gap-3">
                             <div
                               className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-                                isSelected ? 'border-white/20 bg-white' : 'border-gray-600'
+                                isSelected ? 'border-gray-900 bg-gray-900' : 'border-gray-400'
                               }`}
                             >
                               {isSelected && (
@@ -299,7 +299,7 @@ export default function VotePage() {
                       className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
                         selectedOptions[vote.id] && !isVoting
                           ? 'btn-primary'
-                          : 'bg-white/5 text-gray-600 cursor-not-allowed'
+                          : 'bg-gray-50 text-gray-400 cursor-not-allowed'
                       }`}
                     >
                       {isVoting ? (
@@ -315,14 +315,14 @@ export default function VotePage() {
                       )}
                     </button>
                   ) : hasVoted ? (
-                    <div className="flex items-center justify-center gap-2 py-3.5 bg-white/10 rounded-xl">
+                    <div className="flex items-center justify-center gap-2 py-3.5 bg-gray-100 rounded-xl">
                       <svg className="w-4 h-4 text-ples-silver" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                       <span className="text-sm font-semibold text-ples-silver">투표 완료</span>
                     </div>
                   ) : (
-                    <div className="text-center py-3.5 bg-white/5 rounded-xl">
+                    <div className="text-center py-3.5 bg-gray-50 rounded-xl">
                       <span className="text-sm text-gray-500">종료된 투표입니다</span>
                     </div>
                   )}

@@ -9,7 +9,7 @@ export default function AboutPage() {
           <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-gray-400/10 rounded-full blur-3xl" />
         </div>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center relative z-10">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-r from-gray-700 to-gray-900 flex items-center justify-center text-3xl font-bold mx-auto mb-8 shadow-lg shadow-black/30">
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-r from-gray-700 to-gray-900 flex items-center justify-center text-3xl font-bold mx-auto mb-8 shadow-lg shadow-black/5">
             P
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold mb-6 leading-tight">
@@ -19,7 +19,7 @@ export default function AboutPage() {
             </span>
             를 만듭니다
           </h1>
-          <p className="text-lg sm:text-xl text-gray-300 leading-relaxed max-w-2xl mx-auto">
+          <p className="text-lg sm:text-xl text-gray-400 leading-relaxed max-w-2xl mx-auto">
             PLES는 팬과 아티스트를 직접 연결하는 참여형 플랫폼입니다.
             투표하고, 응원하고, 함께 성장하는 새로운 엔터테인먼트 생태계를 만들어갑니다.
           </p>
@@ -102,7 +102,7 @@ export default function AboutPage() {
             ].map((feature) => (
               <div
                 key={feature.title}
-                className={`bg-gradient-to-br ${feature.bg} rounded-2xl p-7 border border-white/80 hover:shadow-lg transition-shadow duration-300`}
+                className={`bg-gradient-to-br ${feature.bg} rounded-2xl p-7 border border-gray-200 hover:shadow-lg transition-shadow duration-300`}
               >
                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center text-xl mb-5 shadow-sm`}>
                   {feature.icon}
@@ -204,7 +204,7 @@ export default function AboutPage() {
             contact@ples.co.kr
           </a>
 
-          <div className="mt-12 flex flex-wrap justify-center gap-8 text-sm text-gray-400">
+          <div className="mt-12 flex flex-wrap justify-center gap-8 text-sm text-gray-500">
             <div>
               <p className="font-medium text-gray-600 mb-1">주소</p>
               <p>서울특별시 강남구 테헤란로82길 15</p>

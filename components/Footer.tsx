@@ -19,18 +19,18 @@ const SUPPORT_LINKS = [
 
 export default function Footer() {
   return (
-    <footer className="relative border-t border-white/5 bg-gradient-to-b from-ples-dark to-gray-950">
+    <footer className="relative border-t border-gray-100 bg-gray-50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Main footer content */}
         <div className="grid grid-cols-1 gap-10 py-12 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
             <Link href="/" className="inline-block">
-              <span className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-white via-ples-silver to-gray-400 bg-clip-text text-transparent">
+              <span className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-gray-900 via-gray-600 to-gray-400 bg-clip-text text-transparent">
                 PLES
               </span>
             </Link>
-            <p className="mt-3 text-sm leading-relaxed text-gray-400 max-w-xs">
+            <p className="mt-3 text-sm leading-relaxed text-gray-500 max-w-xs">
               팬이 만드는 아티스트 플랫폼.
               <br />
               투표하고, 응원하고, 함께 성장하세요.
@@ -42,7 +42,7 @@ export default function Footer() {
               <a
                 href="#"
                 aria-label="Twitter"
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-gray-400 transition-all hover:bg-white/10 hover:text-white"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-all hover:bg-gray-200 hover:text-gray-900"
               >
                 <svg
                   className="h-4 w-4"
@@ -56,7 +56,7 @@ export default function Footer() {
               <a
                 href="#"
                 aria-label="Instagram"
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-gray-400 transition-all hover:bg-white/10 hover:text-white"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-all hover:bg-gray-200 hover:text-gray-900"
               >
                 <svg
                   className="h-4 w-4"
@@ -70,7 +70,7 @@ export default function Footer() {
               <a
                 href="#"
                 aria-label="YouTube"
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-gray-400 transition-all hover:bg-white/10 hover:text-white"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-all hover:bg-gray-200 hover:text-gray-900"
               >
                 <svg
                   className="h-4 w-4"
@@ -84,7 +84,7 @@ export default function Footer() {
               <a
                 href="#"
                 aria-label="Discord"
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-gray-400 transition-all hover:bg-white/10 hover:text-white"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-all hover:bg-gray-200 hover:text-gray-900"
               >
                 <svg
                   className="h-4 w-4"
@@ -99,7 +99,7 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-white">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-900">
               바로가기
             </h3>
             <ul className="mt-4 space-y-2.5">
@@ -107,7 +107,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-gray-400 transition-colors hover:text-white"
+                    className="text-sm text-gray-500 transition-colors hover:text-gray-900"
                   >
                     {link.label}
                   </Link>
@@ -118,7 +118,7 @@ export default function Footer() {
 
           {/* Support */}
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-white">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-900">
               고객지원
             </h3>
             <ul className="mt-4 space-y-2.5">
@@ -126,7 +126,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-gray-400 transition-colors hover:text-white"
+                    className="text-sm text-gray-500 transition-colors hover:text-gray-900"
                   >
                     {link.label}
                   </Link>
@@ -137,10 +137,10 @@ export default function Footer() {
 
           {/* Company Info */}
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-white">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-900">
               회사 정보
             </h3>
-            <p className="mt-4 text-sm leading-relaxed text-gray-400">
+            <p className="mt-4 text-sm leading-relaxed text-gray-500">
               (주) 플레스
               <br />
               대표: 유리아
@@ -153,11 +153,11 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-white/5 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="border-t border-gray-200 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-gray-500">
             &copy; 2026 PLES. All rights reserved.
           </p>
-          <p className="text-xs text-gray-600">
+          <p className="text-xs text-gray-400">
             팬이 만드는 아티스트 플랫폼
           </p>
         </div>

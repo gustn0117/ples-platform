@@ -143,18 +143,18 @@ export default function ArtworksPage() {
     return (
       <div className="section-container py-12">
         <div className="mb-10">
-          <div className="h-8 bg-white/10 rounded-lg w-48 animate-pulse mb-3" />
-          <div className="h-5 bg-white/5 rounded-lg w-80 animate-pulse" />
+          <div className="h-8 bg-gray-100 rounded-lg w-48 animate-pulse mb-3" />
+          <div className="h-5 bg-gray-50 rounded-lg w-80 animate-pulse" />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="glass rounded-2xl overflow-hidden">
-              <div className="aspect-[4/3] bg-white/5 animate-pulse" />
+              <div className="aspect-[4/3] bg-gray-50 animate-pulse" />
               <div className="p-5 space-y-3">
-                <div className="h-4 bg-white/10 rounded animate-pulse w-1/3" />
-                <div className="h-6 bg-white/10 rounded animate-pulse" />
-                <div className="h-4 bg-white/5 rounded animate-pulse w-2/3" />
-                <div className="h-10 bg-white/5 rounded-xl animate-pulse mt-4" />
+                <div className="h-4 bg-gray-100 rounded animate-pulse w-1/3" />
+                <div className="h-6 bg-gray-100 rounded animate-pulse" />
+                <div className="h-4 bg-gray-50 rounded animate-pulse w-2/3" />
+                <div className="h-10 bg-gray-50 rounded-xl animate-pulse mt-4" />
               </div>
             </div>
           ))}
@@ -194,8 +194,8 @@ export default function ArtworksPage() {
             }}
             className={`px-5 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
               selectedCategory === cat.key
-                ? 'bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-lg shadow-black/30'
-                : 'glass text-gray-400 hover:text-white hover:bg-white/10'
+                ? 'bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-lg shadow-black/5'
+                : 'glass text-gray-500 hover:text-gray-900 hover:bg-gray-100'
             }`}
           >
             {cat.label}
@@ -223,11 +223,11 @@ export default function ArtworksPage() {
                 style={{ transitionDelay: `${Math.min(index * 80, 400)}ms` }}
               >
                 {/* Image */}
-                <div className="relative aspect-[4/3] bg-gradient-to-br from-white/10 via-ples-silver/5 to-ples-gold/5 flex items-center justify-center">
+                <div className="relative aspect-[4/3] bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100 flex items-center justify-center">
                   <span className="text-6xl">{artwork.emoji || '🎨'}</span>
                   {isSoldOut && (
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
-                      <span className="text-white font-bold text-lg px-5 py-2.5 border-2 border-white/30 rounded-xl backdrop-blur-sm">
+                      <span className="text-white font-bold text-lg px-5 py-2.5 border-2 border-gray-300 rounded-xl backdrop-blur-sm">
                         품절
                       </span>
                     </div>
@@ -238,7 +238,7 @@ export default function ArtworksPage() {
                     </div>
                   )}
                   {artwork.category && (
-                    <div className="absolute top-3 left-3 px-2.5 py-1 glass rounded-full text-xs font-medium text-gray-300">
+                    <div className="absolute top-3 left-3 px-2.5 py-1 glass rounded-full text-xs font-medium text-gray-600">
                       {artwork.category}
                     </div>
                   )}
@@ -291,7 +291,7 @@ export default function ArtworksPage() {
                   ) : (
                     <button
                       disabled
-                      className="w-full py-3 rounded-xl bg-white/5 text-gray-600 font-semibold text-sm cursor-not-allowed"
+                      className="w-full py-3 rounded-xl bg-gray-50 text-gray-400 font-semibold text-sm cursor-not-allowed"
                     >
                       품절
                     </button>
@@ -315,7 +315,7 @@ export default function ArtworksPage() {
           }}
         >
           <div
-            className="glass-strong rounded-3xl max-w-md w-full p-6 animate-fadeIn shadow-2xl shadow-black/20"
+            className="glass-strong rounded-3xl max-w-md w-full p-6 animate-fadeIn shadow-2xl shadow-black/5"
             onClick={(e) => e.stopPropagation()}
           >
             {purchaseSuccess ? (
@@ -326,7 +326,7 @@ export default function ArtworksPage() {
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold mb-2">구매 완료!</h3>
-                <p className="text-gray-400 text-sm">주문이 성공적으로 처리되었습니다</p>
+                <p className="text-gray-500 text-sm">주문이 성공적으로 처리되었습니다</p>
               </div>
             ) : (
               <>
@@ -338,7 +338,7 @@ export default function ArtworksPage() {
                   </div>
                   <button
                     onClick={() => setSelectedArtwork(null)}
-                    className="w-8 h-8 rounded-full glass flex items-center justify-center text-gray-400 hover:text-white transition-colors"
+                    className="w-8 h-8 rounded-full glass flex items-center justify-center text-gray-400 hover:text-gray-900 transition-colors"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -352,19 +352,19 @@ export default function ArtworksPage() {
                     onClick={() => setPaymentMethod('cash')}
                     className={`p-4 rounded-xl border text-left transition-all ${
                       paymentMethod === 'cash'
-                        ? 'border-white/20 bg-white/10'
-                        : 'border-white/10 hover:border-white/20'
+                        ? 'border-gray-300 bg-gray-50'
+                        : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="font-semibold">현금 결제</p>
-                        <p className="text-sm text-gray-400 mt-0.5">
+                        <p className="text-sm text-gray-500 mt-0.5">
                           {selectedArtwork.price.toLocaleString()}원
                         </p>
                       </div>
                       <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                        paymentMethod === 'cash' ? 'border-white bg-white' : 'border-gray-600'
+                        paymentMethod === 'cash' ? 'border-gray-900 bg-gray-900' : 'border-gray-400'
                       }`}>
                         {paymentMethod === 'cash' && (
                           <div className="w-2 h-2 rounded-full bg-white" />
@@ -377,14 +377,14 @@ export default function ArtworksPage() {
                     onClick={() => setPaymentMethod('points')}
                     className={`p-4 rounded-xl border text-left transition-all ${
                       paymentMethod === 'points'
-                        ? 'border-white/20 bg-white/10'
-                        : 'border-white/10 hover:border-white/20'
+                        ? 'border-gray-300 bg-gray-50'
+                        : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="font-semibold">포인트 결제</p>
-                        <p className="text-sm text-gray-400 mt-0.5">
+                        <p className="text-sm text-gray-500 mt-0.5">
                           {selectedArtwork.point_price.toLocaleString()}P
                           {profile && (
                             <span className="text-ples-silver ml-2">
@@ -403,7 +403,7 @@ export default function ArtworksPage() {
                         )}
                       </div>
                       <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                        paymentMethod === 'points' ? 'border-white bg-white' : 'border-gray-600'
+                        paymentMethod === 'points' ? 'border-gray-900 bg-gray-900' : 'border-gray-400'
                       }`}>
                         {paymentMethod === 'points' && (
                           <div className="w-2 h-2 rounded-full bg-white" />

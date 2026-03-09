@@ -145,17 +145,17 @@ export default function ArtistsPage() {
     return (
       <div className="section-container py-12">
         <div className="mb-10">
-          <div className="h-8 bg-white/10 rounded-lg w-48 animate-pulse mb-3" />
-          <div className="h-5 bg-white/5 rounded-lg w-80 animate-pulse" />
+          <div className="h-8 bg-gray-100 rounded-lg w-48 animate-pulse mb-3" />
+          <div className="h-5 bg-gray-50 rounded-lg w-80 animate-pulse" />
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
           {[...Array(10)].map((_, i) => (
             <div key={i} className="rounded-2xl overflow-hidden glass">
-              <div className="aspect-square bg-white/5 animate-pulse" />
+              <div className="aspect-square bg-gray-50 animate-pulse" />
               <div className="p-4 space-y-2">
-                <div className="h-5 bg-white/10 rounded animate-pulse" />
-                <div className="h-3 bg-white/5 rounded animate-pulse w-2/3" />
-                <div className="h-8 bg-white/5 rounded-full animate-pulse w-24 mt-3" />
+                <div className="h-5 bg-gray-100 rounded animate-pulse" />
+                <div className="h-3 bg-gray-50 rounded animate-pulse w-2/3" />
+                <div className="h-8 bg-gray-50 rounded-full animate-pulse w-24 mt-3" />
               </div>
             </div>
           ))}
@@ -206,8 +206,8 @@ export default function ArtistsPage() {
               onClick={() => setSortBy(sort.key)}
               className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
                 sortBy === sort.key
-                  ? 'bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-lg shadow-black/30'
-                  : 'glass text-gray-400 hover:text-white hover:bg-white/10'
+                  ? 'bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-lg shadow-black/5'
+                  : 'glass text-gray-500 hover:text-gray-900 hover:bg-gray-100'
               }`}
             >
               {sort.label}
@@ -238,7 +238,7 @@ export default function ArtistsPage() {
               >
                 {/* Image area */}
                 <div
-                  className="relative aspect-square bg-gradient-to-br from-white/10 via-ples-silver/5 to-ples-gold/5 flex items-center justify-center cursor-pointer group"
+                  className="relative aspect-square bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100 flex items-center justify-center cursor-pointer group"
                   onClick={() => setSelectedArtist(artist)}
                 >
                   <span className="text-5xl sm:text-6xl group-hover:scale-110 transition-transform duration-300">
@@ -259,7 +259,7 @@ export default function ArtistsPage() {
                 {/* Info */}
                 <div className="p-4">
                   <h3
-                    className="font-bold mb-0.5 cursor-pointer hover:text-white transition-colors truncate"
+                    className="font-bold mb-0.5 cursor-pointer hover:text-gray-900 transition-colors truncate"
                     onClick={() => setSelectedArtist(artist)}
                   >
                     {artist.name}
@@ -267,7 +267,7 @@ export default function ArtistsPage() {
                   <p className="text-xs text-gray-500 mb-3">{artist.genre}</p>
 
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1 text-sm text-gray-400">
+                    <div className="flex items-center gap-1 text-sm text-gray-500">
                       <span className="text-xs">💜</span>
                       <span>{artist.likes.toLocaleString()}</span>
                     </div>
@@ -277,7 +277,7 @@ export default function ArtistsPage() {
                       className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
                         isLiked
                           ? 'bg-ples-gold text-ples-dark shadow-lg shadow-ples-gold/20 hover:bg-ples-gold/80'
-                          : 'bg-white/5 text-gray-400 hover:bg-ples-gold/10 hover:text-ples-gold border border-white/10'
+                          : 'bg-gray-50 text-gray-500 hover:bg-ples-gold/10 hover:text-ples-gold border border-gray-200'
                       } ${isLiking ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       {isLiking ? '...' : isLiked ? '💜' : '🤍'}
@@ -303,14 +303,14 @@ export default function ArtistsPage() {
           onClick={() => setSelectedArtist(null)}
         >
           <div
-            className="glass-strong rounded-3xl max-w-lg w-full overflow-hidden animate-fadeIn shadow-2xl shadow-black/20"
+            className="glass-strong rounded-3xl max-w-lg w-full overflow-hidden animate-fadeIn shadow-2xl shadow-black/5"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Artist header */}
-            <div className="relative bg-gradient-to-br from-white/15 via-ples-silver/10 to-ples-gold/5 p-8 text-center">
+            <div className="relative bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100 p-8 text-center">
               <button
                 onClick={() => setSelectedArtist(null)}
-                className="absolute top-4 right-4 w-8 h-8 rounded-full glass flex items-center justify-center text-gray-400 hover:text-white transition-colors"
+                className="absolute top-4 right-4 w-8 h-8 rounded-full glass flex items-center justify-center text-gray-400 hover:text-gray-900 transition-colors"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -318,11 +318,11 @@ export default function ArtistsPage() {
               </button>
               <span className="text-7xl mb-4 block">{selectedArtist.emoji || '🎵'}</span>
               <h3 className="text-2xl font-bold mb-1">{selectedArtist.name}</h3>
-              <p className="text-sm text-gray-400">{selectedArtist.genre}</p>
+              <p className="text-sm text-gray-500">{selectedArtist.genre}</p>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 divide-x divide-white/5 border-b border-white/5">
+            <div className="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100">
               <div className="p-4 text-center">
                 <p className="text-2xl font-bold text-ples-silver">{selectedArtist.likes.toLocaleString()}</p>
                 <p className="text-xs text-gray-500 mt-1">좋아요</p>
@@ -335,7 +335,7 @@ export default function ArtistsPage() {
 
             {/* Description */}
             <div className="p-6">
-              <h4 className="text-sm font-semibold text-gray-300 mb-2">소개</h4>
+              <h4 className="text-sm font-semibold text-gray-600 mb-2">소개</h4>
               <p className="text-sm text-gray-500 leading-relaxed">
                 {selectedArtist.description || '아직 소개가 등록되지 않았습니다.'}
               </p>

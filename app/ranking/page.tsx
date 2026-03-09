@@ -219,7 +219,7 @@ export default function RankingPage() {
                   {artist.name}
                 </h3>
                 <p className="text-xs text-gray-400 mb-1">{artist.genre}</p>
-                <p className={`font-bold ${isFirst ? 'text-xl text-gray-300' : 'text-sm text-gray-600'}`}>
+                <p className={`font-bold ${isFirst ? 'text-xl text-gray-700' : 'text-sm text-gray-600'}`}>
                   <AnimatedNumber
                     value={activeTab === '좋아요' ? artist.likes : activeTab === '투자' ? artist.investments : artist.total}
                   />
@@ -280,7 +280,7 @@ export default function RankingPage() {
               <AnimatedNumber value={artist.investments} />
             </div>
             <div className="col-span-2 text-right">
-              <span className={`text-sm font-bold ${index < 3 ? 'text-gray-300' : 'text-gray-700'}`}>
+              <span className={`text-sm font-bold ${index < 3 ? 'text-gray-800' : 'text-gray-700'}`}>
                 <AnimatedNumber value={artist.total} />
               </span>
             </div>

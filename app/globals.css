@@ -2,24 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Color Palette CSS Variables ─── */
 :root {
-  --color-primary: #c0c0c0;
-  --color-primary-light: #e0e0e0;
-  --color-primary-dark: #8a8a8a;
-  --color-accent: #b0b0b0;
-  --color-gold: #c9b99a;
-  --color-green: #7a9e7e;
-  --color-dark: #141414;
-  --color-surface: #1c1c1c;
-  --color-surface-light: #252525;
-  --color-border: rgba(255, 255, 255, 0.06);
-  --color-text: #ececec;
-  --color-text-secondary: #999999;
-  --color-text-muted: #666666;
+  --color-primary: #1a1a1a;
+  --color-primary-light: #404040;
+  --color-primary-dark: #000000;
+  --color-accent: #999999;
+  --color-gold: #a08c6a;
+  --color-green: #5a7a5e;
+  --color-bg: #ffffff;
+  --color-surface: #f5f5f5;
+  --color-surface-light: #fafafa;
+  --color-border: #e5e5e5;
+  --color-text: #1a1a1a;
+  --color-text-secondary: #666666;
+  --color-text-muted: #999999;
 }
 
-/* ─── Base Styles ─── */
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -27,11 +25,10 @@
   }
 
   body {
-    background-color: var(--color-dark);
+    background-color: var(--color-bg);
     color: var(--color-text);
   }
 
-  /* Custom Scrollbar */
   ::-webkit-scrollbar {
     width: 4px;
     height: 4px;
@@ -42,64 +39,61 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(0, 0, 0, 0.15);
     border-radius: 2px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.25);
   }
 
   * {
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+    scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
   }
 
   ::selection {
-    background-color: rgba(192, 192, 192, 0.25);
-    color: #fff;
+    background-color: rgba(0, 0, 0, 0.08);
+    color: #000;
   }
 }
 
-/* ─── Component Utilities ─── */
 @layer components {
-  /* Glass Morphism */
   .glass {
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.06);
   }
 
   .glass-strong {
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.08);
   }
 
   .glass-dark {
-    background: rgba(20, 20, 20, 0.85);
+    background: rgba(0, 0, 0, 0.03);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.06);
   }
 
-  /* Gradient Utilities */
   .gradient-primary {
-    background: linear-gradient(135deg, #3a3a3a 0%, #1a1a1a 100%);
+    background: linear-gradient(135deg, #f5f5f5 0%, #e5e5e5 100%);
   }
 
   .gradient-dark {
-    background: linear-gradient(135deg, #1c1c1c 0%, #141414 100%);
+    background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
   }
 
   .gradient-warm {
-    background: linear-gradient(135deg, #c9b99a 0%, #8a7a5a 100%);
+    background: linear-gradient(135deg, #a08c6a 0%, #7a6a4a 100%);
   }
 
   .gradient-text-primary {
-    background: linear-gradient(to right, #e0e0e0, #909090);
+    background: linear-gradient(to right, #1a1a1a, #666666);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -116,14 +110,13 @@
     inset: 0;
     padding: 1px;
     border-radius: inherit;
-    background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.03));
+    background: linear-gradient(135deg, rgba(0,0,0,0.1), rgba(0,0,0,0.03));
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     pointer-events: none;
   }
 
-  /* Card Hover Effects */
   .card-hover {
     @apply transition-all duration-300 ease-out;
   }
@@ -131,38 +124,36 @@
   .card-hover:hover {
     transform: translateY(-4px);
     box-shadow:
-      0 20px 40px -12px rgba(0, 0, 0, 0.4),
-      0 0 0 1px rgba(255, 255, 255, 0.06);
+      0 20px 40px -12px rgba(0, 0, 0, 0.1),
+      0 0 0 1px rgba(0, 0, 0, 0.04);
   }
 
   .card-glow:hover {
     box-shadow:
-      0 0 20px rgba(255, 255, 255, 0.05),
-      0 0 40px rgba(255, 255, 255, 0.02);
+      0 0 20px rgba(0, 0, 0, 0.06),
+      0 0 40px rgba(0, 0, 0, 0.03);
   }
 
-  /* Modern Form Inputs */
   .input-modern {
-    @apply w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white
-      placeholder-gray-600 outline-none transition-all duration-200;
+    @apply w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900
+      placeholder-gray-400 outline-none transition-all duration-200;
   }
 
   .input-modern:focus {
-    @apply border-white/20 bg-white/[0.05] ring-2 ring-white/10;
+    @apply border-gray-400 bg-white ring-2 ring-gray-200;
   }
 
   .input-modern:hover:not(:focus) {
-    @apply border-white/[0.12] bg-white/[0.04];
+    @apply border-gray-300;
   }
 
-  /* Button Styles */
   .btn-primary {
-    @apply rounded-xl bg-white px-6 py-3 text-sm font-semibold
-      text-black shadow-lg shadow-black/20 transition-all duration-200;
+    @apply rounded-xl bg-gray-900 px-6 py-3 text-sm font-semibold
+      text-white shadow-lg shadow-black/10 transition-all duration-200;
   }
 
   .btn-primary:hover {
-    @apply bg-gray-100 shadow-xl shadow-black/30;
+    @apply bg-black shadow-xl shadow-black/15;
     transform: translateY(-1px);
   }
 
@@ -171,21 +162,19 @@
   }
 
   .btn-ghost {
-    @apply rounded-xl border border-white/10 px-6 py-3 text-sm font-medium text-gray-300
+    @apply rounded-xl border border-gray-200 px-6 py-3 text-sm font-medium text-gray-600
       transition-all duration-200;
   }
 
   .btn-ghost:hover {
-    @apply border-white/20 bg-white/5 text-white;
+    @apply border-gray-300 bg-gray-50 text-gray-900;
   }
 
-  /* Section Container */
   .section-container {
     @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
   }
 }
 
-/* ─── Animations ─── */
 @layer utilities {
   .animate-fadeIn {
     animation: fadeIn 0.3s ease-out forwards;
@@ -205,44 +194,21 @@
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes pulse-glow {
-  0%,
-  100% {
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.06);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.12), 0 0 40px rgba(255, 255, 255, 0.04);
-  }
+  0%, 100% { box-shadow: 0 0 8px rgba(0, 0, 0, 0.04); }
+  50% { box-shadow: 0 0 20px rgba(0, 0, 0, 0.08), 0 0 40px rgba(0, 0, 0, 0.03); }
 }

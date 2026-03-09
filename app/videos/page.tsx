@@ -254,7 +254,7 @@ export default function VideosPage() {
                   {/* Play overlay */}
                   {canEarnReward && (
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
-                      <div className="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center transform scale-75 group-hover:scale-100 transition-transform duration-300 shadow-lg">
+                      <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center transform scale-75 group-hover:scale-100 transition-transform duration-300 shadow-lg">
                         <svg className="w-6 h-6 text-gray-600 ml-1" fill="currentColor" viewBox="0 0 20 20">
                           <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
                         </svg>
@@ -359,7 +359,7 @@ export default function VideosPage() {
 
                 {/* Countdown */}
                 {isCountingDown && countdown > 0 && (
-                  <div className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 rounded-full backdrop-blur-sm">
+                  <div className="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 rounded-full backdrop-blur-sm">
                     <div className="relative w-10 h-10">
                       <svg className="w-10 h-10 transform -rotate-90" viewBox="0 0 36 36">
                         <circle cx="18" cy="18" r="16" fill="none" stroke="white" strokeOpacity="0.2" strokeWidth="2" />

@@ -23,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ko" className="dark">
+    <html lang="ko">
       <head>
         <link
           rel="stylesheet"
@@ -32,7 +32,7 @@ export default function RootLayout({
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
         />
       </head>
-      <body className="min-h-screen bg-ples-dark font-sans text-white antialiased">
+      <body className="min-h-screen bg-white font-sans text-gray-900 antialiased">
         <Providers>
           <div className="flex min-h-screen flex-col">
             <Header />

@@ -93,16 +93,16 @@ export default function LoginPage() {
     <div className="min-h-[90vh] flex items-center justify-center py-12 px-4 relative overflow-hidden">
       {/* Background effects */}
       <div className="absolute inset-0">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-white/5 rounded-full blur-[80px]" />
-        <div className="absolute bottom-20 right-10 w-64 h-64 bg-ples-silver/5 rounded-full blur-[80px]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gray-400/5 rounded-full blur-[100px]" />
+        <div className="absolute top-20 left-10 w-72 h-72 bg-gray-200/50 rounded-full blur-[80px]" />
+        <div className="absolute bottom-20 right-10 w-64 h-64 bg-gray-200/40 rounded-full blur-[80px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gray-100 rounded-full blur-[100px]" />
       </div>
 
       <div className="relative z-10 w-full max-w-md animate-slideUp">
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
-            <div className="w-16 h-16 rounded-2xl bg-white flex items-center justify-center text-2xl font-bold text-ples-dark mx-auto mb-4 shadow-lg shadow-black/30">
+            <div className="w-16 h-16 rounded-2xl bg-gray-900 flex items-center justify-center text-2xl font-bold text-white mx-auto mb-4 shadow-lg shadow-black/5">
               P
             </div>
           </Link>
@@ -113,13 +113,13 @@ export default function LoginPage() {
         {/* Glass Card */}
         <div className="glass-strong rounded-3xl p-8">
           {/* Tabs */}
-          <div className="flex mb-8 bg-white/5 rounded-2xl p-1.5">
+          <div className="flex mb-8 bg-gray-50 rounded-2xl p-1.5">
             <button
               onClick={() => { setTab('login'); setError(''); setSuccess(''); }}
               className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${
                 tab === 'login'
-                  ? 'bg-white/10 text-white shadow-sm'
-                  : 'text-gray-500 hover:text-gray-300'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
               }`}
             >
               로그인
@@ -128,8 +128,8 @@ export default function LoginPage() {
               onClick={() => { setTab('register'); setError(''); setSuccess(''); }}
               className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${
                 tab === 'register'
-                  ? 'bg-white/10 text-white shadow-sm'
-                  : 'text-gray-500 hover:text-gray-300'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
               }`}
             >
               회원가입
@@ -164,7 +164,7 @@ export default function LoginPage() {
           {tab === 'login' && (
             <form onSubmit={handleLogin} className="flex flex-col gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">이메일</label>
+                <label className="block text-sm font-medium text-gray-600 mb-1.5">이메일</label>
                 <input
                   type="email"
                   value={email}
@@ -174,7 +174,7 @@ export default function LoginPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">비밀번호</label>
+                <label className="block text-sm font-medium text-gray-600 mb-1.5">비밀번호</label>
                 <input
                   type="password"
                   value={password}
@@ -207,7 +207,7 @@ export default function LoginPage() {
           {tab === 'register' && (
             <form onSubmit={handleSignup} className="flex flex-col gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">닉네임</label>
+                <label className="block text-sm font-medium text-gray-600 mb-1.5">닉네임</label>
                 <input
                   type="text"
                   value={nickname}
@@ -217,7 +217,7 @@ export default function LoginPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">이메일</label>
+                <label className="block text-sm font-medium text-gray-600 mb-1.5">이메일</label>
                 <input
                   type="email"
                   value={email}
@@ -227,7 +227,7 @@ export default function LoginPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">비밀번호</label>
+                <label className="block text-sm font-medium text-gray-600 mb-1.5">비밀번호</label>
                 <input
                   type="password"
                   value={password}
@@ -237,7 +237,7 @@ export default function LoginPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">비밀번호 확인</label>
+                <label className="block text-sm font-medium text-gray-600 mb-1.5">비밀번호 확인</label>
                 <input
                   type="password"
                   value={passwordConfirm}

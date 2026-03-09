@@ -54,11 +54,11 @@ export default function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-ples-dark/80 backdrop-blur-xl supports-[backdrop-filter]:bg-ples-dark/60">
+      <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-white via-ples-silver to-gray-400 bg-clip-text text-transparent">
+            <span className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-gray-900 via-gray-600 to-gray-400 bg-clip-text text-transparent">
               PLES
             </span>
           </Link>
@@ -71,13 +71,13 @@ export default function Header() {
                 href={link.href}
                 className={`relative px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                   isActive(link.href)
-                    ? 'text-white bg-white/10'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                    ? 'text-gray-900 bg-gray-100'
+                    : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
                 {link.label}
                 {isActive(link.href) && (
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-4 rounded-full bg-gradient-to-r from-white to-ples-silver" />
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-4 rounded-full bg-gradient-to-r from-gray-900 to-gray-400" />
                 )}
               </Link>
             ))}
@@ -86,7 +86,7 @@ export default function Header() {
           {/* Desktop Right */}
           <div className="hidden md:flex items-center gap-3">
             {loading ? (
-              <div className="h-8 w-20 animate-pulse rounded-lg bg-white/10" />
+              <div className="h-8 w-20 animate-pulse rounded-lg bg-gray-100" />
             ) : user && profile ? (
               <>
                 {/* Points Badge */}
@@ -109,9 +109,9 @@ export default function Header() {
                 <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={() => setDropdownOpen(!dropdownOpen)}
-                    className="flex items-center gap-2 rounded-full p-1 transition-all hover:bg-white/10"
+                    className="flex items-center gap-2 rounded-full p-1 transition-all hover:bg-gray-100"
                   >
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-gray-300 to-ples-silver text-sm font-bold text-ples-dark">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-gray-300 to-ples-silver text-sm font-bold text-white">
                       {profile.avatar_url ? (
                         <img
                           src={profile.avatar_url}
@@ -123,7 +123,7 @@ export default function Header() {
                       )}
                     </div>
                     <svg
-                      className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${
+                      className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${
                         dropdownOpen ? 'rotate-180' : ''
                       }`}
                       fill="none"
@@ -140,19 +140,19 @@ export default function Header() {
                   </button>
 
                   {dropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-xl border border-white/10 bg-gray-900/95 backdrop-blur-xl shadow-2xl animate-fadeIn">
-                      <div className="border-b border-white/10 px-4 py-3">
-                        <p className="text-sm font-semibold text-white truncate">
+                    <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-xl border border-gray-200 bg-white/95 backdrop-blur-xl shadow-lg shadow-gray-200 animate-fadeIn">
+                      <div className="border-b border-gray-200 px-4 py-3">
+                        <p className="text-sm font-semibold text-gray-900 truncate">
                           {profile.nickname}
                         </p>
-                        <p className="text-xs text-gray-400 truncate">
+                        <p className="text-xs text-gray-500 truncate">
                           {profile.email}
                         </p>
                       </div>
                       <div className="py-1">
                         <Link
                           href="/mypage"
-                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition-colors"
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
                         >
                           <svg
                             className="h-4 w-4"
@@ -171,7 +171,7 @@ export default function Header() {
                         </Link>
                         <Link
                           href="/points"
-                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition-colors"
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
                         >
                           <svg
                             className="h-4 w-4"
@@ -191,7 +191,7 @@ export default function Header() {
                         {profile.is_admin && (
                           <Link
                             href="/admin"
-                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition-colors"
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
                           >
                             <svg
                               className="h-4 w-4"
@@ -215,10 +215,10 @@ export default function Header() {
                           </Link>
                         )}
                       </div>
-                      <div className="border-t border-white/10 py-1">
+                      <div className="border-t border-gray-200 py-1">
                         <button
                           onClick={logout}
-                          className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors"
+                          className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors"
                         >
                           <svg
                             className="h-4 w-4"
@@ -244,13 +244,13 @@ export default function Header() {
               <div className="flex items-center gap-2">
                 <Link
                   href="/login"
-                  className="rounded-lg px-4 py-2 text-sm font-medium text-gray-300 transition-all hover:text-white hover:bg-white/5"
+                  className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 transition-all hover:text-gray-900 hover:bg-gray-50"
                 >
                   로그인
                 </Link>
                 <Link
                   href="/login?tab=signup"
-                  className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-ples-dark transition-all hover:bg-gray-200 hover:shadow-lg hover:shadow-white/10"
+                  className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-gray-800 hover:shadow-lg hover:shadow-gray-200"
                 >
                   회원가입
                 </Link>
@@ -261,21 +261,21 @@ export default function Header() {
           {/* Mobile Hamburger */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden flex flex-col items-center justify-center w-10 h-10 rounded-lg hover:bg-white/10 transition-colors"
+            className="md:hidden flex flex-col items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 transition-colors"
             aria-label="메뉴 열기"
           >
             <span
-              className={`block h-0.5 w-5 rounded-full bg-white transition-all duration-300 ${
+              className={`block h-0.5 w-5 rounded-full bg-gray-900 transition-all duration-300 ${
                 mobileOpen ? 'translate-y-[3px] rotate-45' : ''
               }`}
             />
             <span
-              className={`block h-0.5 w-5 rounded-full bg-white transition-all duration-300 mt-1 ${
+              className={`block h-0.5 w-5 rounded-full bg-gray-900 transition-all duration-300 mt-1 ${
                 mobileOpen ? 'opacity-0' : ''
               }`}
             />
             <span
-              className={`block h-0.5 w-5 rounded-full bg-white transition-all duration-300 mt-1 ${
+              className={`block h-0.5 w-5 rounded-full bg-gray-900 transition-all duration-300 mt-1 ${
                 mobileOpen ? '-translate-y-[7px] -rotate-45' : ''
               }`}
             />
@@ -286,28 +286,28 @@ export default function Header() {
       {/* Mobile Drawer Overlay */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm md:hidden"
           onClick={() => setMobileOpen(false)}
         />
       )}
 
       {/* Mobile Drawer */}
       <div
-        className={`fixed top-0 right-0 z-50 h-full w-72 bg-gray-900/98 backdrop-blur-xl border-l border-white/10 shadow-2xl transform transition-transform duration-300 md:hidden ${
+        className={`fixed top-0 right-0 z-50 h-full w-72 bg-white/98 backdrop-blur-xl border-l border-gray-200 shadow-2xl shadow-gray-200 transform transition-transform duration-300 md:hidden ${
           mobileOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <div className="flex items-center justify-between p-4 border-b border-white/10">
-          <span className="text-lg font-bold bg-gradient-to-r from-white to-ples-silver bg-clip-text text-transparent">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+          <span className="text-lg font-bold bg-gradient-to-r from-gray-900 to-gray-400 bg-clip-text text-transparent">
             PLES
           </span>
           <button
             onClick={() => setMobileOpen(false)}
-            className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-white/10 transition-colors"
+            className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-gray-100 transition-colors"
             aria-label="메뉴 닫기"
           >
             <svg
-              className="h-5 w-5 text-gray-400"
+              className="h-5 w-5 text-gray-500"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -324,9 +324,9 @@ export default function Header() {
 
         {/* Mobile user info */}
         {user && profile && (
-          <div className="p-4 border-b border-white/10">
+          <div className="p-4 border-b border-gray-200">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gray-300 to-ples-silver text-sm font-bold text-ples-dark shrink-0">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gray-300 to-ples-silver text-sm font-bold text-white shrink-0">
                 {profile.avatar_url ? (
                   <img
                     src={profile.avatar_url}
@@ -338,7 +338,7 @@ export default function Header() {
                 )}
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-white truncate">
+                <p className="text-sm font-semibold text-gray-900 truncate">
                   {profile.nickname}
                 </p>
                 <p className="text-xs text-ples-gold font-medium">
@@ -357,8 +357,8 @@ export default function Header() {
               href={link.href}
               className={`block rounded-lg px-4 py-3 text-sm font-medium transition-all ${
                 isActive(link.href)
-                  ? 'bg-white/10 text-white'
-                  : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                  ? 'bg-gray-100 text-gray-900'
+                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
               {link.label}
@@ -367,32 +367,32 @@ export default function Header() {
         </nav>
 
         {/* Mobile bottom actions */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10">
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
           {user && profile ? (
             <div className="space-y-1">
               <Link
                 href="/mypage"
-                className="block rounded-lg px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition-colors"
+                className="block rounded-lg px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
               >
                 마이페이지
               </Link>
               <Link
                 href="/points"
-                className="block rounded-lg px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition-colors"
+                className="block rounded-lg px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
               >
                 포인트
               </Link>
               {profile.is_admin && (
                 <Link
                   href="/admin"
-                  className="block rounded-lg px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition-colors"
+                  className="block rounded-lg px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
                 >
                   관리자
                 </Link>
               )}
               <button
                 onClick={logout}
-                className="w-full text-left rounded-lg px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
+                className="w-full text-left rounded-lg px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
               >
                 로그아웃
               </button>
@@ -401,13 +401,13 @@ export default function Header() {
             <div className="flex flex-col gap-2">
               <Link
                 href="/login"
-                className="block rounded-lg border border-white/20 px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-white/5 transition-colors"
+                className="block rounded-lg border border-gray-300 px-4 py-2.5 text-center text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors"
               >
                 로그인
               </Link>
               <Link
                 href="/login?tab=signup"
-                className="block rounded-lg bg-white px-4 py-2.5 text-center text-sm font-medium text-ples-dark hover:bg-gray-200 hover:shadow-lg hover:shadow-white/10 transition-all"
+                className="block rounded-lg bg-gray-900 px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-gray-800 hover:shadow-lg hover:shadow-gray-200 transition-all"
               >
                 회원가입
               </Link>
