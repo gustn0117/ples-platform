@@ -135,30 +135,18 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Newsletter / Contact */}
+          {/* Company Info */}
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-white">
-              소식 받기
+              회사 정보
             </h3>
-            <p className="mt-4 text-sm text-gray-400">
-              PLES의 최신 소식과 업데이트를 받아보세요.
+            <p className="mt-4 text-sm leading-relaxed text-gray-400">
+              주식회사 플레스
+              <br />
+              대표: 홍길동
+              <br />
+              사업자등록번호: 000-00-00000
             </p>
-            <form
-              onSubmit={(e) => e.preventDefault()}
-              className="mt-4 flex gap-2"
-            >
-              <input
-                type="email"
-                placeholder="이메일 주소"
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-gray-500 outline-none transition-all focus:border-ples-purple/50 focus:ring-1 focus:ring-ples-purple/50"
-              />
-              <button
-                type="submit"
-                className="shrink-0 rounded-lg bg-gradient-to-r from-ples-purple to-ples-blue px-4 py-2 text-sm font-medium text-white transition-all hover:shadow-lg hover:shadow-ples-purple/25"
-              >
-                구독
-              </button>
-            </form>
           </div>
         </div>
 
