@@ -205,10 +205,10 @@ export default function MyPage() {
     : '';
 
   const statCards = [
-    { label: '보유 포인트', value: `${(profile?.points || 0).toLocaleString()}P`, icon: <IconCoin className="w-5 h-5 text-gray-500" /> },
-    { label: '투표 수', value: `${stats.totalVotes}`, icon: <IconVote className="w-5 h-5 text-gray-500" /> },
-    { label: '좋아요', value: `${stats.likedArtists}`, icon: <IconHeart className="w-5 h-5 text-gray-500" /> },
-    { label: '구매', value: `${stats.purchases}`, icon: <IconShoppingBag className="w-5 h-5 text-gray-500" /> },
+    { label: '보유 포인트', value: `${(profile?.points || 0).toLocaleString()}P`, icon: <IconCoin className="w-5 h-5" />, highlight: true, hoverGradient: 'hover:bg-gradient-to-br hover:from-gray-900 hover:to-gray-800 hover:text-white' },
+    { label: '투표 수', value: `${stats.totalVotes}`, icon: <IconVote className="w-5 h-5" />, highlight: false, hoverGradient: 'hover:bg-gradient-to-br hover:from-gray-50 hover:to-gray-100' },
+    { label: '좋아요', value: `${stats.likedArtists}`, icon: <IconHeart className="w-5 h-5" />, highlight: false, hoverGradient: 'hover:bg-gradient-to-br hover:from-gray-50 hover:to-slate-100' },
+    { label: '구매', value: `${stats.purchases}`, icon: <IconShoppingBag className="w-5 h-5" />, highlight: false, hoverGradient: 'hover:bg-gradient-to-br hover:from-gray-50 hover:to-zinc-100' },
   ];
 
   const tabItems = [
@@ -219,10 +219,10 @@ export default function MyPage() {
   ];
 
   const quickNavItems = [
-    { label: '포인트 관리', href: '/points', icon: <IconWallet className="w-5 h-5 text-gray-600" /> },
-    { label: '아티스트 랭킹', href: '/ranking', icon: <IconTrophy className="w-5 h-5 text-gray-600" /> },
-    { label: '영상 리워드', href: '/videos', icon: <IconPlay className="w-5 h-5 text-gray-600" /> },
-    { label: '마켓', href: '/market', icon: <IconShoppingBag className="w-5 h-5 text-gray-600" /> },
+    { label: '포인트 관리', href: '/points', icon: <IconWallet className="w-5 h-5 text-white" /> },
+    { label: '아티스트 랭킹', href: '/ranking', icon: <IconTrophy className="w-5 h-5 text-white" /> },
+    { label: '영상 리워드', href: '/videos', icon: <IconPlay className="w-5 h-5 text-white" /> },
+    { label: '마켓', href: '/market', icon: <IconShoppingBag className="w-5 h-5 text-white" /> },
   ];
 
   return (
@@ -233,32 +233,38 @@ export default function MyPage() {
         <p className="text-gray-400">내 활동을 확인하고 관리하세요</p>
       </div>
 
-      {/* Profile Section */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8 mb-6">
-        <div className="flex items-center gap-5">
-          {/* Avatar - large letter avatar */}
-          <div className="w-20 h-20 rounded-2xl bg-gray-900 flex items-center justify-center shrink-0">
-            <span className="text-3xl font-bold text-white">{nickname[0]}</span>
+      {/* Profile Section - Dark Gradient Card */}
+      <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl p-6 sm:p-8 mb-6 overflow-hidden mesh-gradient-dark">
+        <div className="noise-overlay" />
+        <div className="relative z-10 flex items-center gap-5">
+          {/* Avatar with glow effect */}
+          <div className="relative shrink-0">
+            <div className="absolute inset-0 w-20 h-20 rounded-2xl bg-white/20 blur-xl" />
+            <div className="relative w-20 h-20 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center">
+              <span className="text-3xl font-bold text-white">{nickname[0]}</span>
+            </div>
           </div>
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-0.5">
-              <h2 className="text-lg font-bold text-gray-900">{nickname}</h2>
+              <h2 className="text-lg font-bold text-white">{nickname}</h2>
               <button
                 onClick={() => {
                   setNewNickname(nickname);
                   setShowNicknameModal(true);
                 }}
-                className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-colors"
+                className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/20 transition-colors"
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
               </button>
             </div>
-            <p className="text-sm text-gray-400">{email}</p>
+            <p className="text-sm text-white/50">{email}</p>
             {joinDate && (
-              <p className="text-xs text-gray-300 mt-1">{joinDate} 가입</p>
+              <span className="inline-flex items-center mt-2 px-3 py-1 rounded-full bg-white/10 text-xs text-white/60 font-medium">
+                {joinDate} 가입
+              </span>
             )}
           </div>
         </div>
@@ -275,19 +281,25 @@ export default function MyPage() {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8 stagger-children">
           {statCards.map((stat) => (
             <div
               key={stat.label}
-              className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5"
+              className={`group relative rounded-2xl border border-gray-100 shadow-sm p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg cursor-default ${
+                stat.highlight
+                  ? 'bg-gradient-to-br from-gray-900 to-gray-800 border-gray-800 text-white'
+                  : `bg-white ${stat.hoverGradient}`
+              }`}
             >
               <div className="flex items-center justify-between mb-3">
-                <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                  stat.highlight ? 'bg-white/10 text-white' : 'bg-gray-100 text-gray-500 group-hover:bg-white/80'
+                }`}>
                   {stat.icon}
                 </div>
               </div>
-              <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-              <p className="text-xs text-gray-400 mt-1 font-medium">{stat.label}</p>
+              <p className={`text-2xl font-bold ${stat.highlight ? 'text-white' : 'text-gray-900'}`}>{stat.value}</p>
+              <p className={`text-xs mt-1 font-medium ${stat.highlight ? 'text-white/60' : 'text-gray-400'}`}>{stat.label}</p>
             </div>
           ))}
         </div>
@@ -295,22 +307,24 @@ export default function MyPage() {
 
       {/* Activity Tabs */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-8">
-        {/* Tab Navigation - underline style */}
-        <div className="flex border-b border-gray-100 overflow-x-auto px-2">
-          {tabItems.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-1.5 px-4 py-4 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
-                activeTab === tab.key
-                  ? 'border-gray-900 text-gray-900'
-                  : 'border-transparent text-gray-400 hover:text-gray-600'
-              }`}
-            >
-              {tab.icon}
-              {tab.label}
-            </button>
-          ))}
+        {/* Tab Navigation - Pill/Segment style */}
+        <div className="p-4 pb-0">
+          <div className="inline-flex bg-gray-50 rounded-xl p-1.5 gap-1 overflow-x-auto w-full sm:w-auto">
+            {tabItems.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold whitespace-nowrap rounded-lg transition-all ${
+                  activeTab === tab.key
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-400 hover:text-gray-600'
+                }`}
+              >
+                {tab.icon}
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Tab Content */}
@@ -444,18 +458,18 @@ export default function MyPage() {
       </div>
 
       {/* Quick Nav Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8 stagger-children">
         {quickNavItems.map((item) => (
           <Link
             key={item.label}
             href={item.href}
-            className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 hover:bg-gray-50 transition-colors group"
+            className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group"
           >
             <div className="flex items-center justify-between mb-3">
-              <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center shadow-sm">
                 {item.icon}
               </div>
-              <IconArrowRight className="w-4 h-4 text-gray-300 group-hover:text-gray-500 transition-colors" />
+              <IconArrowRight className="w-4 h-4 text-gray-300 group-hover:text-gray-900 group-hover:translate-x-0.5 transition-all" />
             </div>
             <p className="text-sm font-semibold text-gray-900">{item.label}</p>
           </Link>
@@ -489,7 +503,7 @@ export default function MyPage() {
       {/* Withdraw Modal */}
       {showWithdrawModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl animate-scaleIn">
             <h3 className="text-lg font-bold text-gray-900 mb-2">회원 탈퇴</h3>
             <p className="text-sm text-gray-400 mb-4">
               탈퇴 시 모든 데이터(포인트, 투표 내역, 구매 내역 등)가 삭제되며 복구할 수 없습니다.
@@ -512,7 +526,7 @@ export default function MyPage() {
       {/* Edit Nickname Modal */}
       {showNicknameModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl animate-scaleIn">
             <h3 className="text-lg font-bold text-gray-900 mb-1">닉네임 수정</h3>
             <p className="text-sm text-gray-400 mb-5">새로운 닉네임을 입력해주세요</p>
 

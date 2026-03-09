@@ -184,214 +184,349 @@ export default function Home() {
     { label: '포인트 지급', value: pointCount.value, suffix: '+', icon: IconCoin },
   ];
 
+  const rankMedals = ['#111827', '#6b7280', '#9ca3af', '#d1d5db', '#e5e7eb'];
+
   return (
     <div className="overflow-hidden bg-white">
-      {/* Hero Section */}
-      <section className="relative min-h-[calc(100vh-64px)] flex flex-col items-center justify-center overflow-hidden">
-        {/* Animated grid background */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage:
-              'linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)',
-            backgroundSize: '64px 64px',
-          }}
-        />
-
-        {/* Floating decorative elements */}
-        <div className="absolute top-1/4 right-[15%] w-64 h-64 rounded-full bg-gray-100/50 blur-3xl animate-float-slow" />
-        <div className="absolute bottom-1/3 left-[10%] w-48 h-48 rounded-full bg-gray-200/30 blur-3xl animate-float-reverse" />
-        <div className="absolute top-[15%] left-[20%] w-2 h-2 rounded-full bg-gray-400/30 animate-float" />
-        <div className="absolute top-[40%] right-[25%] w-1.5 h-1.5 rounded-full bg-gray-300/40 animate-float-slow" />
-        <div className="absolute bottom-[30%] right-[15%] w-1 h-1 rounded-full bg-gray-400/20 animate-float-reverse" />
+      {/* =============================================
+          HERO SECTION — Split layout with glowing orb
+          ============================================= */}
+      <section className="relative min-h-[calc(100vh-64px)] flex items-center overflow-hidden noise-overlay">
+        {/* Mesh gradient background */}
+        <div className="absolute inset-0 mesh-gradient-1 pointer-events-none" />
 
         {/* Bottom fade */}
-        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-white to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-white to-transparent z-10" />
 
-        <div className="relative z-10 w-full max-w-6xl mx-auto px-6 sm:px-8 py-20">
-          <div className="max-w-3xl">
-            {/* Label badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gray-50 border border-gray-100 mb-8 animate-fade-in-up">
-              <span className="w-1.5 h-1.5 rounded-full bg-gray-900 animate-pulse" />
-              <span className="text-xs font-medium text-gray-500 tracking-wide">팬 참여형 아티스트 플랫폼</span>
-            </div>
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-8 py-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            {/* Left — Content */}
+            <div>
+              {/* Badge with ring-pulse */}
+              <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-gray-50 border border-gray-200 mb-10 animate-fade-in-up glow-border">
+                <span className="relative w-2 h-2 rounded-full bg-gray-900">
+                  <span className="absolute inset-0 rounded-full bg-gray-900 ring-pulse" />
+                </span>
+                <span className="text-xs font-semibold text-gray-600 tracking-wider uppercase">
+                  팬 참여형 아티스트 플랫폼
+                </span>
+              </div>
 
-            <h1 className="text-5xl sm:text-6xl lg:text-8xl font-bold tracking-tight text-gray-900 leading-[1.05]">
-              팬이 만드는
-              <br />
-              <span className="relative inline-block">
-                아티스트
-                <svg className="absolute -bottom-2 left-0 w-full h-3 text-gray-200" viewBox="0 0 200 12" preserveAspectRatio="none">
-                  <path d="M0 8 Q50 0, 100 8 Q150 16, 200 8" stroke="currentColor" strokeWidth="3" fill="none" />
-                </svg>
-              </span>
-              <br />
-              <span className="gradient-text-elegant">플랫폼</span>
-            </h1>
+              {/* Heading with glowing orb */}
+              <div className="relative">
+                {/* Glowing orb behind heading */}
+                <div
+                  className="absolute -top-20 -left-20 w-80 h-80 rounded-full pointer-events-none animate-pulse-glow"
+                  style={{
+                    background: 'radial-gradient(circle, rgba(17,24,39,0.06) 0%, transparent 70%)',
+                    filter: 'blur(40px)',
+                  }}
+                />
+                <h1 className="relative text-5xl sm:text-6xl lg:text-8xl font-bold tracking-tight text-gray-900 leading-[1.05]">
+                  팬이 만드는
+                  <br />
+                  <span className="relative inline-block">
+                    아티스트
+                    <svg className="absolute -bottom-2 left-0 w-full h-3 text-gray-300" viewBox="0 0 200 12" preserveAspectRatio="none">
+                      <path d="M0 8 Q50 0, 100 8 Q150 16, 200 8" stroke="currentColor" strokeWidth="3" fill="none" />
+                    </svg>
+                  </span>
+                  <br />
+                  <span className="gradient-text-elegant">플랫폼</span>
+                </h1>
+              </div>
 
-            <p className="mt-10 text-lg sm:text-xl text-gray-400 leading-relaxed max-w-lg">
-              투표하고, 응원하고, 시청하면서 포인트를 쌓는
-              <br className="hidden sm:block" />
-              새로운 참여형 아티스트 플랫폼
-            </p>
+              <p className="mt-10 text-lg sm:text-xl text-gray-400 leading-relaxed max-w-lg">
+                투표하고, 응원하고, 시청하면서 포인트를 쌓는
+                <br className="hidden sm:block" />
+                새로운 참여형 아티스트 플랫폼
+              </p>
 
-            <div className="mt-12 flex flex-wrap items-center gap-4">
-              <Link
-                href={user ? '/vote' : '/login'}
-                className="group inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-gray-900 text-white text-sm font-medium rounded-2xl hover:bg-black transition-all duration-300 hover:shadow-xl hover:shadow-black/10 hover:-translate-y-0.5"
-              >
-                지금 시작하기
-                <IconArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-              <Link
-                href="#features"
-                className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-gray-700 text-sm font-medium rounded-2xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 hover:shadow-sm transition-all duration-300"
-              >
-                더 알아보기
-                <svg className="w-4 h-4 text-gray-400 group-hover:translate-y-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                </svg>
-              </Link>
-            </div>
+              <div className="mt-12 flex flex-wrap items-center gap-4">
+                <Link
+                  href={user ? '/vote' : '/login'}
+                  className="group inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-gray-900 text-white text-sm font-medium rounded-2xl hover:bg-black transition-all duration-300 hover:shadow-xl hover:shadow-black/10 hover:-translate-y-0.5"
+                >
+                  지금 시작하기
+                  <IconArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                </Link>
+                <Link
+                  href="#features"
+                  className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-gray-700 text-sm font-medium rounded-2xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 hover:shadow-sm transition-all duration-300"
+                >
+                  더 알아보기
+                  <svg className="w-4 h-4 text-gray-400 group-hover:translate-y-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                  </svg>
+                </Link>
+              </div>
 
-            {/* Social proof */}
-            <div className="mt-16 flex items-center gap-6">
-              <div className="flex -space-x-2">
-                {['A', 'B', 'C', 'D'].map((letter, i) => (
-                  <div
-                    key={letter}
-                    className="w-8 h-8 rounded-full bg-gray-900 text-white text-xs font-semibold flex items-center justify-center border-2 border-white"
-                    style={{ zIndex: 4 - i }}
-                  >
-                    {letter}
+              {/* Social proof */}
+              <div className="mt-16 flex items-center gap-6">
+                <div className="flex -space-x-2">
+                  {['A', 'B', 'C', 'D'].map((letter, i) => (
+                    <div
+                      key={letter}
+                      className="w-9 h-9 rounded-full bg-gray-900 text-white text-xs font-semibold flex items-center justify-center border-2 border-white shadow-md"
+                      style={{ zIndex: 4 - i }}
+                    >
+                      {letter}
+                    </div>
+                  ))}
+                  <div className="w-9 h-9 rounded-full bg-gray-100 text-gray-500 text-[10px] font-semibold flex items-center justify-center border-2 border-white shadow-sm">
+                    +99
                   </div>
-                ))}
-                <div className="w-8 h-8 rounded-full bg-gray-100 text-gray-500 text-[10px] font-semibold flex items-center justify-center border-2 border-white">
-                  +99
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-gray-900">1,000+</p>
+                  <p className="text-xs text-gray-400">팬들이 참여 중</p>
                 </div>
               </div>
-              <div>
-                <p className="text-sm font-semibold text-gray-900">1,000+</p>
-                <p className="text-xs text-gray-400">팬들이 참여 중</p>
+            </div>
+
+            {/* Right — Decorative abstract composition */}
+            <div className="hidden lg:block relative h-[560px]">
+              {/* Large dark circle with inner content */}
+              <div className="absolute top-0 right-0 w-72 h-72 rounded-full bg-gray-900 animate-float-slow shadow-2xl overflow-hidden">
+                <div className="absolute inset-0 dot-pattern opacity-20" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-white/10 text-8xl font-black">P</span>
+                </div>
               </div>
+
+              {/* Floating card — Vote preview */}
+              <div className="absolute top-20 right-72 w-48 bg-white rounded-2xl border border-gray-100 p-4 shadow-lg animate-float-reverse">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 rounded-xl bg-gray-900 flex items-center justify-center">
+                    <IconVote className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-xs font-semibold text-gray-700">오늘의 투표</span>
+                </div>
+                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-full w-3/4 bg-gray-900 rounded-full" />
+                </div>
+                <p className="mt-2 text-[10px] text-gray-400">1,234명 참여</p>
+              </div>
+
+              {/* Floating card — Points preview */}
+              <div className="absolute bottom-32 right-64 w-44 bg-white rounded-2xl border border-gray-100 p-4 shadow-lg animate-float">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-8 h-8 rounded-xl bg-gray-200 flex items-center justify-center">
+                    <IconCoin className="w-4 h-4 text-gray-700" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-gray-400 block">적립 포인트</span>
+                    <span className="text-sm font-bold text-gray-900">2,500P</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Small circle */}
+              <div className="absolute top-72 right-8 w-32 h-32 rounded-full bg-gray-100 animate-float inner-shadow" />
+
+              {/* Tall rounded rect */}
+              <div className="absolute top-48 right-44 w-28 h-56 rounded-[2rem] bg-gray-900/80 animate-float-slow overflow-hidden">
+                <div className="absolute inset-0 line-pattern opacity-30" />
+              </div>
+
+              {/* Tiny circles */}
+              <div className="absolute top-8 right-[22rem] w-16 h-16 rounded-full bg-gray-100 animate-float inner-shadow" />
+              <div className="absolute bottom-4 right-[22rem] w-20 h-20 rounded-full bg-gray-900/60 animate-float" />
+
+              {/* Wide rounded rect */}
+              <div className="absolute bottom-8 right-12 w-52 h-24 rounded-3xl bg-gray-200 animate-float-reverse inner-shadow overflow-hidden">
+                <div className="absolute inset-0 dot-pattern opacity-30" />
+              </div>
+
+              {/* Dot accents */}
+              <div className="absolute top-36 right-2 w-4 h-4 rounded-full bg-gray-300 animate-float" />
+              <div className="absolute bottom-28 right-0 w-3 h-3 rounded-full bg-gray-400 animate-float-reverse" />
+              <div className="absolute top-4 right-36 w-2 h-2 rounded-full bg-gray-400 animate-float" />
             </div>
           </div>
         </div>
 
         {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40">
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40 z-10">
           <span className="text-[10px] uppercase tracking-[0.2em] text-gray-400 font-medium">Scroll</span>
           <div className="w-px h-8 bg-gradient-to-b from-gray-300 to-transparent" />
         </div>
       </section>
 
-      {/* Marquee Band */}
-      <div className="py-6 bg-gray-50 border-y border-gray-100 overflow-hidden">
-        <div className="animate-marquee whitespace-nowrap flex items-center gap-12">
-          {[...Array(2)].map((_, setIndex) => (
-            <div key={setIndex} className="flex items-center gap-12 shrink-0">
-              {['투표', '아티스트', '마켓', '영상 리워드', '랭킹', '포인트', '커뮤니티', '응원'].map((text) => (
-                <span key={`${setIndex}-${text}`} className="text-sm font-medium text-gray-300 flex items-center gap-3">
-                  <span className="w-1 h-1 rounded-full bg-gray-300" />
-                  {text}
-                </span>
-              ))}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Stats Section */}
-      <section ref={statsRef} className="py-28">
-        <div className="max-w-5xl mx-auto px-6 sm:px-8">
+      {/* =============================================
+          STATS SECTION — Visual cards with depth
+          ============================================= */}
+      <section ref={statsRef} className="py-28 relative">
+        <div className="max-w-6xl mx-auto px-6 sm:px-8">
           <div
-            className={`grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-0 transition-all duration-700 ${
+            className={`grid grid-cols-1 sm:grid-cols-3 gap-6 transition-all duration-700 ${
               statsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}
           >
             {statItems.map((stat, i) => (
               <div
                 key={stat.label}
-                className={`text-center py-10 ${
-                  i < 2 ? 'sm:border-r sm:border-gray-100' : ''
-                }`}
-                style={{ transitionDelay: `${i * 150}ms` }}
+                className="group relative overflow-hidden rounded-3xl bg-white border border-gray-100 p-10 inner-shadow-strong hover:shadow-lg transition-all duration-500"
+                style={{
+                  transitionDelay: `${i * 150}ms`,
+                  opacity: statsVisible ? 1 : 0,
+                  transform: statsVisible ? 'translateY(0)' : 'translateY(2rem)',
+                  transition: `opacity 0.7s ease ${i * 150}ms, transform 0.7s ease ${i * 150}ms, box-shadow 0.5s ease`,
+                }}
               >
-                <div className="flex items-center justify-center mb-5">
-                  <div className="w-12 h-12 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center">
-                    <stat.icon className="w-5 h-5 text-gray-500" />
+                {/* Decorative dot-pattern background */}
+                <div className="absolute inset-0 dot-pattern opacity-40 pointer-events-none" />
+
+                {/* Floating icon pattern at top-right */}
+                <div className="absolute -top-4 -right-4 opacity-[0.04]">
+                  <stat.icon className="w-32 h-32 text-gray-900" />
+                </div>
+                <div className="absolute bottom-2 right-12 opacity-[0.02]">
+                  <stat.icon className="w-20 h-20 text-gray-900" />
+                </div>
+
+                {/* Gradient accent bar at top */}
+                <div className="absolute top-0 left-8 right-8 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+
+                <div className="relative z-10">
+                  {/* Icon badge */}
+                  <div className="w-12 h-12 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+                    <stat.icon className="w-5 h-5 text-gray-600" />
                   </div>
+
+                  <div className="text-5xl sm:text-6xl font-bold text-gray-900 tracking-tight tabular-nums">
+                    {stat.value.toLocaleString()}
+                    <span className="text-gray-300 ml-0.5 text-4xl">{stat.suffix}</span>
+                  </div>
+                  <p className="mt-4 text-sm text-gray-400 font-medium">{stat.label}</p>
                 </div>
-                <div className="text-4xl sm:text-5xl font-bold text-gray-900 tracking-tight tabular-nums">
-                  {stat.value.toLocaleString()}
-                  <span className="text-gray-300 ml-0.5">{stat.suffix}</span>
-                </div>
-                <p className="mt-3 text-sm text-gray-400 font-medium">{stat.label}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="py-28 bg-gray-50/50">
-        <div
-          ref={featuresSection.ref}
-          className={`max-w-6xl mx-auto px-6 sm:px-8 transition-all duration-700 ${
-            featuresSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
-          }`}
-        >
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-gray-100 text-xs font-medium text-gray-500 mb-6">
-              <IconSparkle className="w-3.5 h-3.5" />
-              Features
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">
-              팬과 아티스트를 연결하는
-              <br className="hidden sm:block" />
-              <span className="gradient-text-elegant">다양한 기능</span>
-            </h2>
-            <p className="mt-4 text-gray-400 max-w-md mx-auto">
-              투표, 응원, 시청 등 다양한 활동으로 포인트를 적립하세요
-            </p>
-          </div>
+      {/* =============================================
+          TRUSTED BY — Marquee brand logos
+          ============================================= */}
+      <section className="py-16 border-y border-gray-100 bg-gray-50/50 overflow-hidden">
+        <div className="max-w-6xl mx-auto px-6 sm:px-8 mb-10">
+          <p className="text-center text-xs font-semibold uppercase tracking-[0.2em] text-gray-300">
+            Trusted by leading partners
+          </p>
+        </div>
+        <div className="relative">
+          {/* Fade edges */}
+          <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-gray-50/80 to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-gray-50/80 to-transparent z-10 pointer-events-none" />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {features.map((feature, index) => (
-              <Link
-                key={feature.title}
-                href={feature.href}
-                className="group relative bg-white rounded-2xl border border-gray-100 p-8 hover:shadow-lg hover:border-gray-200 transition-all duration-500 flex flex-col overflow-hidden"
-                style={{
-                  transitionDelay: featuresSection.isVisible ? `${index * 60}ms` : '0ms',
-                }}
-              >
-                {/* Hover gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-gray-50/0 to-gray-100/0 group-hover:from-gray-50/50 group-hover:to-gray-100/30 transition-all duration-500 rounded-2xl" />
-
-                <div className="relative z-10">
-                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.accent} flex items-center justify-center mb-6 group-hover:scale-105 transition-transform duration-300`}>
-                    <feature.icon className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    {feature.title}
-                  </h3>
-                  <p className="text-sm text-gray-400 leading-relaxed flex-1">
-                    {feature.desc}
-                  </p>
-                  <div className="mt-6 flex items-center gap-1 text-sm text-gray-300 group-hover:text-gray-600 transition-colors">
-                    <span className="text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">바로가기</span>
-                    <IconArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
-                  </div>
-                </div>
-              </Link>
+          <div className="animate-marquee whitespace-nowrap flex items-center gap-16">
+            {[...Array(2)].map((_, setIndex) => (
+              <div key={setIndex} className="flex items-center gap-16 shrink-0">
+                {['BRAND A', 'BRAND B', 'BRAND C', 'BRAND D', 'BRAND E', 'BRAND F', 'BRAND G', 'BRAND H'].map((brand) => (
+                  <span
+                    key={`${setIndex}-${brand}`}
+                    className="text-xl sm:text-2xl font-black tracking-tight text-gray-200 hover:text-gray-400 transition-colors duration-300 select-none"
+                  >
+                    {brand}
+                  </span>
+                ))}
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* HOT Artists Section */}
-      <section className="py-28">
+      {/* =============================================
+          FEATURES SECTION — Bento grid layout
+          ============================================= */}
+      <section id="features" className="relative py-28 bg-gray-50/50 overflow-hidden">
+        {/* Decorative gradient blob */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-gradient-to-br from-gray-200/30 to-gray-100/10 blur-3xl pointer-events-none" />
+
+        <div
+          ref={featuresSection.ref}
+          className={`relative z-10 max-w-6xl mx-auto px-6 sm:px-8 transition-all duration-700 ${
+            featuresSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
+          }`}
+        >
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-gray-100 text-xs font-semibold text-gray-500 mb-6 shadow-sm">
+              <IconSparkle className="w-3.5 h-3.5" />
+              Features
+            </div>
+            <h2 className="text-3xl sm:text-5xl font-bold text-gray-900 tracking-tight">
+              팬과 아티스트를 연결하는
+              <br className="hidden sm:block" />
+              <span className="gradient-text-elegant">다양한 기능</span>
+            </h2>
+            <p className="mt-5 text-gray-400 max-w-md mx-auto text-lg">
+              투표, 응원, 시청 등 다양한 활동으로 포인트를 적립하세요
+            </p>
+          </div>
+
+          {/* Bento Grid: first card spans 2 cols, last card spans 2 cols */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            {features.map((feature, index) => {
+              const isFirst = index === 0;
+              const isLast = index === features.length - 1;
+              const spanTwo = isFirst || isLast;
+
+              return (
+                <Link
+                  key={feature.title}
+                  href={feature.href}
+                  className={`group relative bg-white rounded-3xl border border-gray-100 hover:border-gray-200 transition-all duration-500 flex flex-col overflow-hidden ${
+                    spanTwo ? 'lg:col-span-2 p-10 sm:p-12' : 'p-8'
+                  }`}
+                  style={{
+                    transitionDelay: featuresSection.isVisible ? `${index * 80}ms` : '0ms',
+                    opacity: featuresSection.isVisible ? 1 : 0,
+                    transform: featuresSection.isVisible ? 'translateY(0)' : 'translateY(1.5rem)',
+                    transition: `opacity 0.6s ease ${index * 80}ms, transform 0.6s ease ${index * 80}ms, box-shadow 0.5s ease, border-color 0.5s ease`,
+                  }}
+                >
+                  {/* Hover gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-gray-50/0 via-transparent to-gray-100/0 group-hover:from-gray-50/80 group-hover:to-gray-100/40 transition-all duration-700 rounded-3xl" />
+
+                  {/* Decorative line-pattern on hover */}
+                  <div className="absolute inset-0 line-pattern opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none rounded-3xl" />
+
+                  {/* Inner shadow on hover */}
+                  <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style={{ boxShadow: 'inset 0 2px 20px rgba(0,0,0,0.03)' }} />
+
+                  <div className="relative z-10">
+                    <div
+                      className={`bg-gradient-to-br ${feature.accent} flex items-center justify-center group-hover:scale-110 group-hover:shadow-lg transition-all duration-500 ${
+                        spanTwo ? 'w-20 h-20 rounded-3xl mb-8' : 'w-14 h-14 rounded-2xl mb-6'
+                      }`}
+                    >
+                      <feature.icon className={spanTwo ? 'w-9 h-9 text-white' : 'w-6 h-6 text-white'} />
+                    </div>
+                    <h3 className={`font-bold text-gray-900 ${spanTwo ? 'text-2xl mb-3' : 'text-lg mb-2'}`}>
+                      {feature.title}
+                    </h3>
+                    <p className={`text-gray-400 leading-relaxed flex-1 ${spanTwo ? 'text-base max-w-md' : 'text-sm'}`}>
+                      {feature.desc}
+                    </p>
+                    <div className="mt-6 flex items-center gap-1.5 text-sm text-gray-300 group-hover:text-gray-600 transition-colors duration-300">
+                      <span className="text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        바로가기
+                      </span>
+                      <IconArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform duration-300" />
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* =============================================
+          HOT ARTISTS SECTION — Featured #1 + grid
+          ============================================= */}
+      <section className="py-28 relative">
         <div
           ref={hotSection.ref}
           className={`max-w-6xl mx-auto px-6 sm:px-8 transition-all duration-700 ${
@@ -400,14 +535,14 @@ export default function Home() {
         >
           <div className="flex items-end justify-between mb-14">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-50 border border-gray-100 text-xs font-medium text-gray-500 mb-5">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gray-50 border border-gray-100 text-xs font-semibold text-gray-500 mb-5">
                 <IconTrendingUp className="w-3.5 h-3.5" />
                 Trending Now
               </div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">
+              <h2 className="text-3xl sm:text-5xl font-bold text-gray-900 tracking-tight">
                 HOT 아티스트
               </h2>
-              <p className="mt-3 text-gray-400">
+              <p className="mt-3 text-gray-400 text-lg">
                 지금 가장 인기있는 아티스트를 만나보세요
               </p>
             </div>
@@ -421,56 +556,138 @@ export default function Home() {
           </div>
 
           {artistsLoading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="rounded-2xl border border-gray-100 overflow-hidden">
-                  <div className="aspect-square bg-gray-50 animate-pulse" />
-                  <div className="p-4 space-y-2">
-                    <div className="h-4 bg-gray-100 rounded-lg animate-pulse" />
-                    <div className="h-3 bg-gray-50 rounded-lg animate-pulse w-2/3" />
+            <div className="space-y-5">
+              {/* Featured skeleton */}
+              <div className="rounded-3xl border border-gray-100 overflow-hidden">
+                <div className="flex flex-col sm:flex-row">
+                  <div className="w-full sm:w-64 aspect-square sm:aspect-auto bg-gray-50 animate-pulse" />
+                  <div className="flex-1 p-8 space-y-4">
+                    <div className="h-6 bg-gray-100 rounded-lg animate-pulse w-1/3" />
+                    <div className="h-4 bg-gray-50 rounded-lg animate-pulse w-1/4" />
+                    <div className="h-4 bg-gray-50 rounded-lg animate-pulse w-1/5" />
                   </div>
                 </div>
-              ))}
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="rounded-2xl border border-gray-100 overflow-hidden">
+                    <div className="aspect-square bg-gray-50 animate-pulse" />
+                    <div className="p-4 space-y-2">
+                      <div className="h-4 bg-gray-100 rounded-lg animate-pulse" />
+                      <div className="h-3 bg-gray-50 rounded-lg animate-pulse w-2/3" />
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           ) : hotArtists.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
-              {hotArtists.map((artist, index) => (
+            <div className="space-y-5">
+              {/* Featured #1 Artist — Full width card */}
+              {hotArtists[0] && (
                 <Link
-                  key={artist.id}
                   href="/artists"
-                  className="group rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg hover:border-gray-200 transition-all duration-500 bg-white hover:-translate-y-1"
-                  style={{ transitionDelay: `${index * 60}ms` }}
+                  className="group block rounded-3xl border border-gray-100 overflow-hidden hover:shadow-xl hover:border-gray-200 transition-all duration-500 bg-white"
+                  style={{
+                    opacity: hotSection.isVisible ? 1 : 0,
+                    transform: hotSection.isVisible ? 'translateY(0)' : 'translateY(1.5rem)',
+                    transition: 'opacity 0.6s ease, transform 0.6s ease, box-shadow 0.5s ease, border-color 0.5s ease',
+                  }}
                 >
-                  <div className="relative aspect-square bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-                    {/* Letter avatar */}
-                    <div className="w-16 h-16 bg-gray-900 text-white rounded-2xl flex items-center justify-center font-bold text-xl group-hover:scale-110 group-hover:rounded-xl transition-all duration-500">
-                      {artist.name?.charAt(0) || '?'}
+                  <div className="flex flex-col sm:flex-row items-stretch">
+                    {/* Large avatar area */}
+                    <div className="relative w-full sm:w-72 shrink-0 bg-gradient-to-br from-gray-900 to-gray-700 flex items-center justify-center min-h-[200px] sm:min-h-[240px] overflow-hidden">
+                      <div className="absolute inset-0 dot-pattern opacity-10" />
+                      <div className="w-28 h-28 bg-white/10 backdrop-blur-sm text-white rounded-3xl flex items-center justify-center font-black text-5xl group-hover:scale-110 group-hover:rounded-2xl transition-all duration-500 border border-white/10">
+                        {hotArtists[0].name?.charAt(0) || '?'}
+                      </div>
+                      {/* Gold rank medal for #1 */}
+                      <div className="absolute top-4 left-4 flex items-center gap-2">
+                        <div
+                          className="w-10 h-10 rounded-xl flex items-center justify-center text-base font-black text-white shadow-lg"
+                          style={{ background: 'linear-gradient(135deg, #b8a07e, #8a7560)' }}
+                        >
+                          1
+                        </div>
+                        <span className="text-xs font-bold text-white/60 uppercase tracking-wider">Top Artist</span>
+                      </div>
                     </div>
-                    {/* Rank badge */}
-                    <div className={`absolute top-3 left-3 w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold ${
-                      index === 0 ? 'bg-gray-900 text-white' :
-                      index < 3 ? 'bg-gray-200 text-gray-700' :
-                      'bg-gray-100 text-gray-400'
-                    }`}>
-                      {index + 1}
+                    {/* Info area */}
+                    <div className="flex-1 p-8 sm:p-10 flex flex-col justify-center">
+                      <h3 className="font-bold text-gray-900 text-2xl sm:text-3xl group-hover:text-gray-700 transition-colors">
+                        {hotArtists[0].name}
+                      </h3>
+                      <span className="inline-block mt-3 text-xs text-gray-400 bg-gray-50 border border-gray-100 px-4 py-1.5 rounded-full w-fit font-medium">
+                        {hotArtists[0].genre}
+                      </span>
+                      <div className="mt-5 flex items-center gap-4">
+                        <div className="flex items-center gap-1.5 text-sm text-gray-400">
+                          <IconHeart className="w-4 h-4 text-gray-400" />
+                          <span className="font-bold text-gray-600">{hotArtists[0].likes?.toLocaleString() || 0}</span>
+                          <span className="text-gray-300 ml-1">likes</span>
+                        </div>
+                      </div>
+                      <div className="mt-6 flex items-center gap-1.5 text-sm text-gray-300 group-hover:text-gray-600 transition-colors">
+                        <span className="text-xs font-semibold">아티스트 보기</span>
+                        <IconArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </div>
                     </div>
-                    {/* Like count */}
-                    <div className="absolute bottom-3 right-3 flex items-center gap-1 text-[11px] text-gray-400 bg-white/80 backdrop-blur-sm px-2 py-1 rounded-lg">
-                      <IconHeart className="w-3 h-3" />
-                      {artist.likes?.toLocaleString() || 0}
-                    </div>
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold text-gray-900 text-sm group-hover:text-gray-700 transition-colors">{artist.name}</h3>
-                    <span className="inline-block mt-1.5 text-[11px] text-gray-400 bg-gray-50 border border-gray-100 px-2.5 py-0.5 rounded-full">
-                      {artist.genre}
-                    </span>
                   </div>
                 </Link>
-              ))}
+              )}
+
+              {/* Grid for remaining artists */}
+              {hotArtists.length > 1 && (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+                  {hotArtists.slice(1).map((artist, index) => {
+                    const rankIndex = index + 1;
+                    return (
+                      <Link
+                        key={artist.id}
+                        href="/artists"
+                        className="group rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg hover:border-gray-200 transition-all duration-500 bg-white hover:-translate-y-1"
+                        style={{
+                          opacity: hotSection.isVisible ? 1 : 0,
+                          transform: hotSection.isVisible ? 'translateY(0)' : 'translateY(1.5rem)',
+                          transition: `opacity 0.6s ease ${(rankIndex) * 100}ms, transform 0.6s ease ${(rankIndex) * 100}ms, box-shadow 0.5s ease, border-color 0.5s ease`,
+                        }}
+                      >
+                        <div className="relative aspect-square bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center overflow-hidden">
+                          {/* Subtle pattern */}
+                          <div className="absolute inset-0 line-pattern opacity-40 pointer-events-none" />
+                          {/* Letter avatar */}
+                          <div className="w-16 h-16 bg-gray-900 text-white rounded-2xl flex items-center justify-center font-bold text-xl group-hover:scale-110 group-hover:rounded-xl transition-all duration-500">
+                            {artist.name?.charAt(0) || '?'}
+                          </div>
+                          {/* Rank medal badge */}
+                          <div
+                            className="absolute top-3 left-3 w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black shadow-sm"
+                            style={{
+                              backgroundColor: rankMedals[rankIndex] || '#e5e7eb',
+                              color: rankIndex <= 2 ? '#fff' : '#6b7280',
+                            }}
+                          >
+                            {rankIndex + 1}
+                          </div>
+                          {/* Like count */}
+                          <div className="absolute bottom-3 right-3 flex items-center gap-1 text-[11px] text-gray-400 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-lg shadow-sm">
+                            <IconHeart className="w-3 h-3" />
+                            {artist.likes?.toLocaleString() || 0}
+                          </div>
+                        </div>
+                        <div className="p-4">
+                          <h3 className="font-semibold text-gray-900 text-sm group-hover:text-gray-700 transition-colors">{artist.name}</h3>
+                          <span className="inline-block mt-1.5 text-[11px] text-gray-400 bg-gray-50 border border-gray-100 px-2.5 py-0.5 rounded-full">
+                            {artist.genre}
+                          </span>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           ) : (
-            <div className="text-center py-20 rounded-2xl border border-gray-100 bg-gray-50">
+            <div className="text-center py-20 rounded-3xl border border-gray-100 bg-gray-50 inner-shadow">
               <p className="text-gray-400">아직 등록된 아티스트가 없습니다</p>
             </div>
           )}
@@ -488,51 +705,134 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-28">
+      {/* =============================================
+          CTA SECTION — Full-bleed dark with particles
+          ============================================= */}
+      <section className="relative overflow-hidden">
         <div
           ref={ctaSection.ref}
-          className={`max-w-5xl mx-auto px-6 sm:px-8 text-center transition-all duration-700 ${
+          className={`relative transition-all duration-700 ${
             ctaSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
           }`}
         >
-          <div className="relative py-24 px-8 rounded-3xl bg-gray-900 overflow-hidden">
-            {/* Background pattern */}
+          <div className="relative py-36 sm:py-44 bg-gray-900 overflow-hidden">
+            {/* Mesh gradient dark background */}
+            <div className="absolute inset-0 mesh-gradient-dark" />
+
+            {/* Animated gradient background */}
             <div
-              className="absolute inset-0 opacity-[0.04]"
+              className="absolute inset-0 opacity-60"
               style={{
-                backgroundImage:
-                  'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
-                backgroundSize: '48px 48px',
+                background: 'linear-gradient(135deg, #111827 0%, #1f2937 25%, #111827 50%, #374151 75%, #111827 100%)',
+                backgroundSize: '400% 400%',
+                animation: 'gradient-shift 8s ease infinite',
               }}
             />
-            {/* Glow effect */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 bg-gray-700/20 rounded-full blur-3xl" />
 
-            <div className="relative z-10">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/10 text-xs font-medium text-gray-300 mb-8">
+            {/* Noise overlay for texture */}
+            <div className="absolute inset-0 noise-overlay pointer-events-none" />
+
+            {/* Animated floating particles (small dots) */}
+            {[
+              { top: '10%', left: '8%', size: 3, delay: '0s' },
+              { top: '20%', left: '85%', size: 2, delay: '1s' },
+              { top: '35%', left: '15%', size: 4, delay: '0.5s' },
+              { top: '55%', left: '90%', size: 2, delay: '1.5s' },
+              { top: '70%', left: '5%', size: 3, delay: '2s' },
+              { top: '80%', left: '75%', size: 2, delay: '0.8s' },
+              { top: '15%', left: '45%', size: 2, delay: '1.2s' },
+              { top: '60%', left: '30%', size: 3, delay: '0.3s' },
+              { top: '45%', left: '70%', size: 2, delay: '1.8s' },
+              { top: '85%', left: '50%', size: 3, delay: '0.7s' },
+              { top: '25%', left: '60%', size: 2, delay: '2.2s' },
+              { top: '75%', left: '20%', size: 4, delay: '1.1s' },
+            ].map((particle, i) => (
+              <div
+                key={i}
+                className="absolute rounded-full bg-white/[0.08] animate-float"
+                style={{
+                  top: particle.top,
+                  left: particle.left,
+                  width: particle.size,
+                  height: particle.size,
+                  animationDelay: particle.delay,
+                  animationDuration: `${5 + i * 0.5}s`,
+                }}
+              />
+            ))}
+
+            {/* Floating decorative elements */}
+            <div className="absolute top-12 left-[10%] w-32 h-32 rounded-full border border-white/[0.06] animate-float-slow" />
+            <div className="absolute bottom-16 right-[8%] w-48 h-48 rounded-full border border-white/[0.04] animate-float-reverse" />
+            <div className="absolute top-1/2 left-[5%] -translate-y-1/2 w-64 h-64 rounded-full bg-white/[0.015] blur-3xl animate-float" />
+            <div className="absolute top-20 right-[20%] w-3 h-3 rounded-full bg-white/10 animate-float" />
+            <div className="absolute bottom-24 left-[25%] w-2 h-2 rounded-full bg-white/10 animate-float-reverse" />
+            <div className="absolute top-1/3 right-[12%] w-20 h-20 rounded-2xl border border-white/[0.05] rotate-12 animate-float-slow" />
+
+            <div className="relative z-10 text-center px-6 sm:px-8">
+              <div
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/10 border border-white/10 text-xs font-semibold text-gray-300 mb-12 backdrop-blur-sm"
+                style={{
+                  opacity: ctaSection.isVisible ? 1 : 0,
+                  transform: ctaSection.isVisible ? 'translateY(0)' : 'translateY(1rem)',
+                  transition: 'opacity 0.6s ease 0.1s, transform 0.6s ease 0.1s',
+                }}
+              >
                 <IconSparkle className="w-3.5 h-3.5" />
                 Get Started
               </div>
-              <h2 className="text-3xl sm:text-5xl font-bold text-white tracking-tight leading-tight">
-                지금 바로
+              <h2
+                className="text-5xl sm:text-6xl lg:text-8xl font-bold tracking-tight leading-tight"
+                style={{
+                  opacity: ctaSection.isVisible ? 1 : 0,
+                  transform: ctaSection.isVisible ? 'translateY(0)' : 'translateY(1.5rem)',
+                  transition: 'opacity 0.7s ease 0.2s, transform 0.7s ease 0.2s',
+                }}
+              >
+                <span
+                  className="inline-block"
+                  style={{
+                    background: 'linear-gradient(120deg, #e5e7eb 0%, #ffffff 40%, #9ca3af 60%, #e5e7eb 100%)',
+                    backgroundSize: '200% auto',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    animation: 'text-shine-move 4s ease-in-out infinite',
+                  }}
+                >
+                  지금 바로
+                </span>
                 <br />
-                참여하세요
+                <span className="text-white">참여하세요</span>
               </h2>
-              <p className="mt-5 text-gray-400 max-w-md mx-auto">
+              <p
+                className="mt-8 text-lg sm:text-xl text-gray-400 max-w-lg mx-auto leading-relaxed"
+                style={{
+                  opacity: ctaSection.isVisible ? 1 : 0,
+                  transform: ctaSection.isVisible ? 'translateY(0)' : 'translateY(1rem)',
+                  transition: 'opacity 0.6s ease 0.35s, transform 0.6s ease 0.35s',
+                }}
+              >
                 가입하고 첫 투표에 참여하면 바로 포인트를 받을 수 있어요
               </p>
-              <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+              <div
+                className="mt-14 flex flex-wrap items-center justify-center gap-4"
+                style={{
+                  opacity: ctaSection.isVisible ? 1 : 0,
+                  transform: ctaSection.isVisible ? 'translateY(0)' : 'translateY(1rem)',
+                  transition: 'opacity 0.6s ease 0.45s, transform 0.6s ease 0.45s',
+                }}
+              >
                 <Link
                   href={user ? '/vote' : '/login'}
-                  className="group inline-flex items-center justify-center gap-2.5 px-10 py-4 bg-white text-gray-900 text-sm font-semibold rounded-2xl hover:bg-gray-100 transition-all duration-300 hover:shadow-xl hover:shadow-black/20"
+                  className="group inline-flex items-center justify-center gap-2.5 px-10 py-4.5 bg-white text-gray-900 text-sm font-bold rounded-2xl hover:bg-gray-100 transition-all duration-300 hover:shadow-2xl hover:shadow-black/30 hover:-translate-y-0.5"
                 >
                   무료로 시작하기
                   <IconArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </Link>
                 <Link
                   href="/artists"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-medium text-gray-300 rounded-2xl border border-gray-700 hover:border-gray-500 hover:text-white transition-all duration-300"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-medium text-gray-300 rounded-2xl border border-gray-700 hover:border-gray-500 hover:text-white hover:bg-white/5 transition-all duration-300"
                 >
                   아티스트 둘러보기
                 </Link>

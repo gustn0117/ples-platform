@@ -166,7 +166,7 @@
   }
 
   .gradient-text-elegant {
-    background: linear-gradient(135deg, #1f2937 0%, #9ca3af 100%);
+    background: linear-gradient(135deg, #111827 0%, #6b7280 40%, #9ca3af 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -670,4 +670,136 @@
 @keyframes border-glow {
   0%, 100% { border-color: rgba(0,0,0,0.06); }
   50% { border-color: rgba(0,0,0,0.15); }
+}
+
+/* ============================================
+   Advanced Visual Effects
+   ============================================ */
+
+/* Noise/grain texture overlay */
+.noise-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+  border-radius: inherit;
+  z-index: 1;
+}
+
+/* Gradient mesh backgrounds */
+.mesh-gradient-1 {
+  background:
+    radial-gradient(at 40% 20%, rgba(243, 244, 246, 0.8) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, rgba(229, 231, 235, 0.5) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, rgba(249, 250, 251, 0.7) 0px, transparent 50%),
+    radial-gradient(at 80% 50%, rgba(243, 244, 246, 0.4) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(229, 231, 235, 0.3) 0px, transparent 50%);
+}
+
+.mesh-gradient-dark {
+  background:
+    radial-gradient(at 20% 30%, rgba(55, 65, 81, 0.5) 0px, transparent 50%),
+    radial-gradient(at 80% 20%, rgba(31, 41, 55, 0.4) 0px, transparent 50%),
+    radial-gradient(at 50% 80%, rgba(17, 24, 39, 0.6) 0px, transparent 50%);
+}
+
+/* Inner shadow for depth */
+.inner-shadow {
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02), inset 0 0 0 1px rgba(0, 0, 0, 0.03);
+}
+
+.inner-shadow-strong {
+  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.04), inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+/* Dot pattern background */
+.dot-pattern {
+  background-image: radial-gradient(circle, rgba(0,0,0,0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Line pattern background */
+.line-pattern {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 8px,
+    rgba(0,0,0,0.02) 8px,
+    rgba(0,0,0,0.02) 9px
+  );
+}
+
+/* Gradient border glow effect */
+.glow-border {
+  position: relative;
+}
+
+.glow-border::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(0,0,0,0.08), rgba(0,0,0,0.02), rgba(0,0,0,0.08));
+  z-index: -1;
+  filter: blur(4px);
+}
+
+/* Text gradient shine effect */
+.text-shine {
+  background: linear-gradient(
+    120deg,
+    #1f2937 30%,
+    #6b7280 50%,
+    #1f2937 70%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: text-shine-move 3s ease-in-out infinite;
+}
+
+@keyframes text-shine-move {
+  0% { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+/* Scrollbar hide utility */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Ring pulse animation for live indicators */
+@keyframes ring-pulse {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+.ring-pulse::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid currentColor;
+  animation: ring-pulse 2s ease-out infinite;
+}
+
+/* Typewriter cursor blink */
+@keyframes cursor-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.cursor-blink::after {
+  content: '|';
+  animation: cursor-blink 1s step-end infinite;
+  margin-left: 2px;
 }
