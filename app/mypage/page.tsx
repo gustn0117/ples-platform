@@ -72,7 +72,7 @@ export default function MyPage() {
           <p className="text-gray-400 mb-8">마이페이지를 이용하려면 먼저 로그인해주세요</p>
           <Link
             href="/login"
-            className="inline-flex px-8 py-3 rounded-xl bg-gray-900 text-white font-semibold text-sm hover:bg-gray-800 transition-colors"
+            className="inline-flex px-10 py-4 rounded-xl bg-gray-900 text-white font-semibold text-base hover:bg-gray-800 transition-colors"
           >
             로그인하기
           </Link>
@@ -231,7 +231,7 @@ export default function MyPage() {
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-semibold whitespace-nowrap rounded-lg transition-all duration-200 flex-1 sm:flex-none ${
+                className={`flex items-center justify-center gap-1.5 px-5 py-3 text-sm font-semibold whitespace-nowrap rounded-lg transition-all duration-200 flex-1 sm:flex-none ${
                   activeTab === tab.key
                     ? 'bg-white text-gray-900 shadow-sm'
                     : 'text-gray-400 hover:text-gray-600'

@@ -453,7 +453,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="group w-full py-4 mt-7 bg-gray-900 text-white text-sm font-semibold rounded-2xl hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-lg hover:shadow-gray-900/10 hover:-translate-y-px flex items-center justify-center gap-2"
+                  className="group w-full py-4.5 mt-7 bg-gray-900 text-white text-base font-semibold rounded-2xl hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-lg hover:shadow-gray-900/10 hover:-translate-y-px flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <>
@@ -667,7 +667,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="group w-full py-4 mt-7 bg-gray-900 text-white text-sm font-semibold rounded-2xl hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-lg hover:shadow-gray-900/10 hover:-translate-y-px flex items-center justify-center gap-2"
+                  className="group w-full py-4.5 mt-7 bg-gray-900 text-white text-base font-semibold rounded-2xl hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-lg hover:shadow-gray-900/10 hover:-translate-y-px flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <>

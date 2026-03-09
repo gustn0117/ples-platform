@@ -129,7 +129,7 @@ export default function ArtistsPage() {
             <button
               key={tab.key}
               onClick={() => setSortBy(tab.key)}
-              className={`px-5 py-2 text-sm font-medium rounded-lg transition-all ${
+              className={`px-6 py-2.5 text-sm font-medium rounded-lg transition-all ${
                 sortBy === tab.key
                   ? 'bg-white text-gray-900 shadow-sm'
                   : 'text-gray-400 hover:text-gray-600'
@@ -150,7 +150,7 @@ export default function ArtistsPage() {
             </p>
             <button
               onClick={() => setSearchQuery('')}
-              className="mt-4 px-4 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              className="mt-4 px-6 py-3 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
               검색어 지우기
             </button>
@@ -270,7 +270,7 @@ export default function ArtistsPage() {
             <div className="px-6 pb-6">
               <button
                 onClick={() => handleToggleLike(selectedArtist.id)}
-                className={`w-full py-3.5 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98] ${
+                className={`w-full py-4 rounded-xl text-base font-semibold transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98] ${
                   likedIds.has(selectedArtist.id)
                     ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     : 'bg-gray-900 text-white hover:bg-gray-800'

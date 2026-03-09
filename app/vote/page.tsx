@@ -265,7 +265,7 @@ export default function VotePage() {
                     {!user && vote.isActive ? (
                       <Link
                         href="/login"
-                        className="block w-full text-center py-3 rounded-xl bg-gray-100 text-gray-500 text-sm font-medium hover:bg-gray-200 transition-colors"
+                        className="block w-full text-center py-4 rounded-xl bg-gray-100 text-gray-500 text-base font-medium hover:bg-gray-200 transition-colors"
                       >
                         로그인 후 투표에 참여하세요
                       </Link>
@@ -296,7 +296,7 @@ export default function VotePage() {
                         disabled={
                           selectedOptions[vote.id] === undefined || isVoting
                         }
-                        className={`w-full py-3 rounded-xl text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2 ${
+                        className={`w-full py-4 rounded-xl text-base font-bold transition-all duration-200 flex items-center justify-center gap-2 ${
                           selectedOptions[vote.id] !== undefined && !isVoting
                             ? 'bg-gray-900 text-white hover:bg-gray-800 active:bg-gray-950'
                             : 'bg-gray-100 text-gray-400 cursor-not-allowed'

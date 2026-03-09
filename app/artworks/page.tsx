@@ -154,7 +154,7 @@ export default function ArtworksPage() {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium whitespace-nowrap rounded-full transition-all duration-200 ${
+                className={`inline-flex items-center gap-1.5 px-5 py-2.5 text-sm font-medium whitespace-nowrap rounded-full transition-all duration-200 ${
                   isActive
                     ? 'bg-gray-900 text-white shadow-lg shadow-gray-900/10'
                     : 'bg-white text-gray-500 border border-gray-200 hover:border-gray-300 hover:text-gray-700'
@@ -254,7 +254,7 @@ export default function ArtworksPage() {
                     {!isSoldOut ? (
                       <button
                         onClick={() => handleClickPurchase(artwork)}
-                        className="w-full py-2.5 rounded-xl bg-gray-900 text-white text-sm font-bold hover:bg-gray-800 transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2"
+                        className="w-full py-3.5 rounded-xl bg-gray-900 text-white text-sm font-bold hover:bg-gray-800 transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2"
                       >
                         <IconShoppingBag className="w-4 h-4" />
                         구매하기
@@ -262,7 +262,7 @@ export default function ArtworksPage() {
                     ) : (
                       <button
                         disabled
-                        className="w-full py-2.5 rounded-xl bg-gray-100 text-gray-400 text-sm font-medium cursor-not-allowed border border-gray-200"
+                        className="w-full py-3.5 rounded-xl bg-gray-100 text-gray-400 text-sm font-medium cursor-not-allowed border border-gray-200"
                       >
                         품절
                       </button>
@@ -455,7 +455,7 @@ export default function ArtworksPage() {
                     <div className="flex gap-3">
                       <button
                         onClick={closeModal}
-                        className="w-[35%] py-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-all duration-200 active:scale-[0.98]"
+                        className="w-[35%] py-4 rounded-xl border border-gray-200 text-base font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-all duration-200 active:scale-[0.98]"
                       >
                         취소
                       </button>
@@ -465,7 +465,7 @@ export default function ArtworksPage() {
                           purchasing ||
                           (paymentMethod === 'points' && insufficientPoints)
                         }
-                        className="flex-1 py-3.5 rounded-xl bg-gray-900 text-white text-sm font-bold hover:bg-gray-800 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-[0.98]"
+                        className="flex-1 py-4 rounded-xl bg-gray-900 text-white text-base font-bold hover:bg-gray-800 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-[0.98]"
                       >
                         {purchasing ? (
                           <>
