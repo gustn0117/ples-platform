@@ -151,7 +151,7 @@ export default function VideosPage() {
     return (
       <div className="min-h-[60vh] flex items-center justify-center px-4">
         <div className="text-center max-w-md">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center text-5xl mx-auto mb-6">
+          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-5xl mx-auto mb-6">
             🎬
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-3">로그인이 필요해요</h2>
@@ -160,7 +160,7 @@ export default function VideosPage() {
           </p>
           <Link
             href="/login"
-            className="inline-flex px-8 py-3 rounded-full gradient-purple text-white font-semibold hover:opacity-90 transition-opacity"
+            className="inline-flex px-8 py-3 rounded-full bg-gradient-to-r from-gray-700 to-gray-900 text-white font-semibold hover:opacity-90 transition-opacity"
           >
             로그인하기
           </Link>
@@ -177,13 +177,13 @@ export default function VideosPage() {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">영상 리워드</h1>
           <p className="text-gray-500">영상을 끝까지 시청하면 포인트가 적립됩니다</p>
         </div>
-        <div className="flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl border border-purple-100">
-          <div className="text-sm font-semibold text-purple-700">
+        <div className="flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl border border-gray-200">
+          <div className="text-sm font-semibold text-gray-700">
             오늘 {dailyCount}/{maxDaily} 시청 완료
           </div>
-          <div className="w-24 h-2.5 bg-purple-100 rounded-full overflow-hidden">
+          <div className="w-24 h-2.5 bg-gray-200 rounded-full overflow-hidden">
             <div
-              className="h-full gradient-purple rounded-full transition-all duration-500"
+              className="h-full bg-gradient-to-r from-gray-700 to-gray-900 rounded-full transition-all duration-500"
               style={{ width: `${(dailyCount / maxDaily) * 100}%` }}
             />
           </div>
@@ -239,14 +239,14 @@ export default function VideosPage() {
                   className={`relative aspect-video flex items-center justify-center cursor-pointer group overflow-hidden ${
                     isRewarded
                       ? 'bg-gradient-to-br from-green-800 to-green-900'
-                      : 'bg-gradient-to-br from-gray-800 via-purple-900 to-gray-900'
+                      : 'bg-gradient-to-br from-gray-800 via-gray-900 to-gray-900'
                   }`}
                   onClick={() => canEarnReward && handleWatch(video)}
                 >
                   {/* Animated background circles */}
                   <div className="absolute inset-0 overflow-hidden">
-                    <div className="absolute -top-4 -right-4 w-24 h-24 bg-purple-500/10 rounded-full" />
-                    <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-pink-500/10 rounded-full" />
+                    <div className="absolute -top-4 -right-4 w-24 h-24 bg-gray-1000/10 rounded-full" />
+                    <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-gray-500/10 rounded-full" />
                   </div>
 
                   <span className="text-5xl relative z-10">{video.thumbnail}</span>
@@ -255,7 +255,7 @@ export default function VideosPage() {
                   {canEarnReward && (
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
                       <div className="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center transform scale-75 group-hover:scale-100 transition-transform duration-300 shadow-lg">
-                        <svg className="w-6 h-6 text-purple-600 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                        <svg className="w-6 h-6 text-gray-600 ml-1" fill="currentColor" viewBox="0 0 20 20">
                           <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
                         </svg>
                       </div>
@@ -288,7 +288,7 @@ export default function VideosPage() {
                     <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
                       isRewarded
                         ? 'bg-green-50 text-green-600'
-                        : 'bg-purple-50 text-purple-600'
+                        : 'bg-gray-100 text-gray-600'
                     }`}>
                       +{video.point_reward}P
                     </span>
@@ -329,12 +329,12 @@ export default function VideosPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
           <div className="bg-white rounded-2xl max-w-2xl w-full overflow-hidden animate-fade-in-up shadow-2xl">
             {/* Fake video player */}
-            <div className="relative aspect-video bg-gradient-to-br from-purple-900 via-indigo-900 to-gray-900 flex items-center justify-center overflow-hidden">
+            <div className="relative aspect-video bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center overflow-hidden">
               {/* Animated background elements */}
               <div className="absolute inset-0">
-                <div className="absolute top-1/4 left-1/4 w-40 h-40 bg-purple-500/20 rounded-full blur-3xl animate-pulse" />
-                <div className="absolute bottom-1/4 right-1/4 w-32 h-32 bg-pink-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '0.5s' }} />
+                <div className="absolute top-1/4 left-1/4 w-40 h-40 bg-gray-1000/20 rounded-full blur-3xl animate-pulse" />
+                <div className="absolute bottom-1/4 right-1/4 w-32 h-32 bg-gray-500/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-gray-400/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '0.5s' }} />
               </div>
 
               {/* Play animation bars */}
@@ -342,7 +342,7 @@ export default function VideosPage() {
                 {Array.from({ length: 24 }).map((_, i) => (
                   <div
                     key={i}
-                    className="flex-1 bg-purple-400/60 rounded-t"
+                    className="flex-1 bg-gray-400/60 rounded-t"
                     style={{
                       height: `${20 + Math.sin(i * 0.5 + Date.now() * 0.001) * 30 + Math.random() * 20}%`,
                       animation: `pulse ${0.5 + Math.random() * 0.5}s ease-in-out infinite alternate`,
@@ -392,7 +392,7 @@ export default function VideosPage() {
             {/* Footer */}
             <div className="p-5 flex justify-between items-center bg-gray-50">
               <div className="flex items-center gap-2">
-                <span className="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded-full">
+                <span className="px-3 py-1 bg-gray-200 text-gray-700 text-xs font-semibold rounded-full">
                   +{playingVideo.point_reward}P
                 </span>
                 <span className="text-sm text-gray-500">시청 완료 시 포인트 지급</span>

@@ -175,7 +175,7 @@ export default function ArtworksPage() {
         {profile && (
           <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 glass rounded-full">
             <span className="text-sm">💰</span>
-            <span className="text-sm font-semibold text-ples-purple">
+            <span className="text-sm font-semibold text-ples-silver">
               보유 포인트: {profile.points.toLocaleString()}P
             </span>
           </div>
@@ -194,7 +194,7 @@ export default function ArtworksPage() {
             }}
             className={`px-5 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
               selectedCategory === cat.key
-                ? 'bg-gradient-to-r from-ples-purple to-ples-blue text-white shadow-lg shadow-ples-purple/20'
+                ? 'bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-lg shadow-black/30'
                 : 'glass text-gray-400 hover:text-white hover:bg-white/10'
             }`}
           >
@@ -223,7 +223,7 @@ export default function ArtworksPage() {
                 style={{ transitionDelay: `${Math.min(index * 80, 400)}ms` }}
               >
                 {/* Image */}
-                <div className="relative aspect-[4/3] bg-gradient-to-br from-ples-purple/15 via-ples-pink/10 to-ples-gold/10 flex items-center justify-center">
+                <div className="relative aspect-[4/3] bg-gradient-to-br from-white/10 via-ples-silver/5 to-ples-gold/5 flex items-center justify-center">
                   <span className="text-6xl">{artwork.emoji || '🎨'}</span>
                   {isSoldOut && (
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
@@ -246,7 +246,7 @@ export default function ArtworksPage() {
 
                 {/* Info */}
                 <div className="p-5">
-                  <p className="text-xs text-ples-purple font-medium mb-1">{artwork.artist}</p>
+                  <p className="text-xs text-ples-silver font-medium mb-1">{artwork.artist}</p>
                   <h3 className="font-bold text-lg mb-1">{artwork.title}</h3>
                   {artwork.description && (
                     <p className="text-sm text-gray-500 mb-4 line-clamp-2">{artwork.description}</p>
@@ -261,8 +261,8 @@ export default function ArtworksPage() {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs text-ples-purple/60">포인트결제</p>
-                      <p className="text-lg font-bold text-ples-purple">
+                      <p className="text-xs text-ples-silver/60">포인트결제</p>
+                      <p className="text-lg font-bold text-ples-silver">
                         {artwork.point_price.toLocaleString()}
                         <span className="text-sm">P</span>
                       </p>
@@ -315,7 +315,7 @@ export default function ArtworksPage() {
           }}
         >
           <div
-            className="glass-strong rounded-3xl max-w-md w-full p-6 animate-fadeIn shadow-2xl shadow-ples-purple/10"
+            className="glass-strong rounded-3xl max-w-md w-full p-6 animate-fadeIn shadow-2xl shadow-black/20"
             onClick={(e) => e.stopPropagation()}
           >
             {purchaseSuccess ? (
@@ -352,7 +352,7 @@ export default function ArtworksPage() {
                     onClick={() => setPaymentMethod('cash')}
                     className={`p-4 rounded-xl border text-left transition-all ${
                       paymentMethod === 'cash'
-                        ? 'border-ples-purple bg-ples-purple/10'
+                        ? 'border-white/20 bg-white/10'
                         : 'border-white/10 hover:border-white/20'
                     }`}
                   >
@@ -364,7 +364,7 @@ export default function ArtworksPage() {
                         </p>
                       </div>
                       <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                        paymentMethod === 'cash' ? 'border-ples-purple bg-ples-purple' : 'border-gray-600'
+                        paymentMethod === 'cash' ? 'border-white bg-white' : 'border-gray-600'
                       }`}>
                         {paymentMethod === 'cash' && (
                           <div className="w-2 h-2 rounded-full bg-white" />
@@ -377,7 +377,7 @@ export default function ArtworksPage() {
                     onClick={() => setPaymentMethod('points')}
                     className={`p-4 rounded-xl border text-left transition-all ${
                       paymentMethod === 'points'
-                        ? 'border-ples-purple bg-ples-purple/10'
+                        ? 'border-white/20 bg-white/10'
                         : 'border-white/10 hover:border-white/20'
                     }`}
                   >
@@ -387,7 +387,7 @@ export default function ArtworksPage() {
                         <p className="text-sm text-gray-400 mt-0.5">
                           {selectedArtwork.point_price.toLocaleString()}P
                           {profile && (
-                            <span className="text-ples-purple ml-2">
+                            <span className="text-ples-silver ml-2">
                               (보유: {profile.points.toLocaleString()}P)
                             </span>
                           )}
@@ -403,7 +403,7 @@ export default function ArtworksPage() {
                         )}
                       </div>
                       <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                        paymentMethod === 'points' ? 'border-ples-purple bg-ples-purple' : 'border-gray-600'
+                        paymentMethod === 'points' ? 'border-white bg-white' : 'border-gray-600'
                       }`}>
                         {paymentMethod === 'points' && (
                           <div className="w-2 h-2 rounded-full bg-white" />

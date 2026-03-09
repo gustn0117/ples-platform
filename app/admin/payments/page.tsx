@@ -81,7 +81,7 @@ export default function AdminPaymentsPage() {
             type="date"
             value={dateFrom}
             onChange={(e) => setDateFrom(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
           />
         </div>
         <div>
@@ -90,7 +90,7 @@ export default function AdminPaymentsPage() {
             type="date"
             value={dateTo}
             onChange={(e) => setDateTo(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
           />
         </div>
         <div>
@@ -98,7 +98,7 @@ export default function AdminPaymentsPage() {
           <select
             value={paymentMethod}
             onChange={(e) => setPaymentMethod(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white"
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent bg-white"
           >
             <option value="">전체</option>
             <option value="cash">현금</option>
@@ -108,7 +108,7 @@ export default function AdminPaymentsPage() {
         </div>
         <button
           type="submit"
-          className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+          className="px-4 py-2 bg-gray-700 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
         >
           검색
         </button>
@@ -178,9 +178,9 @@ export default function AdminPaymentsPage() {
                       <span
                         className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
                           payment.payment_method === 'points'
-                            ? 'bg-purple-100 text-purple-700'
+                            ? 'bg-gray-200 text-gray-700'
                             : payment.payment_method === 'card'
-                            ? 'bg-blue-100 text-blue-700'
+                            ? 'bg-gray-100 text-gray-600'
                             : 'bg-green-100 text-green-700'
                         }`}
                       >

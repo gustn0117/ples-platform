@@ -139,8 +139,8 @@ export default function RankingPage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
       {/* Gradient Header */}
       <div className="relative overflow-hidden rounded-3xl gradient-dark text-white p-8 sm:p-10 mb-10">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-pink-500/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gray-500/15 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-gray-400/15 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
         <div className="relative z-10">
           <h1 className="text-3xl sm:text-4xl font-bold mb-3">아티스트 랭킹</h1>
           <p className="text-gray-300 text-lg">인기 아티스트 순위를 실시간으로 확인하세요</p>
@@ -155,7 +155,7 @@ export default function RankingPage() {
             onClick={() => setActiveTab(tab)}
             className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
               activeTab === tab
-                ? 'gradient-purple text-white shadow-lg shadow-purple-200'
+                ? 'bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-lg shadow-gray-400/30'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
@@ -219,7 +219,7 @@ export default function RankingPage() {
                   {artist.name}
                 </h3>
                 <p className="text-xs text-gray-400 mb-1">{artist.genre}</p>
-                <p className={`font-bold ${isFirst ? 'text-xl text-purple-600' : 'text-sm text-gray-600'}`}>
+                <p className={`font-bold ${isFirst ? 'text-xl text-gray-300' : 'text-sm text-gray-600'}`}>
                   <AnimatedNumber
                     value={activeTab === '좋아요' ? artist.likes : activeTab === '투자' ? artist.investments : artist.total}
                   />
@@ -245,8 +245,8 @@ export default function RankingPage() {
         {sortedArtists.map((artist, index) => (
           <div
             key={artist.id}
-            className={`grid grid-cols-12 gap-4 px-6 py-4 border-t border-gray-50 items-center transition-all duration-200 hover:bg-purple-50/40 hover:shadow-sm cursor-default ${
-              index < 3 ? 'bg-gradient-to-r from-purple-50/30 to-transparent' : ''
+            className={`grid grid-cols-12 gap-4 px-6 py-4 border-t border-gray-50 items-center transition-all duration-200 hover:bg-gray-50/40 hover:shadow-sm cursor-default ${
+              index < 3 ? 'bg-gradient-to-r from-gray-50/30 to-transparent' : ''
             }`}
           >
             <div className="col-span-1">
@@ -259,7 +259,7 @@ export default function RankingPage() {
             <div className="col-span-4 flex items-center gap-3">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${
                 index < 3
-                  ? 'bg-gradient-to-br from-purple-100 to-pink-100'
+                  ? 'bg-gradient-to-br from-gray-200 to-gray-300'
                   : 'bg-gray-100'
               }`}>
                 {artist.image}
@@ -273,14 +273,14 @@ export default function RankingPage() {
                 {artist.genre}
               </span>
             </div>
-            <div className="col-span-2 text-right text-sm font-medium text-pink-500">
+            <div className="col-span-2 text-right text-sm font-medium text-ples-gold">
               <AnimatedNumber value={artist.likes} />
             </div>
-            <div className="col-span-1 text-right text-sm font-medium text-blue-500">
+            <div className="col-span-1 text-right text-sm font-medium text-ples-silver">
               <AnimatedNumber value={artist.investments} />
             </div>
             <div className="col-span-2 text-right">
-              <span className={`text-sm font-bold ${index < 3 ? 'text-purple-600' : 'text-gray-700'}`}>
+              <span className={`text-sm font-bold ${index < 3 ? 'text-gray-300' : 'text-gray-700'}`}>
                 <AnimatedNumber value={artist.total} />
               </span>
             </div>

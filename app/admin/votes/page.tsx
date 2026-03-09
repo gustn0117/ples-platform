@@ -166,7 +166,7 @@ export default function AdminVotesPage() {
         <h1 className="text-2xl font-bold text-gray-900">투표 관리</h1>
         <button
           onClick={openCreate}
-          className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+          className="px-4 py-2 bg-gray-700 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
         >
           + 추가
         </button>
@@ -220,7 +220,7 @@ export default function AdminVotesPage() {
                       <div className="flex gap-2">
                         <button
                           onClick={() => openResults(vote)}
-                          className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
+                          className="px-3 py-1 text-xs bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
                         >
                           결과
                         </button>
@@ -265,7 +265,7 @@ export default function AdminVotesPage() {
                   type="text"
                   value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                 />
               </div>
               <div>
@@ -274,7 +274,7 @@ export default function AdminVotesPage() {
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 resize-none"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -284,7 +284,7 @@ export default function AdminVotesPage() {
                     type="number"
                     value={form.reward_points}
                     onChange={(e) => setForm({ ...form, reward_points: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                   />
                 </div>
                 <div>
@@ -293,7 +293,7 @@ export default function AdminVotesPage() {
                     type="datetime-local"
                     value={form.ends_at}
                     onChange={(e) => setForm({ ...form, ends_at: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                   />
                 </div>
               </div>
@@ -305,7 +305,7 @@ export default function AdminVotesPage() {
                   <button
                     type="button"
                     onClick={addOption}
-                    className="text-xs text-indigo-600 hover:text-indigo-700 font-medium"
+                    className="text-xs text-gray-600 hover:text-gray-700 font-medium"
                   >
                     + 추가
                   </button>
@@ -318,7 +318,7 @@ export default function AdminVotesPage() {
                         value={opt.label}
                         onChange={(e) => updateOption(i, e.target.value)}
                         placeholder={`선택지 ${i + 1}`}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                       />
                       {options.length > 2 && (
                         <button
@@ -347,7 +347,7 @@ export default function AdminVotesPage() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex-1 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                className="flex-1 py-2 bg-gray-700 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-50"
               >
                 {saving ? '저장 중...' : editingId ? '수정' : '추가'}
               </button>
@@ -375,7 +375,7 @@ export default function AdminVotesPage() {
                     </div>
                     <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-indigo-500 rounded-full transition-all"
+                        className="h-full bg-gray-600 rounded-full transition-all"
                         style={{ width: `${pct}%` }}
                       />
                     </div>

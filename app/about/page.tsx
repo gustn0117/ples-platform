@@ -4,17 +4,17 @@ export default function AboutPage() {
       {/* Hero */}
       <section className="relative overflow-hidden gradient-dark text-white py-24 sm:py-32">
         <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-pink-500/10 rounded-full blur-3xl" />
-          <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl" />
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gray-500/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-gray-400/10 rounded-full blur-3xl" />
+          <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-gray-400/10 rounded-full blur-3xl" />
         </div>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center relative z-10">
-          <div className="w-20 h-20 rounded-2xl gradient-purple flex items-center justify-center text-3xl font-bold mx-auto mb-8 shadow-lg shadow-purple-500/30">
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-r from-gray-700 to-gray-900 flex items-center justify-center text-3xl font-bold mx-auto mb-8 shadow-lg shadow-black/30">
             P
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold mb-6 leading-tight">
             팬의 참여가<br />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-amber-400">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-300 to-ples-gold">
               아티스트의 미래
             </span>
             를 만듭니다
@@ -30,8 +30,8 @@ export default function AboutPage() {
       <section className="py-20 sm:py-24">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12">
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-3xl p-8 sm:p-10">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white text-xl mb-6">
+            <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl p-8 sm:p-10">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center text-white text-xl mb-6">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -44,8 +44,8 @@ export default function AboutPage() {
                 모든 팬 활동이 의미 있는 참여로 이어지는 플랫폼을 지향합니다.
               </p>
             </div>
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl p-8 sm:p-10">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-xl mb-6">
+            <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl p-8 sm:p-10">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-500 to-gray-700 flex items-center justify-center text-white text-xl mb-6">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
@@ -75,29 +75,29 @@ export default function AboutPage() {
                 icon: '🗳️',
                 title: '국민프로듀서 투표',
                 desc: '팬이 직접 투표로 아티스트의 주요 결정에 참여합니다. 매 투표 참여 시 포인트가 적립되며, 팬의 의견이 실제 결과에 반영됩니다.',
-                gradient: 'from-purple-500 to-purple-600',
-                bg: 'from-purple-50 to-purple-100/50',
+                gradient: 'from-gray-600 to-gray-800',
+                bg: 'from-gray-100 to-gray-200/50',
               },
               {
                 icon: '💜',
                 title: '아티스트 투자',
                 desc: '좋아하는 아티스트에게 좋아요를 눌러 응원하세요. 투자 수가 랭킹에 반영되어 아티스트의 인기를 직접 끌어올릴 수 있습니다.',
-                gradient: 'from-pink-500 to-pink-600',
-                bg: 'from-pink-50 to-pink-100/50',
+                gradient: 'from-gray-500 to-gray-700',
+                bg: 'from-gray-100 to-gray-200/50',
               },
               {
                 icon: '🎬',
                 title: '영상 리워드',
                 desc: '아티스트의 비하인드, 연습 영상, 인터뷰 등 독점 콘텐츠를 시청하고 포인트를 적립하세요. 하루 5회까지 리워드를 받을 수 있습니다.',
-                gradient: 'from-blue-500 to-blue-600',
-                bg: 'from-blue-50 to-blue-100/50',
+                gradient: 'from-gray-500 to-gray-700',
+                bg: 'from-gray-100 to-gray-200/50',
               },
               {
                 icon: '🎨',
                 title: '한정판 마켓',
                 desc: '아티스트의 특별한 작품, 포토북, 굿즈 등을 현금 또는 적립된 포인트로 구매할 수 있는 마켓플레이스를 운영합니다.',
-                gradient: 'from-amber-500 to-amber-600',
-                bg: 'from-amber-50 to-amber-100/50',
+                gradient: 'from-gray-400 to-gray-600',
+                bg: 'from-gray-100 to-gray-200/50',
               },
             ].map((feature) => (
               <div
@@ -125,10 +125,10 @@ export default function AboutPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { step: '01', title: '가입', desc: '간단한 회원가입으로 시작하세요', color: 'from-purple-500 to-purple-600' },
-              { step: '02', title: '참여', desc: '투표, 응원, 영상 시청 등 다양한 활동에 참여하세요', color: 'from-blue-500 to-blue-600' },
-              { step: '03', title: '적립', desc: '모든 참여 활동에 포인트가 자동으로 적립됩니다', color: 'from-pink-500 to-pink-600' },
-              { step: '04', title: '사용', desc: '적립된 포인트로 한정판 작품과 굿즈를 구매하세요', color: 'from-amber-500 to-amber-600' },
+              { step: '01', title: '가입', desc: '간단한 회원가입으로 시작하세요', color: 'from-gray-600 to-gray-800' },
+              { step: '02', title: '참여', desc: '투표, 응원, 영상 시청 등 다양한 활동에 참여하세요', color: 'from-gray-500 to-gray-700' },
+              { step: '03', title: '적립', desc: '모든 참여 활동에 포인트가 자동으로 적립됩니다', color: 'from-gray-500 to-gray-700' },
+              { step: '04', title: '사용', desc: '적립된 포인트로 한정판 작품과 굿즈를 구매하세요', color: 'from-gray-400 to-gray-600' },
             ].map((item, i) => (
               <div key={item.step} className="relative text-center">
                 {i < 3 && (
@@ -184,8 +184,8 @@ export default function AboutPage() {
       {/* Contact */}
       <section className="py-20 sm:py-24">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center text-3xl mx-auto mb-6">
-            <svg className="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-3xl mx-auto mb-6">
+            <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
           </div>
@@ -196,7 +196,7 @@ export default function AboutPage() {
           </p>
           <a
             href="mailto:contact@ples.co.kr"
-            className="inline-flex items-center gap-3 px-8 py-4 rounded-full gradient-purple text-white font-semibold text-lg hover:opacity-90 transition-all hover:shadow-lg shadow-purple-200"
+            className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-gradient-to-r from-gray-700 to-gray-900 text-white font-semibold text-lg hover:opacity-90 transition-all hover:shadow-lg shadow-gray-400/30"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />

@@ -120,7 +120,7 @@ export default function AdminArtistsPage() {
         <h1 className="text-2xl font-bold text-gray-900">아티스트 관리</h1>
         <button
           onClick={openCreate}
-          className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+          className="px-4 py-2 bg-gray-700 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
         >
           + 추가
         </button>
@@ -220,7 +220,7 @@ export default function AdminArtistsPage() {
                   type="text"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                 />
               </div>
               <div>
@@ -229,7 +229,7 @@ export default function AdminArtistsPage() {
                   type="text"
                   value={form.genre}
                   onChange={(e) => setForm({ ...form, genre: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                 />
               </div>
               <div>
@@ -238,7 +238,7 @@ export default function AdminArtistsPage() {
                   type="text"
                   value={form.emoji}
                   onChange={(e) => setForm({ ...form, emoji: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                   placeholder="🎤"
                 />
               </div>
@@ -248,7 +248,7 @@ export default function AdminArtistsPage() {
                   type="text"
                   value={form.image_url}
                   onChange={(e) => setForm({ ...form, image_url: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                   placeholder="https://..."
                 />
               </div>
@@ -258,7 +258,7 @@ export default function AdminArtistsPage() {
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 resize-none"
                 />
               </div>
             </div>
@@ -273,7 +273,7 @@ export default function AdminArtistsPage() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex-1 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                className="flex-1 py-2 bg-gray-700 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-50"
               >
                 {saving ? '저장 중...' : editingId ? '수정' : '추가'}
               </button>

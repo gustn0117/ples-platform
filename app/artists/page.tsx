@@ -206,7 +206,7 @@ export default function ArtistsPage() {
               onClick={() => setSortBy(sort.key)}
               className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
                 sortBy === sort.key
-                  ? 'bg-gradient-to-r from-ples-purple to-ples-blue text-white shadow-lg shadow-ples-purple/20'
+                  ? 'bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-lg shadow-black/30'
                   : 'glass text-gray-400 hover:text-white hover:bg-white/10'
               }`}
             >
@@ -238,7 +238,7 @@ export default function ArtistsPage() {
               >
                 {/* Image area */}
                 <div
-                  className="relative aspect-square bg-gradient-to-br from-ples-purple/20 via-ples-pink/10 to-ples-gold/10 flex items-center justify-center cursor-pointer group"
+                  className="relative aspect-square bg-gradient-to-br from-white/10 via-ples-silver/5 to-ples-gold/5 flex items-center justify-center cursor-pointer group"
                   onClick={() => setSelectedArtist(artist)}
                 >
                   <span className="text-5xl sm:text-6xl group-hover:scale-110 transition-transform duration-300">
@@ -259,7 +259,7 @@ export default function ArtistsPage() {
                 {/* Info */}
                 <div className="p-4">
                   <h3
-                    className="font-bold mb-0.5 cursor-pointer hover:text-ples-purple transition-colors truncate"
+                    className="font-bold mb-0.5 cursor-pointer hover:text-white transition-colors truncate"
                     onClick={() => setSelectedArtist(artist)}
                   >
                     {artist.name}
@@ -276,8 +276,8 @@ export default function ArtistsPage() {
                       disabled={isLiking}
                       className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
                         isLiked
-                          ? 'bg-ples-pink text-white shadow-lg shadow-ples-pink/20 hover:bg-pink-600'
-                          : 'bg-white/5 text-gray-400 hover:bg-ples-pink/10 hover:text-ples-pink border border-white/10'
+                          ? 'bg-ples-gold text-ples-dark shadow-lg shadow-ples-gold/20 hover:bg-ples-gold/80'
+                          : 'bg-white/5 text-gray-400 hover:bg-ples-gold/10 hover:text-ples-gold border border-white/10'
                       } ${isLiking ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       {isLiking ? '...' : isLiked ? '💜' : '🤍'}
@@ -303,11 +303,11 @@ export default function ArtistsPage() {
           onClick={() => setSelectedArtist(null)}
         >
           <div
-            className="glass-strong rounded-3xl max-w-lg w-full overflow-hidden animate-fadeIn shadow-2xl shadow-ples-purple/10"
+            className="glass-strong rounded-3xl max-w-lg w-full overflow-hidden animate-fadeIn shadow-2xl shadow-black/20"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Artist header */}
-            <div className="relative bg-gradient-to-br from-ples-purple/30 via-ples-pink/20 to-ples-gold/10 p-8 text-center">
+            <div className="relative bg-gradient-to-br from-white/15 via-ples-silver/10 to-ples-gold/5 p-8 text-center">
               <button
                 onClick={() => setSelectedArtist(null)}
                 className="absolute top-4 right-4 w-8 h-8 rounded-full glass flex items-center justify-center text-gray-400 hover:text-white transition-colors"
@@ -324,7 +324,7 @@ export default function ArtistsPage() {
             {/* Stats */}
             <div className="grid grid-cols-2 divide-x divide-white/5 border-b border-white/5">
               <div className="p-4 text-center">
-                <p className="text-2xl font-bold text-ples-purple">{selectedArtist.likes.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-ples-silver">{selectedArtist.likes.toLocaleString()}</p>
                 <p className="text-xs text-gray-500 mt-1">좋아요</p>
               </div>
               <div className="p-4 text-center">
@@ -348,7 +348,7 @@ export default function ArtistsPage() {
                 disabled={likingInProgress === selectedArtist.id}
                 className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all ${
                   likedArtists.has(selectedArtist.id)
-                    ? 'bg-ples-pink text-white hover:bg-pink-600'
+                    ? 'bg-ples-gold text-ples-dark hover:bg-ples-gold/80'
                     : 'btn-primary'
                 }`}
               >

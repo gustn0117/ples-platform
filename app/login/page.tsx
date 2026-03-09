@@ -93,16 +93,16 @@ export default function LoginPage() {
     <div className="min-h-[90vh] flex items-center justify-center py-12 px-4 relative overflow-hidden">
       {/* Background effects */}
       <div className="absolute inset-0">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-ples-purple/10 rounded-full blur-[80px]" />
-        <div className="absolute bottom-20 right-10 w-64 h-64 bg-ples-pink/10 rounded-full blur-[80px]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-ples-blue/5 rounded-full blur-[100px]" />
+        <div className="absolute top-20 left-10 w-72 h-72 bg-white/5 rounded-full blur-[80px]" />
+        <div className="absolute bottom-20 right-10 w-64 h-64 bg-ples-silver/5 rounded-full blur-[80px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gray-400/5 rounded-full blur-[100px]" />
       </div>
 
       <div className="relative z-10 w-full max-w-md animate-slideUp">
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
-            <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center text-2xl font-bold text-white mx-auto mb-4 shadow-lg shadow-ples-purple/30">
+            <div className="w-16 h-16 rounded-2xl bg-white flex items-center justify-center text-2xl font-bold text-ples-dark mx-auto mb-4 shadow-lg shadow-black/30">
               P
             </div>
           </Link>

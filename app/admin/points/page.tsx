@@ -103,11 +103,11 @@ export default function AdminPointsPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="닉네임 또는 이메일로 검색..."
-          className="flex-1 max-w-md px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          className="flex-1 max-w-md px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
         />
         <button
           type="submit"
-          className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+          className="px-4 py-2 bg-gray-700 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
         >
           검색
         </button>
@@ -143,13 +143,13 @@ export default function AdminPointsPage() {
                   <tr
                     key={user.id}
                     className={`hover:bg-gray-50 cursor-pointer ${
-                      selectedUser?.id === user.id ? 'bg-indigo-50' : ''
+                      selectedUser?.id === user.id ? 'bg-gray-100' : ''
                     }`}
                     onClick={() => setSelectedUser(user)}
                   >
                     <td className="px-6 py-4 font-medium text-gray-900">
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold">
+                        <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs font-bold">
                           {user.nickname?.charAt(0) ?? '?'}
                         </div>
                         {user.nickname}
@@ -167,7 +167,7 @@ export default function AdminPointsPage() {
                         }}
                         className={`px-3 py-1 text-xs rounded-md transition-colors ${
                           selectedUser?.id === user.id
-                            ? 'bg-indigo-600 text-white'
+                            ? 'bg-gray-700 text-white'
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         }`}
                       >
@@ -188,7 +188,7 @@ export default function AdminPointsPage() {
           <h2 className="text-lg font-bold text-gray-900 mb-4">포인트 지급/차감</h2>
 
           <div className="flex items-center gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
-            <div className="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl font-bold">
+            <div className="w-12 h-12 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xl font-bold">
               {selectedUser.nickname?.charAt(0) ?? '?'}
             </div>
             <div>
@@ -197,7 +197,7 @@ export default function AdminPointsPage() {
             </div>
             <div className="ml-auto text-right">
               <p className="text-sm text-gray-500">현재 포인트</p>
-              <p className="text-xl font-bold text-indigo-600">{selectedUser.points?.toLocaleString()}P</p>
+              <p className="text-xl font-bold text-gray-700">{selectedUser.points?.toLocaleString()}P</p>
             </div>
           </div>
 
@@ -210,7 +210,7 @@ export default function AdminPointsPage() {
                   value={amount}
                   onChange={(e) => setAmount(parseInt(e.target.value) || 0)}
                   placeholder="양수: 지급, 음수: 차감"
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
                 />
                 <div className="flex gap-1">
                   {[100, 500, 1000, 5000].map((val) => (
@@ -218,7 +218,7 @@ export default function AdminPointsPage() {
                       key={val}
                       type="button"
                       onClick={() => setAmount((prev) => prev + val)}
-                      className="px-3 py-2 text-xs bg-indigo-50 text-indigo-600 rounded-md hover:bg-indigo-100 transition-colors"
+                      className="px-3 py-2 text-xs bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200 transition-colors"
                     >
                       +{val.toLocaleString()}
                     </button>
@@ -242,7 +242,7 @@ export default function AdminPointsPage() {
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder="포인트 지급/차감 사유를 입력하세요"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
               />
             </div>
 
@@ -261,7 +261,7 @@ export default function AdminPointsPage() {
               <button
                 onClick={handleSubmit}
                 disabled={processing || amount === 0 || !reason.trim()}
-                className="flex-1 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                className="flex-1 py-2 bg-gray-700 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-50"
               >
                 {processing ? '처리 중...' : amount >= 0 ? '포인트 지급' : '포인트 차감'}
               </button>

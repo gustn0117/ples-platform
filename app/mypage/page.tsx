@@ -185,7 +185,7 @@ export default function MyPage() {
     return (
       <div className="min-h-[60vh] flex items-center justify-center px-4">
         <div className="text-center max-w-md">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center text-5xl mx-auto mb-6">
+          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-5xl mx-auto mb-6">
             👤
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-3">로그인이 필요해요</h2>
@@ -194,7 +194,7 @@ export default function MyPage() {
           </p>
           <Link
             href="/login"
-            className="inline-flex px-8 py-3 rounded-full gradient-purple text-white font-semibold hover:opacity-90 transition-opacity"
+            className="inline-flex px-8 py-3 rounded-full bg-gradient-to-r from-gray-700 to-gray-900 text-white font-semibold hover:opacity-90 transition-opacity"
           >
             로그인하기
           </Link>
@@ -210,9 +210,9 @@ export default function MyPage() {
     : '';
 
   const statCards = [
-    { label: '보유 포인트', value: `${(profile?.points || 0).toLocaleString()}P`, color: 'from-purple-500 to-purple-600', textColor: 'text-purple-600', bg: 'bg-purple-50' },
-    { label: '총 투표 수', value: `${stats.totalVotes}건`, color: 'from-blue-500 to-blue-600', textColor: 'text-blue-600', bg: 'bg-blue-50' },
-    { label: '좋아요 아티스트', value: `${stats.likedArtists}명`, color: 'from-pink-500 to-pink-600', textColor: 'text-pink-600', bg: 'bg-pink-50' },
+    { label: '보유 포인트', value: `${(profile?.points || 0).toLocaleString()}P`, color: 'from-gray-500 to-gray-700', textColor: 'text-gray-600', bg: 'bg-gray-100' },
+    { label: '총 투표 수', value: `${stats.totalVotes}건`, color: 'from-gray-400 to-gray-600', textColor: 'text-gray-600', bg: 'bg-gray-50' },
+    { label: '좋아요 아티스트', value: `${stats.likedArtists}명`, color: 'from-gray-500 to-gray-700', textColor: 'text-gray-600', bg: 'bg-gray-100' },
     { label: '구매 내역', value: `${stats.purchases}건`, color: 'from-amber-500 to-amber-600', textColor: 'text-amber-600', bg: 'bg-amber-50' },
   ];
 
@@ -228,14 +228,14 @@ export default function MyPage() {
       {/* Profile Card */}
       <div className="relative overflow-hidden rounded-3xl bg-white border border-gray-100 shadow-sm mb-8">
         {/* Gradient border top */}
-        <div className="h-2 gradient-purple" />
+        <div className="h-2 bg-gradient-to-r from-gray-700 to-gray-900" />
 
         <div className="p-6 sm:p-8">
           <div className="flex items-center gap-5 mb-8">
             {/* Avatar */}
             <div className="relative">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-400 via-pink-400 to-amber-400 p-0.5">
-                <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-2xl font-bold text-purple-600">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-gray-400 via-gray-300 to-ples-gold p-0.5">
+                <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-2xl font-bold text-gray-600">
                   {nickname[0]}
                 </div>
               </div>
@@ -254,7 +254,7 @@ export default function MyPage() {
                     setNewNickname(nickname);
                     setShowNicknameModal(true);
                   }}
-                  className="text-xs text-purple-500 hover:text-purple-700 font-medium px-2 py-1 rounded-lg hover:bg-purple-50 transition-colors"
+                  className="text-xs text-gray-500 hover:text-gray-700 font-medium px-2 py-1 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   수정
                 </button>
@@ -314,7 +314,7 @@ export default function MyPage() {
       <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
         <div className="p-6 pb-4 flex items-center justify-between">
           <h2 className="text-lg font-bold text-gray-900">최근 활동</h2>
-          <Link href="/points" className="text-sm text-purple-500 hover:text-purple-700 font-medium transition-colors">
+          <Link href="/points" className="text-sm text-gray-500 hover:text-gray-700 font-medium transition-colors">
             전체보기
           </Link>
         </div>
@@ -363,7 +363,7 @@ export default function MyPage() {
               </div>
               <span
                 className={`text-sm font-bold ${
-                  activity.amount > 0 ? 'text-purple-600' : 'text-red-500'
+                  activity.amount > 0 ? 'text-gray-600' : 'text-red-500'
                 }`}
               >
                 {activity.amount > 0 ? '+' : ''}
@@ -389,7 +389,7 @@ export default function MyPage() {
               onClick={() => setActiveTab(tab.key)}
               className={`flex items-center gap-1.5 px-5 py-4 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
                 activeTab === tab.key
-                  ? 'border-purple-500 text-purple-700 bg-purple-50/50'
+                  ? 'border-gray-500 text-gray-700 bg-gray-100/50'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
               }`}
             >
@@ -427,7 +427,7 @@ export default function MyPage() {
                     {voteRecords.map((record) => (
                       <div key={record.id} className="flex items-center justify-between py-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-lg">🗳️</div>
+                          <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-lg">🗳️</div>
                           <div>
                             <p className="text-sm font-medium text-gray-900">{record.votes?.title || '삭제된 투표'}</p>
                             <p className="text-xs text-gray-400">{record.votes?.category || ''}</p>
@@ -452,8 +452,8 @@ export default function MyPage() {
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {likedArtists.map((record) => (
-                      <div key={record.id} className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-purple-50 transition-colors">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center text-2xl">
+                      <div key={record.id} className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-2xl">
                           {record.artists?.thumbnail || '🎤'}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -508,7 +508,7 @@ export default function MyPage() {
                     {watchedVideos.map((record) => (
                       <div key={record.id} className="flex items-center justify-between py-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-lg">
+                          <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-lg">
                             {record.videos?.thumbnail || '🎬'}
                           </div>
                           <div>
@@ -569,7 +569,7 @@ export default function MyPage() {
             </p>
             <div className="bg-gray-50 rounded-xl p-4 mb-5">
               <p className="text-sm text-gray-700 font-medium mb-1">탈퇴 문의</p>
-              <p className="text-sm text-purple-600 font-semibold">support@ples.co.kr</p>
+              <p className="text-sm text-gray-600 font-semibold">support@ples.co.kr</p>
               <p className="text-xs text-gray-400 mt-1">위 이메일로 탈퇴를 요청해주세요</p>
             </div>
             <button
@@ -594,7 +594,7 @@ export default function MyPage() {
               value={newNickname}
               onChange={(e) => setNewNickname(e.target.value)}
               maxLength={20}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all"
               placeholder="닉네임을 입력하세요"
               autoFocus
             />
@@ -612,7 +612,7 @@ export default function MyPage() {
                 disabled={!newNickname.trim() || savingNickname}
                 className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all ${
                   newNickname.trim() && !savingNickname
-                    ? 'gradient-purple text-white hover:opacity-90'
+                    ? 'bg-gradient-to-r from-gray-700 to-gray-900 text-white hover:opacity-90'
                     : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                 }`}
               >

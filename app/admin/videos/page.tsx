@@ -118,7 +118,7 @@ export default function AdminVideosPage() {
         <h1 className="text-2xl font-bold text-gray-900">영상 관리</h1>
         <button
           onClick={openCreate}
-          className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+          className="px-4 py-2 bg-gray-700 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
         >
           + 추가
         </button>
@@ -156,7 +156,7 @@ export default function AdminVideosPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-gray-600">
-                      <a href={video.url} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline truncate max-w-[200px] inline-block">
+                      <a href={video.url} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:underline truncate max-w-[200px] inline-block">
                         {video.url}
                       </a>
                     </td>
@@ -222,7 +222,7 @@ export default function AdminVideosPage() {
                   type="text"
                   value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                 />
               </div>
               <div>
@@ -231,7 +231,7 @@ export default function AdminVideosPage() {
                   type="text"
                   value={form.url}
                   onChange={(e) => setForm({ ...form, url: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                   placeholder="https://youtube.com/..."
                 />
               </div>
@@ -242,7 +242,7 @@ export default function AdminVideosPage() {
                     type="text"
                     value={form.emoji}
                     onChange={(e) => setForm({ ...form, emoji: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                     placeholder="🎬"
                   />
                 </div>
@@ -252,7 +252,7 @@ export default function AdminVideosPage() {
                     type="text"
                     value={form.duration}
                     onChange={(e) => setForm({ ...form, duration: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                     placeholder="3:45"
                   />
                 </div>
@@ -263,7 +263,7 @@ export default function AdminVideosPage() {
                   type="number"
                   value={form.reward_points}
                   onChange={(e) => setForm({ ...form, reward_points: parseInt(e.target.value) || 0 })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                 />
               </div>
             </div>
@@ -278,7 +278,7 @@ export default function AdminVideosPage() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex-1 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                className="flex-1 py-2 bg-gray-700 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-50"
               >
                 {saving ? '저장 중...' : editingId ? '수정' : '추가'}
               </button>

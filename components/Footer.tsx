@@ -26,7 +26,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
             <Link href="/" className="inline-block">
-              <span className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-400 via-ples-purple to-ples-blue bg-clip-text text-transparent">
+              <span className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-white via-ples-silver to-gray-400 bg-clip-text text-transparent">
                 PLES
               </span>
             </Link>

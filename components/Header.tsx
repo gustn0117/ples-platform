@@ -58,7 +58,7 @@ export default function Header() {
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-400 via-ples-purple to-ples-blue bg-clip-text text-transparent">
+            <span className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-white via-ples-silver to-gray-400 bg-clip-text text-transparent">
               PLES
             </span>
           </Link>
@@ -77,7 +77,7 @@ export default function Header() {
               >
                 {link.label}
                 {isActive(link.href) && (
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-4 rounded-full bg-gradient-to-r from-ples-purple to-ples-blue" />
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-4 rounded-full bg-gradient-to-r from-white to-ples-silver" />
                 )}
               </Link>
             ))}
@@ -92,7 +92,7 @@ export default function Header() {
                 {/* Points Badge */}
                 <Link
                   href="/points"
-                  className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-500/30 px-3 py-1.5 text-sm font-semibold text-yellow-300 transition-all hover:from-yellow-500/30 hover:to-amber-500/30"
+                  className="flex items-center gap-1.5 rounded-full bg-ples-gold/10 border border-ples-gold/30 px-3 py-1.5 text-sm font-semibold text-ples-gold transition-all hover:bg-ples-gold/20"
                 >
                   <svg
                     className="h-4 w-4"
@@ -111,7 +111,7 @@ export default function Header() {
                     onClick={() => setDropdownOpen(!dropdownOpen)}
                     className="flex items-center gap-2 rounded-full p-1 transition-all hover:bg-white/10"
                   >
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-ples-purple to-ples-blue text-sm font-bold text-white">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-gray-300 to-ples-silver text-sm font-bold text-ples-dark">
                       {profile.avatar_url ? (
                         <img
                           src={profile.avatar_url}
@@ -250,7 +250,7 @@ export default function Header() {
                 </Link>
                 <Link
                   href="/login?tab=signup"
-                  className="rounded-lg bg-gradient-to-r from-ples-purple to-ples-blue px-4 py-2 text-sm font-medium text-white transition-all hover:shadow-lg hover:shadow-ples-purple/25"
+                  className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-ples-dark transition-all hover:bg-gray-200 hover:shadow-lg hover:shadow-white/10"
                 >
                   회원가입
                 </Link>
@@ -298,7 +298,7 @@ export default function Header() {
         }`}
       >
         <div className="flex items-center justify-between p-4 border-b border-white/10">
-          <span className="text-lg font-bold bg-gradient-to-r from-primary-400 to-ples-blue bg-clip-text text-transparent">
+          <span className="text-lg font-bold bg-gradient-to-r from-white to-ples-silver bg-clip-text text-transparent">
             PLES
           </span>
           <button
@@ -326,7 +326,7 @@ export default function Header() {
         {user && profile && (
           <div className="p-4 border-b border-white/10">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-ples-purple to-ples-blue text-sm font-bold text-white shrink-0">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gray-300 to-ples-silver text-sm font-bold text-ples-dark shrink-0">
                 {profile.avatar_url ? (
                   <img
                     src={profile.avatar_url}
@@ -341,7 +341,7 @@ export default function Header() {
                 <p className="text-sm font-semibold text-white truncate">
                   {profile.nickname}
                 </p>
-                <p className="text-xs text-yellow-400 font-medium">
+                <p className="text-xs text-ples-gold font-medium">
                   {profile.points.toLocaleString()}P
                 </p>
               </div>
@@ -407,7 +407,7 @@ export default function Header() {
               </Link>
               <Link
                 href="/login?tab=signup"
-                className="block rounded-lg bg-gradient-to-r from-ples-purple to-ples-blue px-4 py-2.5 text-center text-sm font-medium text-white hover:shadow-lg hover:shadow-ples-purple/25 transition-all"
+                className="block rounded-lg bg-white px-4 py-2.5 text-center text-sm font-medium text-ples-dark hover:bg-gray-200 hover:shadow-lg hover:shadow-white/10 transition-all"
               >
                 회원가입
               </Link>

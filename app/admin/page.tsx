@@ -61,16 +61,16 @@ export default function AdminDashboard() {
   }, [session])
 
   const statCards = [
-    { label: '총 회원수', value: stats.userCount, color: 'bg-blue-500', icon: '👥' },
-    { label: '총 아티스트', value: stats.artistCount, color: 'bg-green-500', icon: '🎤' },
-    { label: '총 투표수', value: stats.voteCount, color: 'bg-purple-500', icon: '🗳️' },
-    { label: '총 매출', value: `₩${stats.totalRevenue.toLocaleString()}`, color: 'bg-orange-500', icon: '💰' },
+    { label: '총 회원수', value: stats.userCount, color: 'bg-gray-700', icon: '👥' },
+    { label: '총 아티스트', value: stats.artistCount, color: 'bg-gray-600', icon: '🎤' },
+    { label: '총 투표수', value: stats.voteCount, color: 'bg-gray-500', icon: '🗳️' },
+    { label: '총 매출', value: `₩${stats.totalRevenue.toLocaleString()}`, color: 'bg-gray-800', icon: '💰' },
   ]
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-700"></div>
       </div>
     )
   }
@@ -103,7 +103,7 @@ export default function AdminDashboard() {
           {[40, 65, 45, 80, 55, 70, 90, 60, 75, 50, 85, 95, 70, 60].map((h, i) => (
             <div key={i} className="flex-1 flex flex-col items-center gap-1">
               <div
-                className="w-full bg-indigo-500 rounded-t-sm transition-all"
+                className="w-full bg-gray-600 rounded-t-sm transition-all"
                 style={{ height: `${h}%` }}
               />
               <span className="text-xs text-gray-400">{i + 1}</span>

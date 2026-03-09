@@ -98,11 +98,11 @@ export default function AdminUsersPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="닉네임 또는 이메일 검색..."
-          className="flex-1 max-w-md px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          className="flex-1 max-w-md px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
         />
         <button
           type="submit"
-          className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+          className="px-4 py-2 bg-gray-700 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
         >
           검색
         </button>
@@ -140,7 +140,7 @@ export default function AdminUsersPage() {
                   <tr key={user.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 font-medium text-gray-900">
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold">
+                        <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs font-bold">
                           {user.nickname?.charAt(0) ?? '?'}
                         </div>
                         {user.nickname}
@@ -178,7 +178,7 @@ export default function AdminUsersPage() {
                           className={`px-3 py-1 text-xs rounded-md transition-colors ${
                             user.is_admin
                               ? 'bg-red-100 text-red-700 hover:bg-red-200'
-                              : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
+                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                           }`}
                         >
                           {user.is_admin ? '권한해제' : '관리자 부여'}
@@ -232,7 +232,7 @@ export default function AdminUsersPage() {
             </div>
 
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-16 h-16 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl font-bold">
+              <div className="w-16 h-16 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-2xl font-bold">
                 {selectedUser.nickname?.charAt(0) ?? '?'}
               </div>
               <div>

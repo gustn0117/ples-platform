@@ -107,7 +107,7 @@ export default function PointsPage() {
     return (
       <div className="min-h-[60vh] flex items-center justify-center px-4">
         <div className="text-center max-w-md">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center text-5xl mx-auto mb-6">
+          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-5xl mx-auto mb-6">
             💰
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-3">로그인이 필요해요</h2>
@@ -116,7 +116,7 @@ export default function PointsPage() {
           </p>
           <Link
             href="/login"
-            className="inline-flex px-8 py-3 rounded-full gradient-purple text-white font-semibold hover:opacity-90 transition-opacity"
+            className="inline-flex px-8 py-3 rounded-full bg-gradient-to-r from-gray-700 to-gray-900 text-white font-semibold hover:opacity-90 transition-opacity"
           >
             로그인하기
           </Link>
@@ -134,14 +134,14 @@ export default function PointsPage() {
 
       {/* Balance Card */}
       <div className="relative overflow-hidden rounded-3xl gradient-dark text-white p-8 sm:p-10 mb-8">
-        <div className="absolute top-0 right-0 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-pink-500/15 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4" />
+        <div className="absolute top-0 right-0 w-72 h-72 bg-gray-500/15 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-gray-400/10 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4" />
 
         <div className="relative z-10">
           <p className="text-sm text-gray-400 mb-2 font-medium">보유 포인트</p>
           <p className="text-5xl sm:text-6xl font-bold mb-2 tracking-tight">
             {(profile?.points || 0).toLocaleString()}
-            <span className="text-2xl sm:text-3xl text-purple-300 ml-1">P</span>
+            <span className="text-2xl sm:text-3xl text-gray-400 ml-1">P</span>
           </p>
           <p className="text-gray-400 text-sm mb-8">
             {profile?.nickname || '회원'}님의 포인트 잔액입니다
@@ -149,7 +149,7 @@ export default function PointsPage() {
 
           <button
             onClick={() => setShowChargeSection(!showChargeSection)}
-            className="px-7 py-3 rounded-full bg-white text-purple-700 font-semibold text-sm hover:bg-gray-100 transition-all hover:shadow-lg"
+            className="px-7 py-3 rounded-full bg-white text-gray-800 font-semibold text-sm hover:bg-gray-100 transition-all hover:shadow-lg"
           >
             {showChargeSection ? '충전 닫기' : '포인트 충전하기'}
           </button>
@@ -169,7 +169,7 @@ export default function PointsPage() {
                 onClick={() => setSelectedCharge(index)}
                 className={`relative p-4 rounded-xl border-2 transition-all text-center ${
                   selectedCharge === index
-                    ? 'border-purple-500 bg-purple-50 shadow-md shadow-purple-100'
+                    ? 'border-gray-500 bg-gray-100 shadow-md shadow-gray-300'
                     : 'border-gray-100 hover:border-gray-200 hover:bg-gray-50'
                 }`}
               >
@@ -181,7 +181,7 @@ export default function PointsPage() {
                 <p className="text-lg font-bold text-gray-900 mb-1">
                   {option.amount.toLocaleString()}원
                 </p>
-                <p className={`text-sm font-semibold ${option.bonus ? 'text-purple-600' : 'text-gray-500'}`}>
+                <p className={`text-sm font-semibold ${option.bonus ? 'text-ples-silver' : 'text-gray-500'}`}>
                   {option.points.toLocaleString()}P
                 </p>
                 {option.bonus && (
@@ -200,13 +200,13 @@ export default function PointsPage() {
                 </p>
               </div>
               <div className="text-center">
-                <svg className="w-6 h-6 text-purple-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6 text-gray-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </div>
               <div className="text-right">
                 <span className="text-sm text-gray-600">충전 포인트</span>
-                <p className="text-xl font-bold text-purple-600">
+                <p className="text-xl font-bold text-ples-silver">
                   {chargeOptions[selectedCharge].points.toLocaleString()}P
                 </p>
               </div>
@@ -218,7 +218,7 @@ export default function PointsPage() {
             disabled={selectedCharge === null || isCharging}
             className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all ${
               selectedCharge !== null && !isCharging
-                ? 'gradient-purple text-white hover:opacity-90 shadow-lg shadow-purple-200'
+                ? 'bg-gradient-to-r from-gray-700 to-gray-900 text-white hover:opacity-90 shadow-lg shadow-gray-400/30'
                 : 'bg-gray-100 text-gray-400 cursor-not-allowed'
             }`}
           >
@@ -257,7 +257,7 @@ export default function PointsPage() {
             onClick={() => setFilter(f)}
             className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
               filter === f
-                ? 'gradient-purple text-white shadow-lg shadow-purple-200'
+                ? 'bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-lg shadow-gray-400/30'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
@@ -301,7 +301,7 @@ export default function PointsPage() {
             transactionsWithBalance.map((item) => (
               <div
                 key={item.id}
-                className="grid grid-cols-1 sm:grid-cols-12 gap-1 sm:gap-4 px-6 py-4 border-t border-gray-50 hover:bg-purple-50/30 transition-colors"
+                className="grid grid-cols-1 sm:grid-cols-12 gap-1 sm:gap-4 px-6 py-4 border-t border-gray-50 hover:bg-gray-100/30 transition-colors"
               >
                 <div className="sm:col-span-2 text-sm text-gray-400">
                   {new Date(item.created_at).toLocaleDateString('ko-KR')}
@@ -310,7 +310,7 @@ export default function PointsPage() {
                   <span
                     className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                       item.type === 'earn'
-                        ? 'bg-blue-50 text-blue-600'
+                        ? 'bg-gray-100 text-gray-600'
                         : 'bg-red-50 text-red-500'
                     }`}
                   >
@@ -325,7 +325,7 @@ export default function PointsPage() {
                 </div>
                 <div
                   className={`sm:col-span-2 text-sm font-bold text-right ${
-                    item.amount > 0 ? 'text-purple-600' : 'text-red-500'
+                    item.amount > 0 ? 'text-ples-silver' : 'text-red-500'
                   }`}
                 >
                   {item.amount > 0 ? '+' : ''}

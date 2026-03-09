@@ -179,7 +179,7 @@ export default function VotePage() {
         {profile && (
           <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 glass rounded-full">
             <span className="text-sm">💰</span>
-            <span className="text-sm font-semibold text-ples-purple">
+            <span className="text-sm font-semibold text-ples-silver">
               보유 포인트: {profile.points.toLocaleString()}P
             </span>
           </div>
@@ -244,14 +244,14 @@ export default function VotePage() {
                         disabled={!vote.is_active || hasVoted || isVoting}
                         className={`relative w-full text-left p-4 rounded-xl border transition-all overflow-hidden ${
                           isSelected
-                            ? 'border-ples-purple bg-ples-purple/10'
+                            ? 'border-white/20 bg-white/10'
                             : 'border-white/10 hover:border-white/20'
                         } ${!vote.is_active || hasVoted ? 'cursor-default' : 'cursor-pointer'}`}
                       >
                         {/* Animated Progress bar */}
                         {(hasVoted || !vote.is_active) && (
                           <div
-                            className="absolute inset-y-0 left-0 bg-gradient-to-r from-ples-purple/20 to-ples-blue/10 rounded-xl transition-all duration-1000 ease-out"
+                            className="absolute inset-y-0 left-0 bg-gradient-to-r from-white/10 to-gray-400/5 rounded-xl transition-all duration-1000 ease-out"
                             style={{ width: `${percentage}%` }}
                           />
                         )}
@@ -259,7 +259,7 @@ export default function VotePage() {
                           <div className="flex items-center gap-3">
                             <div
                               className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-                                isSelected ? 'border-ples-purple bg-ples-purple' : 'border-gray-600'
+                                isSelected ? 'border-white/20 bg-white' : 'border-gray-600'
                               }`}
                             >
                               {isSelected && (
@@ -271,7 +271,7 @@ export default function VotePage() {
                             <span className="font-medium">{option.label}</span>
                           </div>
                           {(hasVoted || !vote.is_active) && (
-                            <span className="text-sm font-bold text-ples-purple">
+                            <span className="text-sm font-bold text-ples-silver">
                               {percentage}%
                             </span>
                           )}
@@ -315,11 +315,11 @@ export default function VotePage() {
                       )}
                     </button>
                   ) : hasVoted ? (
-                    <div className="flex items-center justify-center gap-2 py-3.5 bg-ples-purple/10 rounded-xl">
-                      <svg className="w-4 h-4 text-ples-purple" fill="currentColor" viewBox="0 0 20 20">
+                    <div className="flex items-center justify-center gap-2 py-3.5 bg-white/10 rounded-xl">
+                      <svg className="w-4 h-4 text-ples-silver" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
-                      <span className="text-sm font-semibold text-ples-purple">투표 완료</span>
+                      <span className="text-sm font-semibold text-ples-silver">투표 완료</span>
                     </div>
                   ) : (
                     <div className="text-center py-3.5 bg-white/5 rounded-xl">

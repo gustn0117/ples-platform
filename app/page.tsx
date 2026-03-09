@@ -124,42 +124,42 @@ export default function Home() {
       title: '투표',
       desc: '매일 투표에 참여하고 포인트를 적립하세요',
       href: '/vote',
-      gradient: 'from-purple-500 to-indigo-600',
+      gradient: 'from-gray-500 to-gray-700',
     },
     {
       icon: '🎤',
       title: '아티스트',
       desc: '좋아하는 아티스트에게 투자하고 응원하세요',
       href: '/artists',
-      gradient: 'from-pink-500 to-rose-600',
+      gradient: 'from-gray-400 to-gray-600',
     },
     {
       icon: '🛍️',
       title: '마켓',
       desc: '한정판 아트워크와 굿즈를 만나보세요',
       href: '/artworks',
-      gradient: 'from-amber-500 to-orange-600',
+      gradient: 'from-gray-500 to-gray-700',
     },
     {
       icon: '🎬',
       title: '영상 리워드',
       desc: '영상을 시청하고 포인트를 받으세요',
       href: '/videos',
-      gradient: 'from-blue-500 to-cyan-600',
+      gradient: 'from-gray-400 to-gray-600',
     },
     {
       icon: '🏆',
       title: '랭킹',
       desc: '인기 아티스트 순위를 확인하세요',
       href: '/ranking',
-      gradient: 'from-green-500 to-emerald-600',
+      gradient: 'from-gray-500 to-gray-700',
     },
     {
       icon: '💰',
       title: '포인트',
       desc: '포인트를 충전하고 다양한 혜택을 누리세요',
       href: '/points',
-      gradient: 'from-violet-500 to-purple-600',
+      gradient: 'from-gray-400 to-gray-600',
     },
   ];
 
@@ -169,13 +169,13 @@ export default function Home() {
       <section className="relative min-h-[90vh] flex items-center">
         {/* Animated gradient background */}
         <div className="absolute inset-0">
-          <div className="absolute top-20 left-10 w-96 h-96 bg-ples-purple/20 rounded-full blur-[100px] animate-pulse" />
-          <div className="absolute bottom-20 right-10 w-80 h-80 bg-ples-pink/15 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1s' }} />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-ples-blue/10 rounded-full blur-[120px]" />
+          <div className="absolute top-20 left-10 w-96 h-96 bg-white/5 rounded-full blur-[100px] animate-pulse" />
+          <div className="absolute bottom-20 right-10 w-80 h-80 bg-ples-silver/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1s' }} />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gray-400/5 rounded-full blur-[120px]" />
           {/* Floating particles */}
-          <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-purple-400/40 rounded-full animate-bounce" style={{ animationDuration: '3s' }} />
-          <div className="absolute top-1/3 right-1/3 w-1.5 h-1.5 bg-pink-400/40 rounded-full animate-bounce" style={{ animationDuration: '4s', animationDelay: '0.5s' }} />
-          <div className="absolute bottom-1/3 left-1/3 w-2.5 h-2.5 bg-amber-400/30 rounded-full animate-bounce" style={{ animationDuration: '3.5s', animationDelay: '1s' }} />
+          <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-gray-400/40 rounded-full animate-bounce" style={{ animationDuration: '3s' }} />
+          <div className="absolute top-1/3 right-1/3 w-1.5 h-1.5 bg-ples-gold/30 rounded-full animate-bounce" style={{ animationDuration: '4s', animationDelay: '0.5s' }} />
+          <div className="absolute bottom-1/3 left-1/3 w-2.5 h-2.5 bg-ples-gold/20 rounded-full animate-bounce" style={{ animationDuration: '3.5s', animationDelay: '1s' }} />
         </div>
 
         <div className="relative z-10 section-container py-20 w-full">
@@ -195,7 +195,7 @@ export default function Home() {
             <p className="text-lg sm:text-xl text-gray-400 mb-10 leading-relaxed animate-slideUp" style={{ animationDelay: '0.2s' }}>
               투표하고, 응원하고, 구매하고, 시청하면서
               <br />
-              포인트를 쌓는 참여형 플랫폼 <span className="text-ples-purple font-semibold">PLES</span>
+              포인트를 쌓는 참여형 플랫폼 <span className="text-white font-semibold">PLES</span>
             </p>
 
             <div className="animate-slideUp" style={{ animationDelay: '0.3s' }}>
@@ -222,7 +222,7 @@ export default function Home() {
 
       {/* Stats Counter Section */}
       <section ref={statsRef} className="py-16 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-ples-purple/5 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent" />
         <div className="relative section-container">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {[
@@ -274,11 +274,11 @@ export default function Home() {
                 <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center text-2xl mb-4 shadow-lg group-hover:scale-110 transition-transform`}>
                   {feature.icon}
                 </div>
-                <h3 className="text-lg font-bold mb-2 group-hover:text-ples-purple transition-colors">
+                <h3 className="text-lg font-bold mb-2 group-hover:text-white transition-colors">
                   {feature.title}
                 </h3>
                 <p className="text-sm text-gray-500 leading-relaxed">{feature.desc}</p>
-                <div className="mt-4 flex items-center text-sm text-ples-purple font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="mt-4 flex items-center text-sm text-white font-medium opacity-0 group-hover:opacity-100 transition-opacity">
                   자세히 보기
                   <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -308,7 +308,7 @@ export default function Home() {
             </div>
             <Link
               href="/artists"
-              className="hidden sm:flex items-center gap-1 text-ples-purple font-medium text-sm hover:text-purple-400 transition-colors"
+              className="hidden sm:flex items-center gap-1 text-white font-medium text-sm hover:text-gray-400 transition-colors"
             >
               전체보기
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -338,7 +338,7 @@ export default function Home() {
                   className="group glass rounded-2xl overflow-hidden card-hover"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  <div className="relative aspect-square bg-gradient-to-br from-ples-purple/20 via-ples-pink/10 to-ples-gold/10 flex items-center justify-center">
+                  <div className="relative aspect-square bg-gradient-to-br from-white/10 via-ples-silver/5 to-ples-gold/5 flex items-center justify-center">
                     <span className="text-6xl group-hover:scale-110 transition-transform duration-300">
                       {artist.emoji || '🎵'}
                     </span>
@@ -350,9 +350,9 @@ export default function Home() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                   <div className="p-4">
-                    <h3 className="font-bold group-hover:text-ples-purple transition-colors">{artist.name}</h3>
+                    <h3 className="font-bold group-hover:text-white transition-colors">{artist.name}</h3>
                     <p className="text-xs text-gray-500 mb-2">{artist.genre}</p>
-                    <div className="flex items-center gap-1 text-sm text-ples-pink">
+                    <div className="flex items-center gap-1 text-sm text-ples-gold">
                       <span>💜</span>
                       <span className="font-semibold">{artist.likes?.toLocaleString() || 0}</span>
                     </div>
@@ -372,8 +372,8 @@ export default function Home() {
       {/* CTA Section */}
       <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0">
-          <div className="absolute top-10 left-20 w-64 h-64 bg-ples-purple/15 rounded-full blur-[80px]" />
-          <div className="absolute bottom-10 right-20 w-48 h-48 bg-ples-pink/15 rounded-full blur-[80px]" />
+          <div className="absolute top-10 left-20 w-64 h-64 bg-white/5 rounded-full blur-[80px]" />
+          <div className="absolute bottom-10 right-20 w-48 h-48 bg-ples-silver/10 rounded-full blur-[80px]" />
         </div>
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold mb-4">지금 바로 시작하세요</h2>
