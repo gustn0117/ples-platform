@@ -263,11 +263,11 @@ export default function ArtworksPage() {
 
                     <div className="flex items-baseline gap-2 mb-4">
                       <span className="font-semibold text-gray-900">
-                        ₩{artwork.price_cash.toLocaleString()}
+                        ₩{(artwork.price_cash ?? 0).toLocaleString()}
                       </span>
                       <span className="text-sm text-gray-400 inline-flex items-center gap-0.5">
                         <IconCoin className="w-3.5 h-3.5" />
-                        {artwork.price_points.toLocaleString()}P
+                        {(artwork.price_points ?? 0).toLocaleString()}P
                       </span>
                     </div>
 
@@ -378,7 +378,7 @@ export default function ArtworksPage() {
                         <div>
                           <p className="font-medium text-gray-900 text-sm">일반결제</p>
                           <p className="text-sm text-gray-400 mt-0.5">
-                            ₩{selectedArtwork.price_cash.toLocaleString()}
+                            ₩{(selectedArtwork.price_cash ?? 0).toLocaleString()}
                           </p>
                         </div>
                       </div>
@@ -409,7 +409,7 @@ export default function ArtworksPage() {
                         <div>
                           <p className="font-medium text-gray-900 text-sm">포인트결제</p>
                           <p className="text-sm text-gray-400 mt-0.5">
-                            {selectedArtwork.price_points.toLocaleString()}P
+                            {(selectedArtwork.price_points ?? 0).toLocaleString()}P
                             {profile && (
                               <span className="ml-2 text-gray-300">
                                 (보유: {profile.points.toLocaleString()}P)
