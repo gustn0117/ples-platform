@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth-context';
 import Link from 'next/link';
@@ -27,6 +27,21 @@ const CATEGORIES = [
   { key: '머천다이즈', label: '머천다이즈' },
   { key: '디지털', label: '디지털' },
 ];
+
+function isNewProduct(createdAt: string): boolean {
+  const created = new Date(createdAt);
+  const now = new Date();
+  const diffMs = now.getTime() - created.getTime();
+  const diffDays = diffMs / (1000 * 60 * 60 * 24);
+  return diffDays <= 7;
+}
+
+function isPointsBestValue(priceCash: number, pricePoints: number): boolean {
+  if (priceCash <= 0 || pricePoints <= 0) return false;
+  // Consider points a good deal if points-per-won ratio is favorable
+  // Simple heuristic: if price_points < price_cash (points feel cheaper)
+  return pricePoints < priceCash;
+}
 
 export default function ArtworksPage() {
   const { user, profile, refreshProfile } = useAuth();
@@ -126,6 +141,15 @@ export default function ArtworksPage() {
     (a) => selectedCategory === '전체' || a.category === selectedCategory
   );
 
+  // Category counts for badge display
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { '전체': artworks.length };
+    for (const a of artworks) {
+      counts[a.category] = (counts[a.category] || 0) + 1;
+    }
+    return counts;
+  }, [artworks]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-white">
@@ -183,40 +207,51 @@ export default function ArtworksPage() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
-        {/* Category Filter - Pill style */}
+        {/* Category Filter - Pill style with count badges and spring animation */}
         <div className="flex gap-2 mb-8 overflow-x-auto pb-2 scrollbar-hide">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat.key}
-              onClick={() => setSelectedCategory(cat.key)}
-              className={`px-5 py-2.5 text-sm font-medium whitespace-nowrap rounded-full transition-all duration-300 ${
-                selectedCategory === cat.key
-                  ? 'bg-gray-900 text-white shadow-md shadow-gray-900/15 ring-1 ring-gray-900'
-                  : 'bg-white text-gray-500 border border-gray-200 hover:border-gray-300 hover:text-gray-800 hover:bg-gray-50 active:scale-95'
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
+          {CATEGORIES.map((cat) => {
+            const count = categoryCounts[cat.key] || 0;
+            return (
+              <button
+                key={cat.key}
+                onClick={() => setSelectedCategory(cat.key)}
+                className={`inline-flex items-center gap-1.5 px-5 py-2.5 text-sm font-medium whitespace-nowrap rounded-full transition-all duration-300 ${
+                  selectedCategory === cat.key
+                    ? 'bg-gray-900 text-white shadow-md shadow-gray-900/15 ring-1 ring-gray-900 animate-pill-spring'
+                    : 'bg-white text-gray-500 border border-gray-200 hover:border-gray-300 hover:text-gray-800 hover:bg-gray-50 active:scale-95'
+                }`}
+              >
+                {cat.label}
+                <span className={`text-[11px] font-semibold tabular-nums rounded-full px-1.5 py-0.5 min-w-[20px] text-center ${
+                  selectedCategory === cat.key
+                    ? 'bg-white/20 text-white'
+                    : 'bg-gray-100 text-gray-400'
+                }`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Product Grid */}
         {filteredArtworks.length === 0 ? (
           <div className="text-center py-24 bg-white rounded-3xl border border-gray-100">
-            <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-4">
+            <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-4 animate-gentle-float">
               <IconShoppingBag className="w-6 h-6 text-gray-300" />
             </div>
             <p className="text-gray-400">해당 카테고리에 상품이 없습니다</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 stagger-grid" key={selectedCategory}>
             {filteredArtworks.map((artwork) => {
               const isSoldOut = artwork.stock <= 0;
+              const isNew = isNewProduct(artwork.created_at);
 
               return (
                 <div
                   key={artwork.id}
-                  className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-gray-200 hover:-translate-y-1 transition-all duration-500 overflow-hidden group"
+                  className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-gray-300 hover:-translate-y-1 transition-all duration-500 overflow-hidden group"
                 >
                   {/* Product Image Placeholder */}
                   <div className="relative aspect-[4/3] bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center overflow-hidden">
@@ -227,6 +262,15 @@ export default function ArtworksPage() {
                       </span>
                     </div>
 
+                    {/* Hover overlay with text */}
+                    {!isSoldOut && (
+                      <div className="product-hover-overlay rounded-t-2xl">
+                        <span className="text-white text-sm font-semibold bg-white/15 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/20">
+                          자세히 보기
+                        </span>
+                      </div>
+                    )}
+
                     {/* Sold out overlay */}
                     {isSoldOut && (
                       <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center">
@@ -236,8 +280,17 @@ export default function ArtworksPage() {
                       </div>
                     )}
 
+                    {/* NEW badge */}
+                    {isNew && !isSoldOut && (
+                      <div className="absolute top-3 right-3 z-10">
+                        <span className="text-[10px] font-bold tracking-wider text-white bg-gray-900 px-2 py-0.5 rounded-md shadow-sm">
+                          NEW
+                        </span>
+                      </div>
+                    )}
+
                     {/* Low stock */}
-                    {!isSoldOut && artwork.stock <= 5 && (
+                    {!isSoldOut && !isNew && artwork.stock <= 5 && (
                       <div className="absolute top-3 right-3">
                         <span className="text-[11px] font-semibold text-red-500 bg-red-50 px-2.5 py-1 rounded-lg">
                           {artwork.stock}개 남음
@@ -260,10 +313,11 @@ export default function ArtworksPage() {
                     <p className="font-semibold text-gray-900 mb-0.5 truncate text-sm">{artwork.title}</p>
                     <p className="text-xs text-gray-400 mb-3">{artwork.artist_name}</p>
 
-                    <div className="flex items-baseline gap-2 mb-4">
-                      <span className="font-bold text-gray-900">
+                    <div className="flex items-baseline gap-1.5 mb-4">
+                      <span className="font-extrabold text-gray-900 text-base">
                         ₩{(artwork.price_cash ?? 0).toLocaleString()}
                       </span>
+                      <span className="text-[10px] text-gray-300 font-medium">or</span>
                       <span className="text-xs text-gray-400 inline-flex items-center gap-0.5">
                         <IconCoin className="w-3 h-3" />
                         {(artwork.price_points ?? 0).toLocaleString()}P
@@ -319,7 +373,7 @@ export default function ArtworksPage() {
           >
             {purchaseSuccess ? (
               <div className="text-center py-16 px-6">
-                <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center mx-auto mb-5">
+                <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center mx-auto mb-5 animate-bounce-check">
                   <IconCheck className="w-7 h-7 text-emerald-600" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">구매 완료</h3>
@@ -343,9 +397,9 @@ export default function ArtworksPage() {
                   </button>
                 </div>
 
-                {/* Product Summary */}
-                <div className="mx-6 mt-5 p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                  <div className="flex items-center gap-4">
+                {/* Product Summary with dot pattern */}
+                <div className="mx-6 mt-5 p-4 bg-gray-50 rounded-2xl border border-gray-100 dot-pattern-subtle relative overflow-hidden">
+                  <div className="flex items-center gap-4 relative z-10">
                     <div className="w-14 h-14 bg-white rounded-xl border border-gray-100 flex items-center justify-center shrink-0 shadow-sm">
                       <IconPalette className="w-6 h-6 text-gray-400" />
                     </div>
@@ -356,11 +410,13 @@ export default function ArtworksPage() {
                   </div>
                 </div>
 
-                {/* Divider */}
-                <div className="mx-6 mt-5 border-t border-gray-100" />
+                {/* Payment Options Label */}
+                <div className="mx-6 mt-5 mb-3">
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">결제 방법</p>
+                </div>
 
                 {/* Payment Options */}
-                <div className="p-6 flex flex-col gap-3">
+                <div className="px-6 flex flex-col gap-3">
                   {/* Cash */}
                   <button
                     onClick={() => setPaymentMethod('cash')}
@@ -383,7 +439,7 @@ export default function ArtworksPage() {
                         </div>
                       </div>
                       <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
-                        paymentMethod === 'cash' ? 'border-gray-900 bg-gray-900 scale-110' : 'border-gray-300'
+                        paymentMethod === 'cash' ? 'border-gray-900 bg-gray-900 animate-spring-scale' : 'border-gray-300'
                       }`}>
                         {paymentMethod === 'cash' && (
                           <IconCheck className="w-3 h-3 text-white" />
@@ -395,12 +451,20 @@ export default function ArtworksPage() {
                   {/* Points */}
                   <button
                     onClick={() => setPaymentMethod('points')}
-                    className={`p-4 rounded-2xl border-2 text-left transition-all duration-300 active:scale-[0.98] ${
+                    className={`relative p-4 rounded-2xl border-2 text-left transition-all duration-300 active:scale-[0.98] ${
                       paymentMethod === 'points'
                         ? 'border-gray-900 bg-gray-50 shadow-sm shadow-gray-900/5'
                         : 'border-gray-100 hover:border-gray-300 hover:bg-gray-50/50 bg-white'
                     }`}
                   >
+                    {/* Best value badge */}
+                    {isPointsBestValue(selectedArtwork.price_cash, selectedArtwork.price_points) && (
+                      <div className="absolute -top-2 left-4">
+                        <span className="text-[10px] font-bold text-white bg-gray-900 px-2 py-0.5 rounded-md shadow-sm">
+                          추천
+                        </span>
+                      </div>
+                    )}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${paymentMethod === 'points' ? 'bg-gray-900 shadow-sm shadow-gray-900/20' : 'bg-gray-100'}`}>
@@ -428,7 +492,7 @@ export default function ArtworksPage() {
                         </div>
                       </div>
                       <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
-                        paymentMethod === 'points' ? 'border-gray-900 bg-gray-900 scale-110' : 'border-gray-300'
+                        paymentMethod === 'points' ? 'border-gray-900 bg-gray-900 animate-spring-scale' : 'border-gray-300'
                       }`}>
                         {paymentMethod === 'points' && (
                           <IconCheck className="w-3 h-3 text-white" />
@@ -438,38 +502,40 @@ export default function ArtworksPage() {
                   </button>
                 </div>
 
-                {/* Actions */}
-                <div className="px-6 pb-6 border-t border-gray-100 pt-4 mt-1">
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => setSelectedArtwork(null)}
-                      className="w-[35%] py-4 rounded-2xl border border-gray-200 text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 hover:border-gray-300 transition-all duration-300 active:scale-[0.98]"
-                    >
-                      취소
-                    </button>
-                    <button
-                      onClick={handlePurchase}
-                      disabled={
-                        purchasing ||
-                        (paymentMethod === 'points' && profile !== null && profile.points < selectedArtwork.price_points)
-                      }
-                      className="flex-1 py-4 rounded-2xl bg-gray-900 text-white text-sm font-bold hover:bg-gray-800 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2.5 hover:shadow-xl hover:shadow-gray-900/15 hover:-translate-y-0.5 active:translate-y-0 active:shadow-md"
-                    >
-                      {purchasing ? (
-                        <>
-                          <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                          </svg>
-                          처리 중...
-                        </>
-                      ) : (
-                        <>
-                          <IconShoppingBag className="w-4 h-4" />
-                          결제하기
-                        </>
-                      )}
-                    </button>
+                {/* Actions — separated with stronger visual divider */}
+                <div className="px-6 pb-6 mt-6">
+                  <div className="border-t border-gray-200 pt-5">
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => setSelectedArtwork(null)}
+                        className="w-[35%] py-4 rounded-2xl border border-gray-200 text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 hover:border-gray-300 transition-all duration-300 active:scale-[0.98]"
+                      >
+                        취소
+                      </button>
+                      <button
+                        onClick={handlePurchase}
+                        disabled={
+                          purchasing ||
+                          (paymentMethod === 'points' && profile !== null && profile.points < selectedArtwork.price_points)
+                        }
+                        className="flex-1 py-4 rounded-2xl bg-gray-900 text-white text-sm font-bold hover:bg-gray-800 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2.5 hover:shadow-xl hover:shadow-gray-900/15 hover:-translate-y-0.5 active:translate-y-0 active:shadow-md"
+                      >
+                        {purchasing ? (
+                          <>
+                            <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                            </svg>
+                            처리 중...
+                          </>
+                        ) : (
+                          <>
+                            <IconShoppingBag className="w-4 h-4" />
+                            결제하기
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </>

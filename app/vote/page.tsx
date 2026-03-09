@@ -207,14 +207,14 @@ export default function VotePage() {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
         {votes.length === 0 ? (
           <div className="text-center py-24 bg-white rounded-3xl border border-gray-100">
-            <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-4">
+            <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-4 animate-gentle-float">
               <IconVote className="w-6 h-6 text-gray-300" />
             </div>
             <p className="text-gray-400">현재 진행 중인 투표가 없습니다</p>
           </div>
         ) : (
           <div className="flex flex-col gap-6">
-            {votes.map((vote) => {
+            {votes.map((vote, voteIndex) => {
               const total = getTotalVotes(vote.vote_options);
               const hasVoted = votedItems.has(vote.id);
               const isVoting = votingInProgress === vote.id;
@@ -226,11 +226,17 @@ export default function VotePage() {
                   className="bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-500"
                 >
                   {/* Vote Header */}
-                  <div className="p-8 pb-5">
-                    <div className="flex items-start justify-between gap-4 mb-4">
+                  <div className="relative p-8 pb-5 dot-pattern-subtle rounded-t-3xl">
+                    {/* Vote index badge */}
+                    <div className="absolute top-4 right-4">
+                      <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-gray-400 text-xs font-bold tabular-nums">
+                        {String(voteIndex + 1).padStart(2, '0')}
+                      </span>
+                    </div>
+                    <div className="flex items-start justify-between gap-4 mb-4 pr-10">
                       <h2 className="text-xl font-bold text-gray-900 leading-snug">{vote.title}</h2>
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className="inline-flex items-center gap-1.5 bg-gray-50 border border-gray-100 text-gray-600 rounded-xl px-3 py-1.5 text-xs font-semibold">
+                        <span className="sparkle-badge inline-flex items-center gap-1.5 bg-gray-900 text-white rounded-xl px-3 py-1.5 text-xs font-semibold">
                           <IconCoin className="w-3.5 h-3.5" />
                           +{vote.reward_points || 10}P
                         </span>
@@ -278,16 +284,16 @@ export default function VotePage() {
                           className={`relative w-full text-left p-4 rounded-2xl border-2 transition-all duration-300 group/option ${
                             isSelected
                               ? 'border-gray-900 bg-gray-50 shadow-sm shadow-gray-900/5'
-                              : 'border-gray-100 hover:border-gray-300 hover:bg-gray-50/50 bg-white'
+                              : 'border-gray-100 hover:border-gray-300 hover:bg-gray-50/50 hover:shadow-sm bg-white'
                           } ${!vote.is_active || hasVoted ? 'cursor-default' : 'cursor-pointer active:scale-[0.98]'}`}
                         >
                           <div className="relative flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                              {/* Radio indicator */}
+                              {/* Radio indicator with spring animation */}
                               <div
                                 className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-300 ${
                                   isSelected
-                                    ? 'border-gray-900 bg-gray-900 scale-110'
+                                    ? 'border-gray-900 bg-gray-900 animate-spring-scale'
                                     : 'border-gray-300 group-hover/option:border-gray-400'
                                 }`}
                               >
@@ -304,13 +310,19 @@ export default function VotePage() {
                             )}
                           </div>
 
-                          {/* Progress bar */}
+                          {/* Progress bar with gradient and delayed animation */}
                           {(hasVoted || !vote.is_active) && (
-                            <div className="mt-3 w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-                              <div
-                                className="bg-gray-900 h-2 rounded-full transition-all duration-1000 ease-out"
-                                style={{ width: `${percentage}%` }}
-                              />
+                            <div className="vote-progress-enter">
+                              <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                                <div
+                                  className="h-2 rounded-full transition-all duration-1000 ease-out"
+                                  style={{
+                                    width: `${percentage}%`,
+                                    background: 'linear-gradient(90deg, #374151, #111827)',
+                                    transitionDelay: '0.2s',
+                                  }}
+                                />
+                              </div>
                             </div>
                           )}
                         </button>
@@ -322,8 +334,16 @@ export default function VotePage() {
                   <div className="px-8 pb-8 pt-4">
                     <div className="border-t border-gray-100 pt-5">
                       {justVoted ? (
-                        <div className="flex items-center justify-center gap-2.5 py-4 bg-emerald-50 border border-emerald-100 rounded-2xl animate-fade-in-up">
-                          <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center">
+                        <div className="relative flex items-center justify-center gap-2.5 py-4 bg-emerald-50 border border-emerald-100 rounded-2xl animate-fade-in-up vote-confetti-container overflow-hidden">
+                          {/* Confetti dots */}
+                          <div className="vote-confetti-dot" />
+                          <div className="vote-confetti-dot" />
+                          <div className="vote-confetti-dot" />
+                          <div className="vote-confetti-dot" />
+                          <div className="vote-confetti-dot" />
+                          <div className="vote-confetti-dot" />
+                          {/* Bounce-in checkmark */}
+                          <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center animate-bounce-check">
                             <IconCheck className="w-3.5 h-3.5 text-white" />
                           </div>
                           <span className="text-sm font-semibold text-emerald-600">

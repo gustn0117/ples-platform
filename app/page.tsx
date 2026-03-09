@@ -29,6 +29,7 @@ interface Artist {
 function useAnimatedNumber(target: number, duration = 2000) {
   const [value, setValue] = useState(0);
   const [started, setStarted] = useState(false);
+  const [finished, setFinished] = useState(false);
 
   const start = useCallback(() => setStarted(true), []);
 
@@ -44,6 +45,8 @@ function useAnimatedNumber(target: number, duration = 2000) {
       setValue(Math.floor(eased * target));
       if (progress < 1) {
         animationFrame = requestAnimationFrame(animate);
+      } else {
+        setFinished(true);
       }
     };
 
@@ -51,7 +54,7 @@ function useAnimatedNumber(target: number, duration = 2000) {
     return () => cancelAnimationFrame(animationFrame);
   }, [started, target, duration]);
 
-  return { value, start };
+  return { value, start, finished };
 }
 
 function useFadeInOnScroll(threshold = 0.1) {
@@ -179,9 +182,9 @@ export default function Home() {
   ];
 
   const statItems = [
-    { label: '아티스트 투표', value: voteCount.value, suffix: '+', icon: IconVote },
-    { label: '등록 아티스트', value: artistNum.value, suffix: '+', icon: IconUsers },
-    { label: '포인트 지급', value: pointCount.value, suffix: '+', icon: IconCoin },
+    { label: '아티스트 투표', value: voteCount.value, suffix: '+', icon: IconVote, finished: voteCount.finished },
+    { label: '등록 아티스트', value: artistNum.value, suffix: '+', icon: IconUsers, finished: artistNum.finished },
+    { label: '포인트 지급', value: pointCount.value, suffix: '+', icon: IconCoin, finished: pointCount.finished },
   ];
 
   const rankMedals = ['#111827', '#6b7280', '#9ca3af', '#d1d5db', '#e5e7eb'];
@@ -202,8 +205,8 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left — Content */}
             <div>
-              {/* Badge with ring-pulse */}
-              <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-gray-50 border border-gray-200 mb-10 animate-fade-in-up glow-border">
+              {/* Badge with animated border glow */}
+              <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-gray-50 border border-gray-200 mb-10 animate-fade-in-up animated-border-glow">
                 <span className="relative w-2 h-2 rounded-full bg-gray-900">
                   <span className="absolute inset-0 rounded-full bg-gray-900 ring-pulse" />
                 </span>
@@ -232,7 +235,7 @@ export default function Home() {
                     </svg>
                   </span>
                   <br />
-                  <span className="gradient-text-elegant">플랫폼</span>
+                  <span className="gradient-text-shine">플랫폼</span>
                 </h1>
               </div>
 
@@ -324,6 +327,22 @@ export default function Home() {
                 </div>
               </div>
 
+              {/* Floating card — Top Artist preview */}
+              <div className="absolute top-64 right-[22rem] w-40 bg-white rounded-2xl border border-gray-100 p-3 shadow-lg animate-float-slow" style={{ animationDelay: '1.5s' }}>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-gray-900 text-white flex items-center justify-center font-bold text-sm shrink-0">
+                    A
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-[10px] text-gray-400 block">Top Artist</span>
+                    <span className="text-xs font-bold text-gray-900 block truncate">Artist Name</span>
+                  </div>
+                  <div className="ml-auto shrink-0">
+                    <IconTrophy className="w-3.5 h-3.5 text-gray-300" />
+                  </div>
+                </div>
+              </div>
+
               {/* Small circle */}
               <div className="absolute top-72 right-8 w-32 h-32 rounded-full bg-gray-100 animate-float inner-shadow" />
 
@@ -349,8 +368,8 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40 z-10">
+        {/* Scroll indicator with bounce */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40 z-10 animate-scroll-bounce">
           <span className="text-[10px] uppercase tracking-[0.2em] text-gray-400 font-medium">Scroll</span>
           <div className="w-px h-8 bg-gradient-to-b from-gray-300 to-transparent" />
         </div>
@@ -391,15 +410,18 @@ export default function Home() {
                 {/* Gradient accent bar at top */}
                 <div className="absolute top-0 left-8 right-8 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
 
+                {/* Gradient accent line at bottom — appears on hover */}
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-gray-900 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
                 <div className="relative z-10">
-                  {/* Icon badge */}
-                  <div className="w-12 h-12 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+                  {/* Icon badge — rotates slightly on hover */}
+                  <div className="w-12 h-12 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
                     <stat.icon className="w-5 h-5 text-gray-600" />
                   </div>
 
                   <div className="text-5xl sm:text-6xl font-bold text-gray-900 tracking-tight tabular-nums">
                     {stat.value.toLocaleString()}
-                    <span className="text-gray-300 ml-0.5 text-4xl">{stat.suffix}</span>
+                    <span className={`text-gray-300 ml-0.5 text-4xl inline-block ${stat.finished ? 'animate-suffix-bounce' : ''}`}>{stat.suffix}</span>
                   </div>
                   <p className="mt-4 text-sm text-gray-400 font-medium">{stat.label}</p>
                 </div>
@@ -418,7 +440,7 @@ export default function Home() {
             Trusted by leading partners
           </p>
         </div>
-        <div className="relative">
+        <div className="relative marquee-container">
           {/* Fade edges */}
           <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-gray-50/80 to-transparent z-10 pointer-events-none" />
           <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-gray-50/80 to-transparent z-10 pointer-events-none" />
@@ -479,14 +501,14 @@ export default function Home() {
                 <Link
                   key={feature.title}
                   href={feature.href}
-                  className={`group relative bg-white rounded-3xl border border-gray-100 hover:border-gray-200 transition-all duration-500 flex flex-col overflow-hidden ${
+                  className={`group relative bg-white rounded-3xl border border-gray-100 hover:border-gray-200 transition-all duration-500 flex flex-col overflow-hidden shimmer-card ${
                     spanTwo ? 'lg:col-span-2 p-10 sm:p-12' : 'p-8'
                   }`}
                   style={{
-                    transitionDelay: featuresSection.isVisible ? `${index * 80}ms` : '0ms',
+                    transitionDelay: featuresSection.isVisible ? `${index * 100}ms` : '0ms',
                     opacity: featuresSection.isVisible ? 1 : 0,
-                    transform: featuresSection.isVisible ? 'translateY(0)' : 'translateY(1.5rem)',
-                    transition: `opacity 0.6s ease ${index * 80}ms, transform 0.6s ease ${index * 80}ms, box-shadow 0.5s ease, border-color 0.5s ease`,
+                    transform: featuresSection.isVisible ? 'translateY(0) scale(1)' : 'translateY(2rem) scale(0.97)',
+                    transition: `opacity 0.7s ease ${index * 100}ms, transform 0.7s ease ${index * 100}ms, box-shadow 0.5s ease, border-color 0.5s ease`,
                   }}
                 >
                   {/* Hover gradient overlay */}
@@ -500,9 +522,12 @@ export default function Home() {
 
                   <div className="relative z-10">
                     <div
-                      className={`bg-gradient-to-br ${feature.accent} flex items-center justify-center group-hover:scale-110 group-hover:shadow-lg transition-all duration-500 ${
+                      className={`bg-gradient-to-br ${feature.accent} flex items-center justify-center group-hover:scale-110 transition-all duration-500 ${
                         spanTwo ? 'w-20 h-20 rounded-3xl mb-8' : 'w-14 h-14 rounded-2xl mb-6'
                       }`}
+                      style={{
+                        boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
+                      }}
                     >
                       <feature.icon className={spanTwo ? 'w-9 h-9 text-white' : 'w-6 h-6 text-white'} />
                     </div>
@@ -591,7 +616,7 @@ export default function Home() {
               {hotArtists[0] && (
                 <Link
                   href="/artists"
-                  className="group block rounded-3xl border border-gray-100 overflow-hidden hover:shadow-xl hover:border-gray-200 transition-all duration-500 bg-white"
+                  className="group block rounded-3xl border border-gray-100 overflow-hidden hover:shadow-xl hover:border-gray-200 transition-all duration-500 bg-white animated-gradient-border"
                   style={{
                     opacity: hotSection.isVisible ? 1 : 0,
                     transform: hotSection.isVisible ? 'translateY(0)' : 'translateY(1.5rem)',
@@ -673,9 +698,15 @@ export default function Home() {
                           >
                             {rankIndex + 1}
                           </div>
-                          {/* Like count */}
-                          <div className="absolute bottom-3 right-3 flex items-center gap-1 text-[11px] text-gray-400 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-lg shadow-sm">
-                            <IconHeart className="w-3 h-3" />
+                          {/* Ranking badge overlay on hover */}
+                          <div className="rank-badge-overlay">
+                            <div className="bg-gray-900/90 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg">
+                              Top {rankIndex + 1}
+                            </div>
+                          </div>
+                          {/* Like count — more prominent */}
+                          <div className="absolute bottom-3 right-3 flex items-center gap-1.5 text-xs font-bold text-gray-700 bg-white backdrop-blur-sm px-3 py-1.5 rounded-xl shadow-md border border-gray-100">
+                            <IconHeart className="w-3.5 h-3.5 text-gray-500" />
                             {artist.likes?.toLocaleString() || 0}
                           </div>
                         </div>
@@ -773,6 +804,13 @@ export default function Home() {
             <div className="absolute top-20 right-[20%] w-3 h-3 rounded-full bg-white/10 animate-float" />
             <div className="absolute bottom-24 left-[25%] w-2 h-2 rounded-full bg-white/10 animate-float-reverse" />
             <div className="absolute top-1/3 right-[12%] w-20 h-20 rounded-2xl border border-white/[0.05] rotate-12 animate-float-slow" />
+            {/* Additional decorative elements — rotating squares and gradient rings */}
+            <div className="absolute top-[15%] left-[18%] w-6 h-6 border border-white/[0.08] animate-spin-slow" />
+            <div className="absolute bottom-[20%] right-[15%] w-8 h-8 border border-white/[0.06] rotate-45 animate-spin-reverse-slow" />
+            <div className="absolute top-[60%] right-[25%] w-4 h-4 border border-white/[0.1] animate-spin-slow" />
+            <div className="absolute bottom-[35%] left-[12%] w-5 h-5 border border-white/[0.07] rotate-12 animate-spin-reverse-slow" />
+            <div className="absolute top-[25%] right-[5%] w-24 h-24 rounded-full border border-white/[0.03] animate-float" style={{ boxShadow: 'inset 0 0 20px rgba(255,255,255,0.02)' }} />
+            <div className="absolute bottom-[10%] left-[8%] w-16 h-16 rounded-full border border-white/[0.05] animate-float-reverse" style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.02) 0%, transparent 70%)' }} />
 
             <div className="relative z-10 text-center px-6 sm:px-8">
               <div
@@ -795,7 +833,7 @@ export default function Home() {
                 }}
               >
                 <span
-                  className="inline-block"
+                  className="inline-block text-6xl sm:text-7xl lg:text-9xl"
                   style={{
                     background: 'linear-gradient(120deg, #e5e7eb 0%, #ffffff 40%, #9ca3af 60%, #e5e7eb 100%)',
                     backgroundSize: '200% auto',
@@ -808,7 +846,7 @@ export default function Home() {
                   지금 바로
                 </span>
                 <br />
-                <span className="text-white">참여하세요</span>
+                <span className="text-white inline-block" style={{ transform: 'translateX(0.15em)', marginTop: '0.1em' }}>참여하세요</span>
               </h2>
               <p
                 className="mt-8 text-lg sm:text-xl text-gray-400 max-w-lg mx-auto leading-relaxed"

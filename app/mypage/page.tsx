@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth-context';
 import Link from 'next/link';
 import {
   IconCoin, IconVote, IconHeart, IconShoppingBag, IconPlay,
-  IconArrowRight, IconCheck, IconTrophy, IconWallet
+  IconArrowRight, IconCheck, IconTrophy, IconWallet, IconSparkle, IconSettings
 } from '@/components/icons';
 
 interface PointTransaction {
@@ -48,6 +48,60 @@ interface WatchedVideo {
   id: string;
   watched_at: string;
   videos: { title: string; thumbnail: string; reward_points: number } | null;
+}
+
+/* Animated number counter */
+function AnimatedNumber({ value, duration = 1200 }: { value: number; duration?: number }) {
+  const [display, setDisplay] = useState(0);
+  const prevValue = useRef(0);
+
+  useEffect(() => {
+    const start = prevValue.current;
+    const diff = value - start;
+    const startTime = Date.now();
+
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplay(Math.round(start + diff * eased));
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        prevValue.current = value;
+      }
+    };
+
+    requestAnimationFrame(animate);
+  }, [value, duration]);
+
+  return <>{display.toLocaleString()}</>;
+}
+
+/* Membership badge based on points */
+function getMembershipBadge(points: number): { label: string; color: string } {
+  if (points >= 10000) return { label: 'VIP', color: 'bg-gray-900 text-white' };
+  if (points >= 5000) return { label: '프로', color: 'bg-gray-700 text-white' };
+  if (points >= 1000) return { label: '일반', color: 'bg-gray-400 text-white' };
+  return { label: '뉴비', color: 'bg-gray-200 text-gray-600' };
+}
+
+/* Mini trend line SVG */
+function MiniTrendLine({ className = '' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 48 20" fill="none" className={`w-12 h-5 ${className}`}>
+      <polyline
+        points="0,18 8,14 16,16 24,10 32,12 40,6 48,2"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+        opacity="0.35"
+      />
+    </svg>
+  );
 }
 
 export default function MyPage() {
@@ -204,11 +258,13 @@ export default function MyPage() {
     ? new Date(profile.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })
     : '';
 
+  const membership = getMembershipBadge(profile?.points || 0);
+
   const statCards = [
-    { label: '보유 포인트', value: `${(profile?.points || 0).toLocaleString()}P`, icon: <IconCoin className="w-5 h-5" />, highlight: true },
-    { label: '투표 수', value: `${stats.totalVotes}`, icon: <IconVote className="w-5 h-5" />, highlight: false },
-    { label: '좋아요', value: `${stats.likedArtists}`, icon: <IconHeart className="w-5 h-5" />, highlight: false },
-    { label: '구매', value: `${stats.purchases}`, icon: <IconShoppingBag className="w-5 h-5" />, highlight: false },
+    { label: '보유 포인트', value: profile?.points || 0, suffix: 'P', icon: <IconCoin className="w-5 h-5" />, highlight: true },
+    { label: '투표 수', value: stats.totalVotes, suffix: '', icon: <IconVote className="w-5 h-5" />, highlight: false },
+    { label: '좋아요', value: stats.likedArtists, suffix: '', icon: <IconHeart className="w-5 h-5" />, highlight: false },
+    { label: '구매', value: stats.purchases, suffix: '', icon: <IconShoppingBag className="w-5 h-5" />, highlight: false },
   ];
 
   const tabItems = [
@@ -219,16 +275,68 @@ export default function MyPage() {
   ];
 
   const quickNavItems = [
-    { label: '포인트 관리', href: '/points', icon: <IconWallet className="w-5 h-5 text-white" /> },
-    { label: '아티스트 랭킹', href: '/ranking', icon: <IconTrophy className="w-5 h-5 text-white" /> },
-    { label: '영상 리워드', href: '/videos', icon: <IconPlay className="w-5 h-5 text-white" /> },
-    { label: '마켓', href: '/market', icon: <IconShoppingBag className="w-5 h-5 text-white" /> },
+    { label: '포인트 관리', desc: '충전 및 내역 확인', href: '/points', icon: <IconWallet className="w-5 h-5 text-white" />, badge: null },
+    { label: '아티스트 랭킹', desc: '실시간 순위 확인', href: '/ranking', icon: <IconTrophy className="w-5 h-5 text-white" />, badge: null },
+    { label: '영상 리워드', desc: '영상 보고 포인트 적립', href: '/videos', icon: <IconPlay className="w-5 h-5 text-white" />, badge: 'NEW' },
+    { label: '마켓', desc: '아티스트 작품 구매', href: '/market', icon: <IconShoppingBag className="w-5 h-5 text-white" />, badge: null },
   ];
+
+  /* Empty state configs per tab */
+  const emptyStates: Record<typeof activeTab, { icon: React.ReactNode; title: string; desc: string; link: string; linkLabel: string }> = {
+    votes: {
+      icon: <IconVote className="w-8 h-8 text-gray-300" />,
+      title: '참여한 투표가 없어요',
+      desc: '좋아하는 아티스트에게 투표하고 포인트도 받아보세요',
+      link: '/vote',
+      linkLabel: '투표하러 가기',
+    },
+    artists: {
+      icon: <IconHeart className="w-8 h-8 text-gray-300" />,
+      title: '좋아요한 아티스트가 없어요',
+      desc: '마음에 드는 아티스트를 발견하고 응원해보세요',
+      link: '/ranking',
+      linkLabel: '아티스트 둘러보기',
+    },
+    purchases: {
+      icon: <IconShoppingBag className="w-8 h-8 text-gray-300" />,
+      title: '구매 내역이 없어요',
+      desc: '아티스트들의 특별한 작품을 만나보세요',
+      link: '/market',
+      linkLabel: '마켓 둘러보기',
+    },
+    videos: {
+      icon: <IconPlay className="w-8 h-8 text-gray-300" />,
+      title: '시청한 영상이 없어요',
+      desc: '영상을 시청하고 포인트를 적립해보세요',
+      link: '/videos',
+      linkLabel: '영상 보러 가기',
+    },
+  };
+
+  /* View all links per tab */
+  const viewAllLinks: Record<typeof activeTab, string> = {
+    votes: '/vote',
+    artists: '/ranking',
+    purchases: '/market',
+    videos: '/videos',
+  };
+
+  const hasTabRecords = (tab: typeof activeTab) => {
+    switch (tab) {
+      case 'votes': return voteRecords.length > 0;
+      case 'artists': return likedArtists.length > 0;
+      case 'purchases': return purchaseRecords.length > 0;
+      case 'videos': return watchedVideos.length > 0;
+    }
+  };
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6">
-      {/* Header */}
+      {/* Header with animated welcome */}
       <div className="py-16 pb-10">
+        <p className="text-gray-400 text-sm mb-2 animate-fade-in-up">
+          <span className="animate-wave">👋</span> 안녕하세요, <span className="text-gray-600 font-semibold">{nickname}</span>님!
+        </p>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">마이페이지</h1>
         <p className="text-gray-400">내 활동을 확인하고 관리하세요</p>
       </div>
@@ -237,17 +345,23 @@ export default function MyPage() {
       <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl p-6 sm:p-8 mb-6 overflow-hidden mesh-gradient-dark">
         <div className="noise-overlay" />
         <div className="relative z-10 flex items-center gap-5">
-          {/* Avatar with glow effect */}
+          {/* Avatar with animated gradient border */}
           <div className="relative shrink-0">
             <div className="absolute inset-0 w-20 h-20 rounded-2xl bg-white/20 blur-xl" />
-            <div className="relative w-20 h-20 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center">
-              <span className="text-3xl font-bold text-white">{nickname[0]}</span>
+            <div className="relative avatar-gradient-border">
+              <div className="relative w-20 h-20 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center">
+                <span className="text-3xl font-bold text-white">{nickname[0]}</span>
+              </div>
             </div>
           </div>
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-0.5">
               <h2 className="text-lg font-bold text-white">{nickname}</h2>
+              {/* Membership badge */}
+              <span className={`px-2 py-0.5 rounded-md text-[10px] font-black tracking-wider ${membership.color}`}>
+                {membership.label}
+              </span>
               <button
                 onClick={() => {
                   setNewNickname(nickname);
@@ -287,7 +401,7 @@ export default function MyPage() {
               key={stat.label}
               className={`group relative rounded-2xl border shadow-sm p-5 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md cursor-default ${
                 stat.highlight
-                  ? 'bg-gradient-to-br from-gray-900 to-gray-800 border-gray-800 text-white hover:shadow-gray-900/20'
+                  ? 'bg-gradient-to-br from-gray-900 to-gray-800 border-gray-800 text-white hover:shadow-gray-900/20 animate-stat-sparkle'
                   : 'bg-white border-gray-100 hover:border-gray-200 hover:shadow-gray-200/60'
               }`}
             >
@@ -297,8 +411,13 @@ export default function MyPage() {
                 }`}>
                   {stat.icon}
                 </div>
+                {/* Mini trend chart */}
+                <MiniTrendLine className={stat.highlight ? 'text-white/40' : 'text-gray-300'} />
               </div>
-              <p className={`text-2xl font-bold transition-colors duration-300 ${stat.highlight ? 'text-white' : 'text-gray-900'}`}>{stat.value}</p>
+              <p className={`text-2xl font-bold transition-colors duration-300 tabular-nums ${stat.highlight ? 'text-white' : 'text-gray-900'}`}>
+                <AnimatedNumber value={stat.value} />
+                {stat.suffix && <span className={`text-sm ml-0.5 ${stat.highlight ? 'text-white/50' : 'text-gray-400'}`}>{stat.suffix}</span>}
+              </p>
               <p className={`text-xs mt-1 font-medium transition-colors duration-300 ${stat.highlight ? 'text-white/60' : 'text-gray-400 group-hover:text-gray-500'}`}>{stat.label}</p>
             </div>
           ))}
@@ -347,14 +466,21 @@ export default function MyPage() {
               {activeTab === 'votes' && (
                 voteRecords.length === 0 ? (
                   <div className="text-center py-12">
-                    <p className="text-sm text-gray-400">참여한 투표가 없습니다</p>
+                    <div className="w-16 h-16 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mx-auto mb-4">
+                      <div className="animate-float-slow">{emptyStates.votes.icon}</div>
+                    </div>
+                    <p className="text-sm font-semibold text-gray-900 mb-1">{emptyStates.votes.title}</p>
+                    <p className="text-xs text-gray-400 mb-4">{emptyStates.votes.desc}</p>
+                    <Link href={emptyStates.votes.link} className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-gray-900 transition-colors">
+                      {emptyStates.votes.linkLabel} <IconArrowRight className="w-3 h-3" />
+                    </Link>
                   </div>
                 ) : (
                   <div className="divide-y divide-gray-50">
                     {voteRecords.map((record) => (
-                      <div key={record.id} className="flex items-center justify-between py-3">
+                      <div key={record.id} className="flex items-center justify-between py-3 transition-all duration-200 hover:bg-gray-50/50 hover:-translate-y-px hover:shadow-sm rounded-lg px-2 -mx-2 group">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center">
+                          <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center group-hover:bg-gray-200/70 transition-colors">
                             <IconVote className="w-4 h-4 text-gray-500" />
                           </div>
                           <div>
@@ -375,13 +501,20 @@ export default function MyPage() {
               {activeTab === 'artists' && (
                 likedArtists.length === 0 ? (
                   <div className="text-center py-12">
-                    <p className="text-sm text-gray-400">좋아요한 아티스트가 없습니다</p>
+                    <div className="w-16 h-16 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mx-auto mb-4">
+                      <div className="animate-float-slow">{emptyStates.artists.icon}</div>
+                    </div>
+                    <p className="text-sm font-semibold text-gray-900 mb-1">{emptyStates.artists.title}</p>
+                    <p className="text-xs text-gray-400 mb-4">{emptyStates.artists.desc}</p>
+                    <Link href={emptyStates.artists.link} className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-gray-900 transition-colors">
+                      {emptyStates.artists.linkLabel} <IconArrowRight className="w-3 h-3" />
+                    </Link>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {likedArtists.map((record) => (
-                      <div key={record.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors">
-                        <div className="w-10 h-10 rounded-xl bg-gray-900 flex items-center justify-center">
+                      <div key={record.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 hover:-translate-y-px hover:shadow-sm transition-all duration-200 group">
+                        <div className="w-10 h-10 rounded-xl bg-gray-900 flex items-center justify-center group-hover:shadow-md transition-shadow">
                           <span className="text-sm font-bold text-white">{record.artists?.name?.[0] || '?'}</span>
                         </div>
                         <div className="flex-1 min-w-0">
@@ -398,14 +531,21 @@ export default function MyPage() {
               {activeTab === 'purchases' && (
                 purchaseRecords.length === 0 ? (
                   <div className="text-center py-12">
-                    <p className="text-sm text-gray-400">구매 내역이 없습니다</p>
+                    <div className="w-16 h-16 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mx-auto mb-4">
+                      <div className="animate-float-slow">{emptyStates.purchases.icon}</div>
+                    </div>
+                    <p className="text-sm font-semibold text-gray-900 mb-1">{emptyStates.purchases.title}</p>
+                    <p className="text-xs text-gray-400 mb-4">{emptyStates.purchases.desc}</p>
+                    <Link href={emptyStates.purchases.link} className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-gray-900 transition-colors">
+                      {emptyStates.purchases.linkLabel} <IconArrowRight className="w-3 h-3" />
+                    </Link>
                   </div>
                 ) : (
                   <div className="divide-y divide-gray-50">
                     {purchaseRecords.map((record) => (
-                      <div key={record.id} className="flex items-center justify-between py-3">
+                      <div key={record.id} className="flex items-center justify-between py-3 transition-all duration-200 hover:bg-gray-50/50 hover:-translate-y-px hover:shadow-sm rounded-lg px-2 -mx-2 group">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
+                          <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center group-hover:bg-gray-200/70 transition-colors">
                             <IconShoppingBag className="w-4 h-4 text-gray-500" />
                           </div>
                           <div>
@@ -427,14 +567,21 @@ export default function MyPage() {
               {activeTab === 'videos' && (
                 watchedVideos.length === 0 ? (
                   <div className="text-center py-12">
-                    <p className="text-sm text-gray-400">시청 완료한 영상이 없습니다</p>
+                    <div className="w-16 h-16 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mx-auto mb-4">
+                      <div className="animate-float-slow">{emptyStates.videos.icon}</div>
+                    </div>
+                    <p className="text-sm font-semibold text-gray-900 mb-1">{emptyStates.videos.title}</p>
+                    <p className="text-xs text-gray-400 mb-4">{emptyStates.videos.desc}</p>
+                    <Link href={emptyStates.videos.link} className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-gray-900 transition-colors">
+                      {emptyStates.videos.linkLabel} <IconArrowRight className="w-3 h-3" />
+                    </Link>
                   </div>
                 ) : (
                   <div className="divide-y divide-gray-50">
                     {watchedVideos.map((record) => (
-                      <div key={record.id} className="flex items-center justify-between py-3">
+                      <div key={record.id} className="flex items-center justify-between py-3 transition-all duration-200 hover:bg-gray-50/50 hover:-translate-y-px hover:shadow-sm rounded-lg px-2 -mx-2 group">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
+                          <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center group-hover:bg-gray-200/70 transition-colors">
                             <IconPlay className="w-4 h-4 text-gray-500" />
                           </div>
                           <div>
@@ -452,6 +599,19 @@ export default function MyPage() {
                   </div>
                 )
               )}
+
+              {/* View all link */}
+              {hasTabRecords(activeTab) && (
+                <div className="mt-4 pt-4 border-t border-gray-100 text-center">
+                  <Link
+                    href={viewAllLinks[activeTab]}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400 hover:text-gray-700 transition-colors"
+                  >
+                    전체보기
+                    <IconArrowRight className="w-3 h-3" />
+                  </Link>
+                </div>
+              )}
             </>
           )}
         </div>
@@ -463,10 +623,16 @@ export default function MyPage() {
           <Link
             key={item.label}
             href={item.href}
-            className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md hover:border-gray-200 group"
+            className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md hover:border-gray-200 group relative"
           >
+            {/* NEW badge */}
+            {item.badge && (
+              <span className="absolute -top-2 -right-2 px-2 py-0.5 bg-gray-900 text-white text-[9px] font-black rounded-md shadow-sm tracking-wider z-10">
+                {item.badge}
+              </span>
+            )}
             <div className="flex items-center justify-between mb-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow duration-300">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center shadow-sm group-hover:shadow-md group-hover:from-gray-700 group-hover:to-gray-800 transition-all duration-300">
                 {item.icon}
               </div>
               <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-gray-50 group-hover:bg-gray-900 transition-colors duration-300">
@@ -474,20 +640,25 @@ export default function MyPage() {
               </div>
             </div>
             <p className="text-sm font-semibold text-gray-900 group-hover:text-gray-800">{item.label}</p>
+            <p className="text-[11px] text-gray-400 mt-0.5 font-medium">{item.desc}</p>
           </Link>
         ))}
       </div>
 
       {/* Account Actions */}
       <div className="flex items-center gap-3 mb-16 pt-4 border-t border-gray-100">
-        <button className="text-sm text-gray-400 hover:text-gray-600 transition-colors font-medium">
+        <button className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-600 transition-colors font-medium group">
+          <IconSettings className="w-3.5 h-3.5 text-gray-300 group-hover:text-gray-500 transition-colors" />
           비밀번호 변경
         </button>
         <span className="text-gray-200">|</span>
         <button
           onClick={() => setShowWithdrawModal(true)}
-          className="text-sm text-gray-400 hover:text-red-500 transition-colors font-medium"
+          className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-red-500 transition-colors font-medium group"
         >
+          <svg className="w-3.5 h-3.5 text-gray-300 group-hover:text-red-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
           회원 탈퇴
         </button>
       </div>

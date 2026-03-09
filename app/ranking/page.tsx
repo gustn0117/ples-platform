@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { IconTrophy, IconCrown, IconHeart, IconTrendingUp } from '@/components/icons';
 
@@ -43,10 +43,72 @@ function AnimatedNumber({ value, duration = 1200 }: { value: number; duration?: 
   return <>{display.toLocaleString()}</>;
 }
 
+function ChangeArrow() {
+  return (
+    <span className="inline-flex items-center animate-arrow-pulse">
+      <svg className="w-3 h-3 text-gray-400" viewBox="0 0 12 12" fill="none">
+        <path d="M6 9V3M6 3L3.5 5.5M6 3L8.5 5.5" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </span>
+  );
+}
+
+function MiniBarChart({ likes, investments }: { likes: number; investments: number }) {
+  const total = likes + investments;
+  if (total === 0) return null;
+  const likePct = Math.round((likes / total) * 100);
+  const investPct = 100 - likePct;
+
+  return (
+    <div className="flex items-center gap-2 mt-2.5 pl-11">
+      <div className="flex-1 flex h-1.5 rounded-full overflow-hidden bg-gray-100">
+        <div
+          className="bg-gray-700 rounded-l-full transition-all duration-700"
+          style={{ width: `${likePct}%` }}
+        />
+        <div
+          className="bg-gray-300 rounded-r-full transition-all duration-700"
+          style={{ width: `${investPct}%` }}
+        />
+      </div>
+      <div className="flex items-center gap-2 text-[10px] text-gray-400 shrink-0">
+        <span className="flex items-center gap-0.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-gray-700" />
+          {likePct}%
+        </span>
+        <span className="flex items-center gap-0.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-gray-300" />
+          {investPct}%
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export default function RankingPage() {
   const [artists, setArtists] = useState<ArtistRanking[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabType>('종합');
+  const tabContainerRef = useRef<HTMLDivElement>(null);
+  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
+
+  const updateIndicator = useCallback((tab: TabType) => {
+    const container = tabContainerRef.current;
+    const button = tabRefs.current[tab];
+    if (container && button) {
+      const containerRect = container.getBoundingClientRect();
+      const buttonRect = button.getBoundingClientRect();
+      setIndicatorStyle({
+        left: buttonRect.left - containerRect.left,
+        width: buttonRect.width,
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    updateIndicator(activeTab);
+  }, [activeTab, updateIndicator, loading]);
 
   useEffect(() => {
     async function fetchRankings() {
@@ -159,20 +221,28 @@ export default function RankingPage() {
       </div>
 
       <div className="px-4 sm:px-6">
-        {/* Tabs - pill/segment style with icons */}
+        {/* Tabs with sliding indicator */}
         <div className="mt-8 mb-10">
-          <div className="inline-flex bg-gray-100/80 rounded-2xl p-1.5 gap-1">
+          <div ref={tabContainerRef} className="relative inline-flex bg-gray-100/80 rounded-2xl p-1.5 gap-1">
+            {/* Sliding indicator */}
+            <div
+              className="absolute top-1.5 h-[calc(100%-12px)] bg-white rounded-xl shadow-sm shadow-gray-200/50 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+              style={{ left: indicatorStyle.left, width: indicatorStyle.width }}
+            />
             {tabs.map((tab) => (
               <button
                 key={tab}
+                ref={(el) => { tabRefs.current[tab] = el; }}
                 onClick={() => setActiveTab(tab)}
-                className={`flex items-center gap-1.5 px-5 sm:px-6 py-2.5 text-sm font-semibold rounded-xl transition-all duration-300 ${
+                className={`relative z-10 flex items-center gap-1.5 px-5 sm:px-6 py-2.5 text-sm font-semibold rounded-xl transition-colors duration-300 ${
                   activeTab === tab
-                    ? 'bg-white text-gray-900 shadow-sm shadow-gray-200/50'
+                    ? 'text-gray-900'
                     : 'text-gray-400 hover:text-gray-600'
                 }`}
               >
-                {tabIcons[tab]}
+                <span className={activeTab === tab ? 'animate-icon-bounce' : ''}>
+                  {tabIcons[tab]}
+                </span>
                 {tab}
               </button>
             ))}
@@ -185,50 +255,64 @@ export default function RankingPage() {
             <div className="flex items-end justify-center gap-3 sm:gap-8">
               {/* #2 - Left */}
               <div className="flex flex-col items-center flex-1 max-w-[140px] sm:max-w-[180px]">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gray-200 flex items-center justify-center mb-2 sm:mb-3">
-                  <span className="text-xs sm:text-sm font-bold text-gray-600">2</span>
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gray-400 flex items-center justify-center mb-2 sm:mb-3">
+                  <span className="text-xs sm:text-sm font-bold text-white">2</span>
                 </div>
                 <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-xl sm:rounded-2xl bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center mb-2 sm:mb-3 shadow-lg shadow-gray-900/10">
                   <span className="text-xl sm:text-3xl font-bold text-white">{top3[1].name[0]}</span>
                 </div>
                 <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-100 shadow-sm px-3 sm:px-5 py-2 sm:py-3 text-center w-full">
                   <h3 className="text-xs sm:text-sm font-bold text-gray-900 truncate">{top3[1].name}</h3>
-                  <p className="text-sm sm:text-lg font-bold text-gray-700 mt-0.5 sm:mt-1 tabular-nums">
-                    <AnimatedNumber value={getScore(top3[1])} />
-                  </p>
+                  <div className="flex items-center justify-center gap-1 mt-0.5 sm:mt-1">
+                    <p className="text-sm sm:text-lg font-bold text-gray-700 tabular-nums">
+                      <AnimatedNumber value={getScore(top3[1])} />
+                    </p>
+                    <ChangeArrow />
+                  </div>
                 </div>
               </div>
 
-              {/* #1 - Center (larger with glow) */}
+              {/* #1 - Center (larger with animated glow) */}
               <div className="flex flex-col items-center -mt-4 sm:-mt-6 flex-1 max-w-[160px] sm:max-w-[200px]">
-                <IconCrown className="w-5 h-5 sm:w-7 sm:h-7 text-gray-900 mb-1.5 sm:mb-2" />
+                <div className="animate-crown-float">
+                  <IconCrown className="w-5 h-5 sm:w-7 sm:h-7 text-gray-900 mb-1.5 sm:mb-2" />
+                </div>
                 <div className="relative">
-                  <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-gray-900/20 blur-xl scale-110" />
+                  <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-gray-900/20 blur-xl scale-110 animate-podium-glow" />
                   <div className="relative w-24 h-24 sm:w-36 sm:h-36 rounded-xl sm:rounded-2xl bg-gradient-to-br from-gray-800 to-gray-950 flex items-center justify-center mb-2 sm:mb-3 shadow-xl shadow-gray-900/20">
                     <span className="text-4xl sm:text-6xl font-bold text-white">{top3[0].name[0]}</span>
                   </div>
                 </div>
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-gray-900 to-gray-700 flex items-center justify-center -mt-1 mb-1 sm:mb-2 border-2 border-white shadow-md">
+                  <span className="text-xs sm:text-sm font-bold text-white">1</span>
+                </div>
                 <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-100 shadow-md px-4 sm:px-8 py-3 sm:py-5 text-center w-full">
                   <h3 className="text-sm sm:text-base font-bold text-gray-900 truncate">{top3[0].name}</h3>
-                  <p className="text-lg sm:text-2xl font-bold text-gray-900 mt-0.5 sm:mt-1 tabular-nums">
-                    <AnimatedNumber value={getScore(top3[0])} />
-                  </p>
+                  <div className="flex items-center justify-center gap-1 mt-0.5 sm:mt-1">
+                    <p className="text-lg sm:text-2xl font-bold text-gray-900 tabular-nums">
+                      <AnimatedNumber value={getScore(top3[0])} />
+                    </p>
+                    <ChangeArrow />
+                  </div>
                 </div>
               </div>
 
               {/* #3 - Right */}
               <div className="flex flex-col items-center mt-2 sm:mt-4 flex-1 max-w-[130px] sm:max-w-[160px]">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gray-100 flex items-center justify-center mb-2 sm:mb-3">
-                  <span className="text-xs sm:text-sm font-bold text-gray-400">3</span>
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gray-300 flex items-center justify-center mb-2 sm:mb-3">
+                  <span className="text-xs sm:text-sm font-bold text-gray-500">3</span>
                 </div>
                 <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center mb-2 sm:mb-3 shadow-lg shadow-gray-900/10">
                   <span className="text-lg sm:text-2xl font-bold text-white">{top3[2].name[0]}</span>
                 </div>
                 <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-100 shadow-sm px-3 sm:px-5 py-2 sm:py-3 text-center w-full">
                   <h3 className="text-xs sm:text-sm font-bold text-gray-900 truncate">{top3[2].name}</h3>
-                  <p className="text-sm sm:text-lg font-bold text-gray-700 mt-0.5 sm:mt-1 tabular-nums">
-                    <AnimatedNumber value={getScore(top3[2])} />
-                  </p>
+                  <div className="flex items-center justify-center gap-1 mt-0.5 sm:mt-1">
+                    <p className="text-sm sm:text-lg font-bold text-gray-700 tabular-nums">
+                      <AnimatedNumber value={getScore(top3[2])} />
+                    </p>
+                    <ChangeArrow />
+                  </div>
                 </div>
               </div>
             </div>
@@ -245,12 +329,12 @@ export default function RankingPage() {
               <div className="flex items-center gap-3 mb-3">
                 {/* Rank Badge */}
                 {index < 3 ? (
-                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 ${
+                  <div className={`flex items-center justify-center text-xs font-bold shrink-0 ${
                     index === 0
-                      ? 'bg-gray-900 text-white shadow-sm shadow-gray-900/20'
+                      ? 'w-9 h-9 rounded-xl bg-gradient-to-br from-gray-900 to-gray-700 text-white shadow-md shadow-gray-900/30'
                       : index === 1
-                      ? 'bg-gray-300 text-white'
-                      : 'bg-gray-200 text-gray-500'
+                      ? 'w-8 h-8 rounded-xl bg-gray-400 text-white'
+                      : 'w-8 h-8 rounded-xl bg-gray-300 text-gray-600'
                   }`}>
                     {index + 1}
                   </div>
@@ -284,12 +368,16 @@ export default function RankingPage() {
                     <AnimatedNumber value={artist.investments} />
                   </span>
                 </div>
-                <div className="ml-auto">
+                <div className="ml-auto flex items-center gap-1">
                   <span className="text-sm font-bold text-gray-900 tabular-nums">
                     <AnimatedNumber value={artist.total} />
                   </span>
+                  <ChangeArrow />
                 </div>
               </div>
+
+              {/* Mini Bar Chart */}
+              <MiniBarChart likes={artist.likes} investments={artist.investments} />
             </div>
           ))}
         </div>
@@ -309,16 +397,22 @@ export default function RankingPage() {
           {sortedArtists.map((artist, index) => (
             <div
               key={artist.id}
-              className="grid grid-cols-12 gap-4 px-4 py-4 mx-2 items-center transition-all duration-200 hover:bg-gray-50 rounded-xl border-t border-gray-50 first:border-0"
+              className={`grid grid-cols-12 gap-4 px-4 py-4 mx-2 items-center transition-all duration-200 hover:bg-gray-50 hover:scale-[1.01] rounded-xl border-t border-gray-50 first:border-0 ${
+                index % 2 === 1 ? 'bg-gray-50/30' : ''
+              } ${
+                index === 0 ? 'border-l-2 border-l-gray-900' :
+                index === 1 ? 'border-l-2 border-l-gray-400' :
+                index === 2 ? 'border-l-2 border-l-gray-300' : ''
+              }`}
             >
               <div className="col-span-1">
                 {index < 3 ? (
                   <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold ${
                     index === 0
-                      ? 'bg-gray-900 text-white shadow-sm shadow-gray-900/20'
+                      ? 'bg-gradient-to-br from-gray-900 to-gray-700 text-white shadow-sm shadow-gray-900/20'
                       : index === 1
-                      ? 'bg-gray-300 text-white'
-                      : 'bg-gray-200 text-gray-500'
+                      ? 'bg-gray-400 text-white'
+                      : 'bg-gray-300 text-gray-600'
                   }`}>
                     {index + 1}
                   </div>
@@ -350,8 +444,9 @@ export default function RankingPage() {
                 </span>
               </div>
               <div className="col-span-2 text-right">
-                <span className="text-sm font-bold text-gray-900">
+                <span className="inline-flex items-center gap-1 text-sm font-bold text-gray-900">
                   <AnimatedNumber value={artist.total} />
+                  <ChangeArrow />
                 </span>
               </div>
             </div>
