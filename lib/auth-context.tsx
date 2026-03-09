@@ -29,7 +29,7 @@ interface MockUser {
 interface AuthContextType {
   user: { id: string; email: string } | null
   profile: Profile | null
-  session: { user: { id: string; email: string } } | null
+  session: { user: { id: string; email: string }; access_token: string } | null
   loading: boolean
   login: (email: string, password: string) => Promise<{ error: string | null }>
   signup: (
@@ -93,7 +93,7 @@ function userToProfile(u: MockUser): Profile {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<{ id: string; email: string } | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
-  const [session, setSession] = useState<{ user: { id: string; email: string } } | null>(null)
+  const [session, setSession] = useState<{ user: { id: string; email: string }; access_token: string } | null>(null)
   const [loading, setLoading] = useState(true)
 
   const refreshProfile = useCallback(async () => {
@@ -108,7 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (stored) {
       const u = { id: stored.id, email: stored.email }
       setUser(u)
-      setSession({ user: u })
+      setSession({ user: u, access_token: 'mock-token' })
       setProfile(userToProfile(stored))
     }
     setLoading(false)
@@ -129,7 +129,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const u = { id: found.id, email: found.email }
     setUser(u)
-    setSession({ user: u })
+    setSession({ user: u, access_token: 'mock-token' })
     setProfile(userToProfile(found))
     saveSession(found)
 
