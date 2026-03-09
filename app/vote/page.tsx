@@ -91,7 +91,7 @@ export default function VotePage() {
         {/* Header */}
         <div className="mb-10">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            국민 프로듀서 투표
+            세계시민 프로듀서 투표
           </h1>
           <p className="text-sm text-gray-500">
             투표에 참여하고 포인트를 적립하세요

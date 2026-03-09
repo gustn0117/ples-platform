@@ -171,7 +171,7 @@ export const artworks: Artwork[] = [
 // 20 Videos
 export const videos: Video[] = [
   { id: 1, title: 'PLES 아티스트 비하인드 EP.1', thumbnail: '🎬', duration: '4:32', pointReward: 20, watched: false },
-  { id: 2, title: '국민 프로듀서 현장 스케치', thumbnail: '📹', duration: '5:01', pointReward: 20, watched: false },
+  { id: 2, title: '세계시민 프로듀서 현장 스케치', thumbnail: '📹', duration: '5:01', pointReward: 20, watched: false },
   { id: 3, title: '아티스트 연습실 브이로그', thumbnail: '🎥', duration: '3:45', pointReward: 20, watched: false },
   { id: 4, title: '콘서트 리허설 현장', thumbnail: '🎬', duration: '4:15', pointReward: 20, watched: false },
   { id: 5, title: '팬미팅 준비 과정', thumbnail: '📹', duration: '4:50', pointReward: 20, watched: false },
