@@ -1,147 +1,43 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth-context';
+import { initStore, getArtworks, getUserPoints, purchaseArtwork, getPointHistory } from '@/lib/store';
 import Link from 'next/link';
-import { IconShoppingBag, IconPalette, IconCoin, IconWallet, IconCheck } from '@/components/icons';
+import { IconShoppingBag, IconCoin, IconWallet, IconCheck, IconPalette } from '@/components/icons';
+import type { Artwork } from '@/lib/mock-data';
 
-interface Artwork {
-  id: string;
-  title: string;
-  description: string;
-  emoji: string;
-  artist_name: string;
-  category: string;
-  price_cash: number;
-  price_points: number;
-  stock: number;
-  created_at: string;
-}
-
-const CATEGORIES = [
-  { key: '전체', label: '전체' },
-  { key: '앨범', label: '앨범' },
-  { key: '포스터', label: '포스터' },
-  { key: '포토카드', label: '포토카드' },
-  { key: '머천다이즈', label: '머천다이즈' },
-  { key: '디지털', label: '디지털' },
-];
-
-function isNewProduct(createdAt: string): boolean {
-  const created = new Date(createdAt);
-  const now = new Date();
-  const diffMs = now.getTime() - created.getTime();
-  const diffDays = diffMs / (1000 * 60 * 60 * 24);
-  return diffDays <= 7;
-}
-
-function isPointsBestValue(priceCash: number, pricePoints: number): boolean {
-  if (priceCash <= 0 || pricePoints <= 0) return false;
-  // Consider points a good deal if points-per-won ratio is favorable
-  // Simple heuristic: if price_points < price_cash (points feel cheaper)
-  return pricePoints < priceCash;
-}
+const CATEGORIES = ['전체', '앨범', '포스터', '포토카드', '머천다이즈', '디지털'] as const;
+type Category = typeof CATEGORIES[number];
 
 export default function ArtworksPage() {
-  const { user, profile, refreshProfile } = useAuth();
+  const { user } = useAuth();
   const [artworks, setArtworks] = useState<Artwork[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState('전체');
+  const [selectedCategory, setSelectedCategory] = useState<Category>('전체');
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'points'>('cash');
   const [purchasing, setPurchasing] = useState(false);
   const [purchaseSuccess, setPurchaseSuccess] = useState(false);
+  const [userPoints, setUserPoints] = useState(0);
 
   useEffect(() => {
-    fetchArtworks();
+    initStore();
+    setArtworks(getArtworks());
+    setUserPoints(getUserPoints());
+    setLoading(false);
   }, []);
 
-  async function fetchArtworks() {
-    try {
-      const { data, error } = await supabase
-        .from('artworks')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      if (data) setArtworks(data);
-    } catch (err) {
-      console.error('작품 로딩 실패:', err);
-    } finally {
-      setLoading(false);
-    }
+  function refreshData() {
+    setArtworks(getArtworks());
+    setUserPoints(getUserPoints());
   }
 
-  async function handlePurchase() {
-    if (!user || !selectedArtwork || !profile) return;
+  const filteredArtworks = useMemo(() => {
+    if (selectedCategory === '전체') return artworks;
+    return artworks.filter((a) => a.category === selectedCategory);
+  }, [artworks, selectedCategory]);
 
-    setPurchasing(true);
-
-    try {
-      if (selectedArtwork.stock <= 0) {
-        alert('품절된 상품입니다.');
-        return;
-      }
-
-      if (paymentMethod === 'points') {
-        if (profile.points < selectedArtwork.price_points) {
-          alert('포인트가 부족합니다.');
-          return;
-        }
-
-        await supabase
-          .from('profiles')
-          .update({ points: profile.points - selectedArtwork.price_points })
-          .eq('id', user.id);
-
-        await supabase.from('points_transactions').insert({
-          user_id: user.id,
-          amount: -selectedArtwork.price_points,
-          type: 'spend',
-          description: `작품 구매: ${selectedArtwork.title}`,
-        });
-      }
-
-      await supabase.from('purchases').insert({
-        user_id: user.id,
-        artwork_id: selectedArtwork.id,
-        payment_method: paymentMethod,
-        amount: paymentMethod === 'cash' ? selectedArtwork.price_cash : selectedArtwork.price_points,
-      });
-
-      await supabase
-        .from('artworks')
-        .update({ stock: selectedArtwork.stock - 1 })
-        .eq('id', selectedArtwork.id);
-
-      setArtworks((prev) =>
-        prev.map((a) =>
-          a.id === selectedArtwork.id ? { ...a, stock: a.stock - 1 } : a
-        )
-      );
-
-      setPurchaseSuccess(true);
-      await refreshProfile();
-
-      setTimeout(() => {
-        setPurchaseSuccess(false);
-        setSelectedArtwork(null);
-        setPaymentMethod('cash');
-      }, 2000);
-    } catch (err) {
-      console.error('구매 실패:', err);
-      alert('구매 중 오류가 발생했습니다. 다시 시도해주세요.');
-    } finally {
-      setPurchasing(false);
-    }
-  }
-
-  const filteredArtworks = artworks.filter(
-    (a) => selectedCategory === '전체' || a.category === selectedCategory
-  );
-
-  // Category counts for badge display
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = { '전체': artworks.length };
     for (const a of artworks) {
@@ -150,29 +46,72 @@ export default function ArtworksPage() {
     return counts;
   }, [artworks]);
 
+  function handleClickPurchase(artwork: Artwork) {
+    if (!user) {
+      alert('로그인이 필요합니다. 로그인 후 이용해주세요.');
+      return;
+    }
+    setSelectedArtwork(artwork);
+    setPaymentMethod('cash');
+    setPurchaseSuccess(false);
+  }
+
+  function handleConfirmPurchase() {
+    if (!selectedArtwork) return;
+    setPurchasing(true);
+
+    const result = purchaseArtwork(selectedArtwork.id, paymentMethod);
+
+    if (!result.success) {
+      alert(result.error || '구매에 실패했습니다.');
+      setPurchasing(false);
+      return;
+    }
+
+    setPurchaseSuccess(true);
+    refreshData();
+
+    setTimeout(() => {
+      setPurchaseSuccess(false);
+      setSelectedArtwork(null);
+      setPurchasing(false);
+    }, 2000);
+  }
+
+  function closeModal() {
+    if (!purchasing) {
+      setSelectedArtwork(null);
+      setPurchaseSuccess(false);
+    }
+  }
+
+  const discount = selectedArtwork
+    ? selectedArtwork.price - selectedArtwork.pointPrice
+    : 0;
+
+  const insufficientPoints = selectedArtwork
+    ? userPoints < selectedArtwork.pointPrice
+    : false;
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
-        <div className="bg-gray-50/50 border-b border-gray-100">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
-            <div className="skeleton-heading w-32 mb-3" />
-            <div className="skeleton-text w-72" />
-          </div>
-        </div>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+      <div className="min-h-screen bg-gray-950">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+          <div className="h-8 w-32 bg-gray-800 rounded-lg animate-pulse mb-2" />
+          <div className="h-5 w-64 bg-gray-800/60 rounded-lg animate-pulse mb-8" />
           <div className="flex gap-2 mb-8">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="skeleton h-9 w-20 shrink-0 rounded-lg" />
+              <div key={i} className="h-9 w-20 bg-gray-800 rounded-full animate-pulse shrink-0" />
             ))}
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="rounded-2xl border border-gray-100 overflow-hidden">
-                <div className="aspect-[4/3] skeleton rounded-none" />
+              <div key={i} className="bg-gray-900 rounded-2xl overflow-hidden">
+                <div className="aspect-square bg-gray-800 animate-pulse" />
                 <div className="p-4 space-y-2">
-                  <div className="skeleton-text w-2/3" />
-                  <div className="skeleton-text w-1/2 h-3" />
-                  <div className="skeleton-text w-1/3 h-5 mt-2" />
+                  <div className="h-4 w-2/3 bg-gray-800 rounded animate-pulse" />
+                  <div className="h-3 w-1/2 bg-gray-800/60 rounded animate-pulse" />
+                  <div className="h-5 w-1/3 bg-gray-800 rounded animate-pulse mt-3" />
                 </div>
               </div>
             ))}
@@ -183,50 +122,49 @@ export default function ArtworksPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Page Header */}
-      <div className="bg-gray-50/50 border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-gray-900 flex items-center justify-center">
-              <IconShoppingBag className="w-5 h-5 text-white" />
+    <div className="min-h-screen bg-gray-950">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-xl bg-gray-800 flex items-center justify-center">
+              <IconShoppingBag className="w-5 h-5 text-gray-300" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">마켓</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">마켓</h1>
           </div>
-          <p className="text-gray-400 ml-[52px]">한정판 아트워크와 굿즈를 구매하세요</p>
-          {profile && (
-            <div className="mt-6 ml-[52px] inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-100 rounded-2xl shadow-sm">
-              <IconCoin className="w-4 h-4 text-gray-400" />
-              <span className="text-xs text-gray-400">보유 포인트</span>
-              <span className="text-sm font-bold text-gray-900 tabular-nums">
-                {profile.points.toLocaleString()}P
+          <p className="text-gray-500 ml-[52px] text-sm">한정판 아트워크와 굿즈를 만나보세요</p>
+          {user && (
+            <div className="mt-4 ml-[52px] inline-flex items-center gap-2 px-4 py-2 bg-gray-900 border border-gray-800 rounded-xl">
+              <IconCoin className="w-4 h-4 text-yellow-500" />
+              <span className="text-xs text-gray-500">보유 포인트</span>
+              <span className="text-sm font-bold text-white tabular-nums">
+                {userPoints.toLocaleString()}P
               </span>
             </div>
           )}
         </div>
-      </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
-        {/* Category Filter - Pill style with count badges and spring animation */}
+        {/* Category Tabs */}
         <div className="flex gap-2 mb-8 overflow-x-auto pb-2 scrollbar-hide">
           {CATEGORIES.map((cat) => {
-            const count = categoryCounts[cat.key] || 0;
+            const count = categoryCounts[cat] || 0;
+            const isActive = selectedCategory === cat;
             return (
               <button
-                key={cat.key}
-                onClick={() => setSelectedCategory(cat.key)}
-                className={`inline-flex items-center gap-1.5 px-5 py-2.5 text-sm font-medium whitespace-nowrap rounded-full transition-all duration-300 ${
-                  selectedCategory === cat.key
-                    ? 'bg-gray-900 text-white shadow-md shadow-gray-900/15 ring-1 ring-gray-900 animate-pill-spring'
-                    : 'bg-white text-gray-500 border border-gray-200 hover:border-gray-300 hover:text-gray-800 hover:bg-gray-50 active:scale-95'
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium whitespace-nowrap rounded-full transition-all duration-200 ${
+                  isActive
+                    ? 'bg-white text-gray-900 shadow-lg shadow-white/10'
+                    : 'bg-gray-900 text-gray-400 border border-gray-800 hover:border-gray-700 hover:text-gray-300'
                 }`}
               >
-                {cat.label}
-                <span className={`text-[11px] font-semibold tabular-nums rounded-full px-1.5 py-0.5 min-w-[20px] text-center ${
-                  selectedCategory === cat.key
-                    ? 'bg-white/20 text-white'
-                    : 'bg-gray-100 text-gray-400'
-                }`}>
+                {cat}
+                <span
+                  className={`text-[11px] font-semibold tabular-nums rounded-full px-1.5 py-0.5 min-w-[20px] text-center ${
+                    isActive ? 'bg-gray-900 text-white' : 'bg-gray-800 text-gray-500'
+                  }`}
+                >
                   {count}
                 </span>
               </button>
@@ -236,106 +174,86 @@ export default function ArtworksPage() {
 
         {/* Product Grid */}
         {filteredArtworks.length === 0 ? (
-          <div className="text-center py-24 bg-white rounded-3xl border border-gray-100">
-            <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-4 animate-gentle-float">
-              <IconShoppingBag className="w-6 h-6 text-gray-300" />
+          <div className="text-center py-24 bg-gray-900/50 rounded-2xl border border-gray-800">
+            <div className="w-14 h-14 rounded-2xl bg-gray-800 flex items-center justify-center mx-auto mb-4">
+              <IconShoppingBag className="w-6 h-6 text-gray-600" />
             </div>
-            <p className="text-gray-400">해당 카테고리에 상품이 없습니다</p>
+            <p className="text-gray-500">해당 카테고리에 상품이 없습니다</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 stagger-grid" key={selectedCategory}>
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {filteredArtworks.map((artwork) => {
-              const isSoldOut = artwork.stock <= 0;
-              const isNew = isNewProduct(artwork.created_at);
+              const isSoldOut = artwork.soldOut || artwork.stock <= 0;
+              const lowStock = !isSoldOut && artwork.stock > 0 && artwork.stock < 10;
 
               return (
                 <div
                   key={artwork.id}
-                  className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-gray-300 hover:-translate-y-1 transition-all duration-500 overflow-hidden group"
+                  className={`bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden group transition-all duration-300 ${
+                    isSoldOut ? 'opacity-70' : 'hover:border-gray-700 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/30'
+                  }`}
                 >
-                  {/* Product Image Placeholder */}
-                  <div className="relative aspect-[4/3] bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center overflow-hidden">
-                    <div className="flex flex-col items-center gap-2 group-hover:scale-110 transition-transform duration-500">
-                      <IconPalette className="w-10 h-10 text-gray-300" />
-                      <span className="text-lg font-bold text-gray-300">
-                        {artwork.title.charAt(0)}
-                      </span>
-                    </div>
+                  {/* Image Area */}
+                  <div className="relative aspect-square bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center overflow-hidden">
+                    <span className="text-5xl group-hover:scale-110 transition-transform duration-500">
+                      {artwork.image}
+                    </span>
 
-                    {/* Hover overlay with text */}
-                    {!isSoldOut && (
-                      <div className="product-hover-overlay rounded-t-2xl">
-                        <span className="text-white text-sm font-semibold bg-white/15 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/20">
-                          자세히 보기
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Sold out overlay */}
+                    {/* Sold Out Overlay */}
                     {isSoldOut && (
-                      <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center">
-                        <span className="bg-gray-900 text-white text-xs rounded-xl px-4 py-1.5 font-semibold">
+                      <div className="absolute inset-0 bg-gray-900/70 backdrop-blur-sm flex items-center justify-center">
+                        <span className="bg-red-500/90 text-white text-xs font-bold rounded-lg px-4 py-1.5 tracking-wide">
                           품절
                         </span>
                       </div>
                     )}
 
-                    {/* NEW badge */}
-                    {isNew && !isSoldOut && (
-                      <div className="absolute top-3 right-3 z-10">
-                        <span className="text-[10px] font-bold tracking-wider text-white bg-gray-900 px-2 py-0.5 rounded-md shadow-sm">
+                    {/* NEW Badge */}
+                    {artwork.isNew && !isSoldOut && (
+                      <div className="absolute top-3 left-3">
+                        <span className="text-[10px] font-bold tracking-wider text-gray-900 bg-yellow-400 px-2.5 py-1 rounded-md shadow-lg shadow-yellow-400/30">
                           NEW
                         </span>
                       </div>
                     )}
 
-                    {/* Low stock */}
-                    {!isSoldOut && !isNew && artwork.stock <= 5 && (
+                    {/* Low Stock Badge */}
+                    {lowStock && (
                       <div className="absolute top-3 right-3">
-                        <span className="text-[11px] font-semibold text-red-500 bg-red-50 px-2.5 py-1 rounded-lg">
+                        <span className="text-[11px] font-semibold text-orange-400 bg-orange-500/15 border border-orange-500/20 px-2 py-0.5 rounded-lg backdrop-blur-sm">
                           {artwork.stock}개 남음
                         </span>
                       </div>
                     )}
 
-                    {/* Category badge */}
-                    {artwork.category && (
-                      <div className="absolute top-3 left-3">
-                        <span className="bg-white/90 backdrop-blur-sm text-gray-600 rounded-lg px-2.5 py-1 text-[11px] font-medium border border-gray-100 shadow-sm">
-                          {artwork.category}
-                        </span>
-                      </div>
-                    )}
+                    {/* Category Badge */}
+                    <div className="absolute bottom-3 left-3">
+                      <span className="bg-black/50 backdrop-blur-md text-gray-300 rounded-lg px-2.5 py-1 text-[11px] font-medium border border-white/10">
+                        {artwork.category}
+                      </span>
+                    </div>
                   </div>
 
                   {/* Product Info */}
                   <div className="p-4">
-                    <p className="font-semibold text-gray-900 mb-0.5 truncate text-sm">{artwork.title}</p>
-                    <p className="text-xs text-gray-400 mb-3">{artwork.artist_name}</p>
+                    <p className="font-semibold text-white text-sm truncate mb-0.5">{artwork.title}</p>
+                    <p className="text-xs text-gray-500 mb-3">{artwork.artist}</p>
 
-                    <div className="flex items-baseline gap-1.5 mb-4">
-                      <span className="font-extrabold text-gray-900 text-base">
-                        ₩{(artwork.price_cash ?? 0).toLocaleString()}
+                    <div className="flex items-baseline gap-2 mb-4">
+                      <span className="font-extrabold text-white text-base tabular-nums">
+                        {artwork.price.toLocaleString()}원
                       </span>
-                      <span className="text-[10px] text-gray-300 font-medium">or</span>
-                      <span className="text-xs text-gray-400 inline-flex items-center gap-0.5">
+                      <span className="text-[11px] text-gray-600">|</span>
+                      <span className="text-xs text-yellow-500/80 font-medium tabular-nums inline-flex items-center gap-0.5">
                         <IconCoin className="w-3 h-3" />
-                        {(artwork.price_points ?? 0).toLocaleString()}P
+                        {artwork.pointPrice.toLocaleString()}P
                       </span>
                     </div>
 
                     {!isSoldOut ? (
                       <button
-                        onClick={() => {
-                          if (!user) {
-                            alert('로그인이 필요합니다.');
-                            return;
-                          }
-                          setSelectedArtwork(artwork);
-                          setPaymentMethod('cash');
-                          setPurchaseSuccess(false);
-                        }}
-                        className="w-full py-3 rounded-xl bg-gray-900 text-white text-sm font-bold hover:bg-gray-800 transition-all duration-300 hover:shadow-xl hover:shadow-gray-900/15 hover:-translate-y-0.5 active:translate-y-0 active:shadow-md flex items-center justify-center gap-2"
+                        onClick={() => handleClickPurchase(artwork)}
+                        className="w-full py-2.5 rounded-xl bg-white text-gray-900 text-sm font-bold hover:bg-gray-100 transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2"
                       >
                         <IconShoppingBag className="w-4 h-4" />
                         구매하기
@@ -343,7 +261,7 @@ export default function ArtworksPage() {
                     ) : (
                       <button
                         disabled
-                        className="w-full py-3 rounded-xl bg-gray-100 text-gray-400 text-sm font-medium cursor-not-allowed border border-gray-100"
+                        className="w-full py-2.5 rounded-xl bg-gray-800 text-gray-600 text-sm font-medium cursor-not-allowed border border-gray-700"
                       >
                         품절
                       </button>
@@ -356,40 +274,40 @@ export default function ArtworksPage() {
         )}
       </div>
 
-      {/* Purchase Modal */}
+      {/* Detail/Purchase Modal */}
       {selectedArtwork && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4"
-          onClick={() => {
-            if (!purchasing) {
-              setSelectedArtwork(null);
-              setPurchaseSuccess(false);
-            }
-          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          onClick={closeModal}
         >
           <div
-            className="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden animate-scaleIn"
+            className="bg-gray-900 rounded-2xl max-w-md w-full shadow-2xl shadow-black/50 border border-gray-800 overflow-hidden"
+            style={{ animation: 'modalIn 0.25s ease-out' }}
             onClick={(e) => e.stopPropagation()}
           >
             {purchaseSuccess ? (
+              /* Success State */
               <div className="text-center py-16 px-6">
-                <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center mx-auto mb-5 animate-bounce-check">
-                  <IconCheck className="w-7 h-7 text-emerald-600" />
+                <div
+                  className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-5"
+                  style={{ animation: 'bounceIn 0.5s ease-out' }}
+                >
+                  <IconCheck className="w-7 h-7 text-emerald-400" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">구매 완료</h3>
+                <h3 className="text-xl font-bold text-white mb-2">구매 완료!</h3>
                 <p className="text-sm text-gray-400">주문이 성공적으로 처리되었습니다</p>
               </div>
             ) : (
               <>
                 {/* Modal Header */}
-                <div className="flex items-start justify-between p-6 pb-0">
+                <div className="flex items-start justify-between p-5 pb-0">
                   <div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-0.5">구매 확인</h3>
-                    <p className="text-sm text-gray-400">결제 방법을 선택해주세요</p>
+                    <h3 className="text-lg font-bold text-white">구매 확인</h3>
+                    <p className="text-sm text-gray-500 mt-0.5">결제 방법을 선택해주세요</p>
                   </div>
                   <button
-                    onClick={() => setSelectedArtwork(null)}
-                    className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition-all"
+                    onClick={closeModal}
+                    className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 transition-all"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -397,128 +315,156 @@ export default function ArtworksPage() {
                   </button>
                 </div>
 
-                {/* Product Summary with dot pattern */}
-                <div className="mx-6 mt-5 p-4 bg-gray-50 rounded-2xl border border-gray-100 dot-pattern-subtle relative overflow-hidden">
-                  <div className="flex items-center gap-4 relative z-10">
-                    <div className="w-14 h-14 bg-white rounded-xl border border-gray-100 flex items-center justify-center shrink-0 shadow-sm">
-                      <IconPalette className="w-6 h-6 text-gray-400" />
+                {/* Product Summary */}
+                <div className="mx-5 mt-4 p-4 bg-gray-800/50 rounded-xl border border-gray-700/50">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 bg-gray-800 rounded-xl border border-gray-700 flex items-center justify-center shrink-0 text-2xl">
+                      {selectedArtwork.image}
                     </div>
-                    <div className="min-w-0">
-                      <p className="font-semibold text-gray-900 truncate">{selectedArtwork.title}</p>
-                      <p className="text-sm text-gray-400">{selectedArtwork.artist_name}</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-white truncate">{selectedArtwork.title}</p>
+                      <p className="text-sm text-gray-400">{selectedArtwork.artist}</p>
+                      <p className="text-xs text-gray-500 mt-1 line-clamp-1">{selectedArtwork.description}</p>
                     </div>
                   </div>
                 </div>
 
-                {/* Payment Options Label */}
-                <div className="mx-6 mt-5 mb-3">
-                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">결제 방법</p>
+                {/* Payment Label */}
+                <div className="mx-5 mt-5 mb-3">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">결제 방법</p>
                 </div>
 
                 {/* Payment Options */}
-                <div className="px-6 flex flex-col gap-3">
-                  {/* Cash */}
+                <div className="px-5 flex flex-col gap-3">
+                  {/* Cash Payment */}
                   <button
                     onClick={() => setPaymentMethod('cash')}
-                    className={`p-4 rounded-2xl border-2 text-left transition-all duration-300 active:scale-[0.98] ${
+                    className={`p-4 rounded-xl border-2 text-left transition-all duration-200 ${
                       paymentMethod === 'cash'
-                        ? 'border-gray-900 bg-gray-50 shadow-sm shadow-gray-900/5'
-                        : 'border-gray-100 hover:border-gray-300 hover:bg-gray-50/50 bg-white'
+                        ? 'border-white bg-gray-800/80'
+                        : 'border-gray-800 bg-gray-800/30 hover:border-gray-700'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${paymentMethod === 'cash' ? 'bg-gray-900 shadow-sm shadow-gray-900/20' : 'bg-gray-100'}`}>
-                          <IconWallet className={`w-5 h-5 transition-colors duration-300 ${paymentMethod === 'cash' ? 'text-white' : 'text-gray-500'}`} />
+                        <div
+                          className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+                            paymentMethod === 'cash' ? 'bg-white' : 'bg-gray-800'
+                          }`}
+                        >
+                          <IconWallet
+                            className={`w-5 h-5 ${paymentMethod === 'cash' ? 'text-gray-900' : 'text-gray-500'}`}
+                          />
                         </div>
                         <div>
-                          <p className={`font-semibold text-sm transition-colors duration-200 ${paymentMethod === 'cash' ? 'text-gray-900' : 'text-gray-700'}`}>일반결제</p>
-                          <p className="text-sm text-gray-400 mt-0.5 tabular-nums">
-                            ₩{(selectedArtwork.price_cash ?? 0).toLocaleString()}
+                          <p className={`font-semibold text-sm ${paymentMethod === 'cash' ? 'text-white' : 'text-gray-400'}`}>
+                            일반결제
+                          </p>
+                          <p className="text-sm text-gray-500 mt-0.5 tabular-nums">
+                            {selectedArtwork.price.toLocaleString()}원
                           </p>
                         </div>
                       </div>
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
-                        paymentMethod === 'cash' ? 'border-gray-900 bg-gray-900 animate-spring-scale' : 'border-gray-300'
-                      }`}>
-                        {paymentMethod === 'cash' && (
-                          <IconCheck className="w-3 h-3 text-white" />
-                        )}
+                      <div
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                          paymentMethod === 'cash' ? 'border-white bg-white' : 'border-gray-600'
+                        }`}
+                      >
+                        {paymentMethod === 'cash' && <IconCheck className="w-3 h-3 text-gray-900" />}
                       </div>
                     </div>
                   </button>
 
-                  {/* Points */}
+                  {/* Points Payment */}
                   <button
                     onClick={() => setPaymentMethod('points')}
-                    className={`relative p-4 rounded-2xl border-2 text-left transition-all duration-300 active:scale-[0.98] ${
+                    className={`relative p-4 rounded-xl border-2 text-left transition-all duration-200 ${
                       paymentMethod === 'points'
-                        ? 'border-gray-900 bg-gray-50 shadow-sm shadow-gray-900/5'
-                        : 'border-gray-100 hover:border-gray-300 hover:bg-gray-50/50 bg-white'
+                        ? 'border-yellow-500/50 bg-gray-800/80'
+                        : 'border-gray-800 bg-gray-800/30 hover:border-gray-700'
                     }`}
                   >
-                    {/* Best value badge */}
-                    {isPointsBestValue(selectedArtwork.price_cash, selectedArtwork.price_points) && (
-                      <div className="absolute -top-2 left-4">
-                        <span className="text-[10px] font-bold text-white bg-gray-900 px-2 py-0.5 rounded-md shadow-sm">
-                          추천
+                    {/* Discount badge */}
+                    {discount > 0 && (
+                      <div className="absolute -top-2.5 left-4">
+                        <span className="text-[10px] font-bold text-gray-900 bg-yellow-400 px-2 py-0.5 rounded-md shadow-lg shadow-yellow-400/20">
+                          {discount.toLocaleString()}원 할인
                         </span>
                       </div>
                     )}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${paymentMethod === 'points' ? 'bg-gray-900 shadow-sm shadow-gray-900/20' : 'bg-gray-100'}`}>
-                          <IconCoin className={`w-5 h-5 transition-colors duration-300 ${paymentMethod === 'points' ? 'text-white' : 'text-gray-500'}`} />
+                        <div
+                          className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+                            paymentMethod === 'points' ? 'bg-yellow-500' : 'bg-gray-800'
+                          }`}
+                        >
+                          <IconCoin
+                            className={`w-5 h-5 ${paymentMethod === 'points' ? 'text-gray-900' : 'text-gray-500'}`}
+                          />
                         </div>
                         <div>
-                          <p className={`font-semibold text-sm transition-colors duration-200 ${paymentMethod === 'points' ? 'text-gray-900' : 'text-gray-700'}`}>포인트결제</p>
-                          <p className="text-sm text-gray-400 mt-0.5 tabular-nums">
-                            {(selectedArtwork.price_points ?? 0).toLocaleString()}P
-                            {profile && (
-                              <span className="ml-2 text-gray-300">
-                                (보유: {profile.points.toLocaleString()}P)
+                          <p className={`font-semibold text-sm ${paymentMethod === 'points' ? 'text-white' : 'text-gray-400'}`}>
+                            포인트결제
+                          </p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-sm text-yellow-500 tabular-nums font-medium">
+                              {selectedArtwork.pointPrice.toLocaleString()}P
+                            </span>
+                            {discount > 0 && (
+                              <span className="text-xs text-gray-600 line-through tabular-nums">
+                                {selectedArtwork.price.toLocaleString()}원
                               </span>
                             )}
-                          </p>
-                          {profile && profile.points < selectedArtwork.price_points && (
+                          </div>
+                          {/* Current balance */}
+                          {user && (
+                            <p className="text-xs text-gray-500 mt-1 tabular-nums">
+                              보유: {userPoints.toLocaleString()}P
+                            </p>
+                          )}
+                          {/* Insufficient warning */}
+                          {user && insufficientPoints && (
                             <p className="text-xs text-red-400 mt-1.5 flex items-center gap-1">
-                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                               </svg>
                               포인트가 부족합니다.{' '}
-                              <Link href="/points" className="underline hover:text-red-500">충전하기</Link>
+                              <Link href="/points" className="underline hover:text-red-300 font-medium">
+                                충전하기
+                              </Link>
                             </p>
                           )}
                         </div>
                       </div>
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
-                        paymentMethod === 'points' ? 'border-gray-900 bg-gray-900 animate-spring-scale' : 'border-gray-300'
-                      }`}>
-                        {paymentMethod === 'points' && (
-                          <IconCheck className="w-3 h-3 text-white" />
-                        )}
+                      <div
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                          paymentMethod === 'points' ? 'border-yellow-500 bg-yellow-500' : 'border-gray-600'
+                        }`}
+                      >
+                        {paymentMethod === 'points' && <IconCheck className="w-3 h-3 text-gray-900" />}
                       </div>
                     </div>
                   </button>
                 </div>
 
-                {/* Actions — separated with stronger visual divider */}
-                <div className="px-6 pb-6 mt-6">
-                  <div className="border-t border-gray-200 pt-5">
+                {/* Action Buttons */}
+                <div className="px-5 pb-5 mt-5">
+                  <div className="border-t border-gray-800 pt-4">
                     <div className="flex gap-3">
                       <button
-                        onClick={() => setSelectedArtwork(null)}
-                        className="w-[35%] py-4 rounded-2xl border border-gray-200 text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 hover:border-gray-300 transition-all duration-300 active:scale-[0.98]"
+                        onClick={closeModal}
+                        className="w-[35%] py-3.5 rounded-xl border border-gray-700 text-sm font-semibold text-gray-400 hover:bg-gray-800 hover:text-gray-300 transition-all duration-200 active:scale-[0.98]"
                       >
                         취소
                       </button>
                       <button
-                        onClick={handlePurchase}
+                        onClick={handleConfirmPurchase}
                         disabled={
                           purchasing ||
-                          (paymentMethod === 'points' && profile !== null && profile.points < selectedArtwork.price_points)
+                          (paymentMethod === 'points' && insufficientPoints)
                         }
-                        className="flex-1 py-4 rounded-2xl bg-gray-900 text-white text-sm font-bold hover:bg-gray-800 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2.5 hover:shadow-xl hover:shadow-gray-900/15 hover:-translate-y-0.5 active:translate-y-0 active:shadow-md"
+                        className="flex-1 py-3.5 rounded-xl bg-white text-gray-900 text-sm font-bold hover:bg-gray-100 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-[0.98]"
                       >
                         {purchasing ? (
                           <>
@@ -543,6 +489,36 @@ export default function ArtworksPage() {
           </div>
         </div>
       )}
+
+      {/* Modal Animation Styles */}
+      <style jsx>{`
+        @keyframes modalIn {
+          from {
+            opacity: 0;
+            transform: scale(0.95) translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+        }
+        @keyframes bounceIn {
+          0% {
+            opacity: 0;
+            transform: scale(0.3);
+          }
+          50% {
+            transform: scale(1.1);
+          }
+          70% {
+            transform: scale(0.9);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+      `}</style>
     </div>
   );
 }

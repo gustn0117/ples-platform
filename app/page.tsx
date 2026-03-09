@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth-context';
+import { initStore, getArtists } from '@/lib/store';
 import {
   IconVote,
   IconMicrophone,
@@ -115,25 +115,14 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    async function fetchHotArtists() {
-      try {
-        const { data, error } = await supabase
-          .from('artists')
-          .select('id, name, emoji, genre, likes')
-          .order('likes', { ascending: false })
-          .limit(5);
-
-        if (!error && data) {
-          setHotArtists(data);
-        }
-      } catch (err) {
-        console.error('아티스트 로딩 실패:', err);
-      } finally {
-        setArtistsLoading(false);
-      }
-    }
-
-    fetchHotArtists();
+    initStore();
+    const allArtists = getArtists();
+    const top5 = [...allArtists]
+      .sort((a, b) => b.likes - a.likes)
+      .slice(0, 5)
+      .map((a) => ({ id: String(a.id), name: a.name, emoji: a.image, genre: a.genre, likes: a.likes }));
+    setHotArtists(top5);
+    setArtistsLoading(false);
   }, []);
 
   const features = [

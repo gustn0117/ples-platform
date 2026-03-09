@@ -1,24 +1,15 @@
+// app/admin/votes/page.tsx
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
-import { supabase } from '@/lib/supabase'
-
-interface VoteOption {
-  id: string
-  vote_id: string
-  label: string
-  vote_count: number
-}
-
-interface Vote {
-  id: string
-  title: string
-  description: string | null
-  is_active: boolean
-  reward_points: number
-  ends_at: string | null
-  vote_options: VoteOption[]
-}
+import { useEffect, useState } from 'react'
+import {
+  initStore,
+  getVotes,
+  addVote,
+  updateVote,
+  deleteVote as deleteVoteFromStore,
+} from '@/lib/store'
+import type { Vote } from '@/lib/mock-data'
 
 interface OptionInput {
   label: string
@@ -27,35 +18,25 @@ interface OptionInput {
 const emptyForm = {
   title: '',
   description: '',
-  reward_points: 100,
-  ends_at: '',
+  pointReward: 10,
+  endDate: '',
 }
 
 export default function AdminVotesPage() {
   const [votes, setVotes] = useState<Vote[]>([])
-  const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
-  const [resultsOpen, setResultsOpen] = useState(false)
-  const [selectedVote, setSelectedVote] = useState<Vote | null>(null)
-  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editingId, setEditingId] = useState<number | null>(null)
   const [form, setForm] = useState(emptyForm)
   const [options, setOptions] = useState<OptionInput[]>([{ label: '' }, { label: '' }])
-  const [saving, setSaving] = useState(false)
+  const [resultsOpen, setResultsOpen] = useState(false)
+  const [selectedVote, setSelectedVote] = useState<Vote | null>(null)
 
-  const fetchVotes = useCallback(async () => {
-    setLoading(true)
-    const { data, error } = await supabase
-      .from('votes')
-      .select('*, vote_options(*)')
-      .order('created_at', { ascending: false })
-
-    if (!error && data) setVotes(data as Vote[])
-    setLoading(false)
-  }, [])
+  const reload = () => setVotes(getVotes())
 
   useEffect(() => {
-    fetchVotes()
-  }, [fetchVotes])
+    initStore()
+    reload()
+  }, [])
 
   const openCreate = () => {
     setEditingId(null)
@@ -64,20 +45,20 @@ export default function AdminVotesPage() {
     setModalOpen(true)
   }
 
-  const openEdit = (vote: Vote) => {
-    setEditingId(vote.id)
+  const openEdit = (v: Vote) => {
+    setEditingId(v.id)
     setForm({
-      title: vote.title,
-      description: vote.description ?? '',
-      reward_points: vote.reward_points,
-      ends_at: vote.ends_at ? vote.ends_at.slice(0, 16) : '',
+      title: v.title,
+      description: v.description ?? '',
+      pointReward: v.pointReward,
+      endDate: v.endDate,
     })
-    setOptions(vote.vote_options.map((o) => ({ label: o.label })))
+    setOptions(v.options.map((o) => ({ label: o.label })))
     setModalOpen(true)
   }
 
-  const openResults = (vote: Vote) => {
-    setSelectedVote(vote)
+  const openResults = (v: Vote) => {
+    setSelectedVote(v)
     setResultsOpen(true)
   }
 
@@ -94,71 +75,46 @@ export default function AdminVotesPage() {
     setOptions(updated)
   }
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!form.title) return alert('제목은 필수입니다.')
     const validOptions = options.filter((o) => o.label.trim())
     if (validOptions.length < 2) return alert('최소 2개의 선택지를 입력하세요.')
-    setSaving(true)
 
-    const payload = {
-      title: form.title,
-      description: form.description || null,
-      reward_points: form.reward_points,
-      ends_at: form.ends_at ? new Date(form.ends_at).toISOString() : null,
-    }
-
-    if (editingId) {
-      const { error } = await supabase.from('votes').update(payload).eq('id', editingId)
-      if (error) {
-        alert('수정 실패: ' + error.message)
-        setSaving(false)
-        return
-      }
-      // Delete old options and re-insert
-      await supabase.from('vote_options').delete().eq('vote_id', editingId)
-      const { error: optErr } = await supabase.from('vote_options').insert(
-        validOptions.map((o) => ({ vote_id: editingId, label: o.label, vote_count: 0 }))
-      )
-      if (optErr) {
-        alert('선택지 수정 실패: ' + optErr.message)
-        setSaving(false)
-        return
-      }
+    if (editingId !== null) {
+      updateVote(editingId, {
+        title: form.title,
+        description: form.description || undefined,
+        pointReward: form.pointReward,
+        endDate: form.endDate,
+        options: validOptions.map((o, i) => ({ id: i + 1, label: o.label, votes: 0 })),
+      })
     } else {
-      const { data: newVote, error } = await supabase
-        .from('votes')
-        .insert({ ...payload, is_active: true })
-        .select()
-        .single()
-
-      if (error || !newVote) {
-        alert('추가 실패: ' + (error?.message ?? '알 수 없는 오류'))
-        setSaving(false)
-        return
-      }
-
-      const { error: optErr } = await supabase.from('vote_options').insert(
-        validOptions.map((o) => ({ vote_id: newVote.id, label: o.label, vote_count: 0 }))
-      )
-      if (optErr) {
-        alert('선택지 추가 실패: ' + optErr.message)
-      }
+      addVote({
+        title: form.title,
+        description: form.description || undefined,
+        pointReward: form.pointReward,
+        endDate: form.endDate,
+        isActive: true,
+        options: validOptions.map((o, i) => ({ id: i + 1, label: o.label, votes: 0 })),
+      })
     }
 
-    setSaving(false)
     setModalOpen(false)
-    fetchVotes()
+    reload()
   }
 
-  const toggleActive = async (id: string, current: boolean) => {
-    const { error } = await supabase.from('votes').update({ is_active: !current }).eq('id', id)
-    if (!error) {
-      setVotes((prev) => prev.map((v) => (v.id === id ? { ...v, is_active: !current } : v)))
-    }
+  const toggleActive = (id: number, current: boolean) => {
+    updateVote(id, { isActive: !current })
+    reload()
   }
 
-  const getTotalVotes = (vote: Vote) =>
-    vote.vote_options.reduce((sum, o) => sum + (o.vote_count ?? 0), 0)
+  const handleDelete = (id: number, title: string) => {
+    if (!confirm(`"${title}" 투표를 삭제하시겠습니까?`)) return
+    deleteVoteFromStore(id)
+    reload()
+  }
+
+  const getTotalVotes = (v: Vote) => v.options.reduce((sum, o) => sum + o.votes, 0)
 
   return (
     <div className="space-y-6">
@@ -187,58 +143,62 @@ export default function AdminVotesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {loading ? (
+              {votes.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-gray-400">로딩 중...</td>
-                </tr>
-              ) : votes.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-gray-400">등록된 투표가 없습니다.</td>
+                  <td colSpan={7} className="px-6 py-12 text-center text-gray-400">
+                    등록된 투표가 없습니다.
+                  </td>
                 </tr>
               ) : (
-                votes.map((vote) => (
-                  <tr key={vote.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 font-medium text-gray-900">{vote.title}</td>
-                    <td className="px-6 py-4 text-gray-600">{vote.vote_options.length}개</td>
-                    <td className="px-6 py-4 text-gray-600">{getTotalVotes(vote).toLocaleString()}</td>
-                    <td className="px-6 py-4 text-gray-600">{vote.reward_points}P</td>
+                votes.map((v) => (
+                  <tr key={v.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 font-medium text-gray-900 max-w-[200px] truncate">
+                      {v.title}
+                    </td>
+                    <td className="px-6 py-4 text-gray-600">{v.options.length}개</td>
+                    <td className="px-6 py-4 text-gray-600">{getTotalVotes(v).toLocaleString()}</td>
+                    <td className="px-6 py-4 text-gray-600">{v.pointReward}P</td>
                     <td className="px-6 py-4">
                       <span
                         className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                          vote.is_active
+                          v.isActive
                             ? 'bg-green-100 text-green-700'
                             : 'bg-red-100 text-red-600'
                         }`}
                       >
-                        {vote.is_active ? '진행중' : '종료'}
+                        {v.isActive ? '진행중' : '종료'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-gray-500">
-                      {vote.ends_at ? new Date(vote.ends_at).toLocaleDateString('ko-KR') : '-'}
-                    </td>
+                    <td className="px-6 py-4 text-gray-500">{v.endDate || '-'}</td>
                     <td className="px-6 py-4">
                       <div className="flex gap-2">
                         <button
-                          onClick={() => openResults(vote)}
+                          onClick={() => openResults(v)}
                           className="px-3 py-1 text-xs bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
                         >
                           결과
                         </button>
                         <button
-                          onClick={() => openEdit(vote)}
+                          onClick={() => openEdit(v)}
                           className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
                         >
                           수정
                         </button>
                         <button
-                          onClick={() => toggleActive(vote.id, vote.is_active)}
+                          onClick={() => toggleActive(v.id, v.isActive)}
                           className={`px-3 py-1 text-xs rounded-md transition-colors ${
-                            vote.is_active
+                            v.isActive
                               ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
                               : 'bg-green-100 text-green-700 hover:bg-green-200'
                           }`}
                         >
-                          {vote.is_active ? '종료' : '활성화'}
+                          {v.isActive ? '종료' : '활성화'}
+                        </button>
+                        <button
+                          onClick={() => handleDelete(v.id, v.title)}
+                          className="px-3 py-1 text-xs bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors"
+                        >
+                          삭제
                         </button>
                       </div>
                     </td>
@@ -252,10 +212,16 @@ export default function AdminVotesPage() {
 
       {/* Create/Edit Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setModalOpen(false)}>
-          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          onClick={() => setModalOpen(false)}
+        >
+          <div
+            className="bg-white rounded-xl shadow-xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h2 className="text-lg font-bold text-gray-900 mb-4">
-              {editingId ? '투표 수정' : '투표 추가'}
+              {editingId !== null ? '투표 수정' : '투표 추가'}
             </h2>
 
             <div className="space-y-4">
@@ -282,17 +248,19 @@ export default function AdminVotesPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">보상 포인트</label>
                   <input
                     type="number"
-                    value={form.reward_points}
-                    onChange={(e) => setForm({ ...form, reward_points: parseInt(e.target.value) || 0 })}
+                    value={form.pointReward}
+                    onChange={(e) =>
+                      setForm({ ...form, pointReward: parseInt(e.target.value) || 0 })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">마감일</label>
                   <input
-                    type="datetime-local"
-                    value={form.ends_at}
-                    onChange={(e) => setForm({ ...form, ends_at: e.target.value })}
+                    type="date"
+                    value={form.endDate}
+                    onChange={(e) => setForm({ ...form, endDate: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                   />
                 </div>
@@ -305,7 +273,7 @@ export default function AdminVotesPage() {
                   <button
                     type="button"
                     onClick={addOption}
-                    className="text-xs text-gray-600 hover:text-gray-700 font-medium"
+                    className="text-xs text-gray-600 hover:text-gray-800 font-medium"
                   >
                     + 추가
                   </button>
@@ -326,9 +294,7 @@ export default function AdminVotesPage() {
                           onClick={() => removeOption(i)}
                           className="px-2 text-red-400 hover:text-red-600"
                         >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
+                          X
                         </button>
                       )}
                     </div>
@@ -346,10 +312,9 @@ export default function AdminVotesPage() {
               </button>
               <button
                 onClick={handleSave}
-                disabled={saving}
-                className="flex-1 py-2 bg-gray-700 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-50"
+                className="flex-1 py-2 bg-gray-700 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
               >
-                {saving ? '저장 중...' : editingId ? '수정' : '추가'}
+                {editingId !== null ? '수정' : '추가'}
               </button>
             </div>
           </div>
@@ -358,20 +323,28 @@ export default function AdminVotesPage() {
 
       {/* Results Modal */}
       {resultsOpen && selectedVote && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setResultsOpen(false)}>
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          onClick={() => setResultsOpen(false)}
+        >
+          <div
+            className="bg-white rounded-xl shadow-xl max-w-md w-full p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h2 className="text-lg font-bold text-gray-900 mb-1">{selectedVote.title}</h2>
             <p className="text-sm text-gray-500 mb-6">투표 결과</p>
 
             <div className="space-y-4">
-              {selectedVote.vote_options.map((opt) => {
+              {selectedVote.options.map((opt) => {
                 const total = getTotalVotes(selectedVote)
-                const pct = total > 0 ? Math.round((opt.vote_count / total) * 100) : 0
+                const pct = total > 0 ? Math.round((opt.votes / total) * 100) : 0
                 return (
                   <div key={opt.id}>
                     <div className="flex justify-between text-sm mb-1">
                       <span className="font-medium text-gray-900">{opt.label}</span>
-                      <span className="text-gray-500">{opt.vote_count}표 ({pct}%)</span>
+                      <span className="text-gray-500">
+                        {opt.votes.toLocaleString()}표 ({pct}%)
+                      </span>
                     </div>
                     <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
                       <div

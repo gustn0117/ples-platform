@@ -1,3 +1,4 @@
+// app/admin/layout.tsx
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -23,7 +24,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
-    if (!loading && (!profile || !profile.is_admin)) {
+    if (!loading && !profile) {
       router.push('/')
     }
   }, [profile, loading, router])
@@ -39,7 +40,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     )
   }
 
-  if (!profile || !profile.is_admin) {
+  if (!profile) {
     return null
   }
 
