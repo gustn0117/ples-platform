@@ -88,7 +88,6 @@ export default function Home() {
 
   const voteCount = useAnimatedNumber(15000, 2000);
   const artistNum = useAnimatedNumber(30, 1800);
-  const pointCount = useAnimatedNumber(100000, 2500);
 
   const featuresSection = useFadeInOnScroll();
   const hotSection = useFadeInOnScroll();
@@ -101,7 +100,6 @@ export default function Home() {
           setStatsVisible(true);
           voteCount.start();
           artistNum.start();
-          pointCount.start();
           observer.disconnect();
         }
       },
@@ -172,7 +170,6 @@ export default function Home() {
   const statItems = [
     { label: '아티스트 투표', value: voteCount.value, suffix: '+', icon: IconVote, finished: voteCount.finished },
     { label: '등록 아티스트', value: artistNum.value, suffix: '+', icon: IconUsers, finished: artistNum.finished },
-    { label: '포인트 지급', value: pointCount.value, suffix: '+', icon: IconCoin, finished: pointCount.finished },
   ];
 
   const rankMedals = ['#111827', '#6b7280', '#9ca3af', '#d1d5db', '#e5e7eb'];
@@ -367,7 +364,7 @@ export default function Home() {
       <section ref={statsRef} className="py-28 relative">
         <div className="max-w-6xl mx-auto px-6 sm:px-8">
           <div
-            className={`grid grid-cols-1 sm:grid-cols-3 gap-6 transition-all duration-700 ${
+            className={`grid grid-cols-1 sm:grid-cols-2 gap-6 transition-all duration-700 ${
               statsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}
           >
