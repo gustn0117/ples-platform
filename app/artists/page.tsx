@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth-context';
-import { IconMicrophone, IconSearch, IconHeart, IconHeartFilled, IconTrendingUp } from '@/components/icons';
+import { IconMicrophone, IconSearch, IconHeart, IconHeartFilled, IconTrendingUp, IconCheck } from '@/components/icons';
 
 interface Artist {
   id: string;
@@ -136,9 +136,9 @@ export default function ArtistsPage() {
     });
 
   const sortTabs = [
-    { key: 'popular' as const, label: '인기순' },
-    { key: 'latest' as const, label: '최신순' },
-    { key: 'investments' as const, label: '투자순' },
+    { key: 'popular' as const, label: '인기순', icon: <IconHeart className="w-3.5 h-3.5" /> },
+    { key: 'latest' as const, label: '최신순', icon: null },
+    { key: 'investments' as const, label: '투자순', icon: <IconTrendingUp className="w-3.5 h-3.5" /> },
   ];
 
   if (loading) {
@@ -185,7 +185,7 @@ export default function ArtistsPage() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
-        {/* Search Bar */}
+        {/* Search Bar with clear button */}
         <div className="relative mb-6">
           <IconSearch className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300" />
           <input
@@ -193,34 +193,70 @@ export default function ArtistsPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="아티스트 이름 또는 장르로 검색..."
-            className="w-full pl-12 pr-4 py-3.5 border border-gray-200 rounded-2xl bg-gray-50/50 text-sm text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-900/5 focus:border-gray-300 focus:bg-white transition-all duration-300"
+            className="w-full pl-12 pr-10 py-3.5 border border-gray-200 rounded-2xl bg-gray-50/50 text-sm text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-900/5 focus:border-gray-300 focus:bg-white transition-all duration-300"
           />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors duration-200"
+            >
+              <svg className="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
         </div>
 
-        {/* Sort Tabs */}
-        <div className="flex gap-1.5 mb-8 p-1 bg-gray-50 rounded-xl border border-gray-100 w-fit">
-          {sortTabs.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setSortBy(tab.key)}
-              className={`px-5 py-2 text-sm font-medium rounded-lg transition-all duration-300 ${
-                sortBy === tab.key
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-400 hover:text-gray-600'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        {/* Sort Tabs - pill segment style */}
+        <div className="mb-8">
+          <div className="inline-flex bg-gray-100/80 rounded-2xl p-1.5 gap-1">
+            {sortTabs.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setSortBy(tab.key)}
+                className={`flex items-center gap-1.5 px-5 py-2.5 text-sm font-semibold rounded-xl transition-all duration-300 ${
+                  sortBy === tab.key
+                    ? 'bg-white text-gray-900 shadow-sm shadow-gray-200/50'
+                    : 'text-gray-400 hover:text-gray-600'
+                }`}
+              >
+                {tab.icon}
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Artists Grid */}
         {filteredArtists.length === 0 ? (
-          <div className="text-center py-24 bg-white rounded-2xl border border-gray-100">
-            <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-4">
-              <IconSearch className="w-6 h-6 text-gray-300" />
+          <div className="text-center py-24 bg-gray-50/50 rounded-3xl border border-gray-100">
+            <div className="w-16 h-16 rounded-2xl bg-white border border-gray-100 flex items-center justify-center mx-auto mb-5 shadow-sm">
+              {searchQuery ? (
+                <IconSearch className="w-7 h-7 text-gray-300" />
+              ) : (
+                <IconMicrophone className="w-7 h-7 text-gray-300" />
+              )}
             </div>
-            <p className="text-gray-400">검색 결과가 없습니다</p>
+            <p className="text-gray-900 font-semibold mb-1.5">
+              {searchQuery ? '검색 결과가 없습니다' : '등록된 아티스트가 없습니다'}
+            </p>
+            <p className="text-sm text-gray-400">
+              {searchQuery ? (
+                <>
+                  &ldquo;{searchQuery}&rdquo;에 대한 결과를 찾을 수 없습니다
+                </>
+              ) : (
+                '아티스트가 등록되면 여기에 표시됩니다'
+              )}
+            </p>
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="mt-5 px-5 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors duration-200"
+              >
+                검색어 지우기
+              </button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
@@ -286,15 +322,17 @@ export default function ArtistsPage() {
                           toggleLike(artist.id);
                         }}
                         disabled={isLiking}
-                        className={`p-2 rounded-xl transition-all duration-300 ${
-                          isLiking ? 'opacity-50 cursor-not-allowed' :
-                          isLiked ? 'bg-red-50 hover:bg-red-100' : 'hover:bg-gray-50'
+                        className={`relative p-2.5 rounded-xl transition-all duration-300 ${
+                          isLiking ? 'opacity-50 cursor-not-allowed scale-90' :
+                          isLiked
+                            ? 'bg-gray-900 hover:bg-gray-800 shadow-sm shadow-gray-900/20 active:scale-90'
+                            : 'bg-gray-100 hover:bg-gray-200 active:scale-90'
                         }`}
                       >
                         {isLiked ? (
-                          <IconHeartFilled className="w-5 h-5 text-red-500" />
+                          <IconHeartFilled className="w-[18px] h-[18px] text-white" />
                         ) : (
-                          <IconHeart className="w-5 h-5 text-gray-300 hover:text-red-400 transition-colors" />
+                          <IconHeart className="w-[18px] h-[18px] text-gray-400" />
                         )}
                       </button>
                     </div>
@@ -366,20 +404,22 @@ export default function ArtistsPage() {
               <button
                 onClick={() => toggleLike(selectedArtist.id)}
                 disabled={likingInProgress === selectedArtist.id}
-                className={`w-full py-4 rounded-2xl text-sm font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${
+                className={`w-full py-4 rounded-2xl text-sm font-semibold transition-all duration-300 flex items-center justify-center gap-2.5 ${
+                  likingInProgress === selectedArtist.id ? 'opacity-60 cursor-not-allowed' : ''
+                } ${
                   likedArtists.has(selectedArtist.id)
-                    ? 'border border-gray-200 text-gray-600 hover:bg-gray-50 bg-white'
-                    : 'bg-gray-900 text-white hover:bg-gray-800 hover:shadow-lg hover:shadow-gray-900/10'
+                    ? 'bg-gray-100 text-gray-700 hover:bg-gray-200 active:scale-[0.98]'
+                    : 'bg-gray-900 text-white hover:bg-gray-800 hover:shadow-lg hover:shadow-gray-900/10 active:scale-[0.98]'
                 }`}
               >
                 {likedArtists.has(selectedArtist.id) ? (
                   <>
-                    <IconHeartFilled className="w-4 h-4 text-red-500" />
+                    <IconCheck className="w-[18px] h-[18px] text-gray-500" />
                     좋아요 취소
                   </>
                 ) : (
                   <>
-                    <IconHeart className="w-4 h-4" />
+                    <IconHeart className="w-[18px] h-[18px]" />
                     좋아요
                   </>
                 )}

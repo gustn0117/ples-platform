@@ -205,10 +205,10 @@ export default function MyPage() {
     : '';
 
   const statCards = [
-    { label: '보유 포인트', value: `${(profile?.points || 0).toLocaleString()}P`, icon: <IconCoin className="w-5 h-5" />, highlight: true, hoverGradient: 'hover:bg-gradient-to-br hover:from-gray-900 hover:to-gray-800 hover:text-white' },
-    { label: '투표 수', value: `${stats.totalVotes}`, icon: <IconVote className="w-5 h-5" />, highlight: false, hoverGradient: 'hover:bg-gradient-to-br hover:from-gray-50 hover:to-gray-100' },
-    { label: '좋아요', value: `${stats.likedArtists}`, icon: <IconHeart className="w-5 h-5" />, highlight: false, hoverGradient: 'hover:bg-gradient-to-br hover:from-gray-50 hover:to-slate-100' },
-    { label: '구매', value: `${stats.purchases}`, icon: <IconShoppingBag className="w-5 h-5" />, highlight: false, hoverGradient: 'hover:bg-gradient-to-br hover:from-gray-50 hover:to-zinc-100' },
+    { label: '보유 포인트', value: `${(profile?.points || 0).toLocaleString()}P`, icon: <IconCoin className="w-5 h-5" />, highlight: true },
+    { label: '투표 수', value: `${stats.totalVotes}`, icon: <IconVote className="w-5 h-5" />, highlight: false },
+    { label: '좋아요', value: `${stats.likedArtists}`, icon: <IconHeart className="w-5 h-5" />, highlight: false },
+    { label: '구매', value: `${stats.purchases}`, icon: <IconShoppingBag className="w-5 h-5" />, highlight: false },
   ];
 
   const tabItems = [
@@ -285,21 +285,21 @@ export default function MyPage() {
           {statCards.map((stat) => (
             <div
               key={stat.label}
-              className={`group relative rounded-2xl border border-gray-100 shadow-sm p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg cursor-default ${
+              className={`group relative rounded-2xl border shadow-sm p-5 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md cursor-default ${
                 stat.highlight
-                  ? 'bg-gradient-to-br from-gray-900 to-gray-800 border-gray-800 text-white'
-                  : `bg-white ${stat.hoverGradient}`
+                  ? 'bg-gradient-to-br from-gray-900 to-gray-800 border-gray-800 text-white hover:shadow-gray-900/20'
+                  : 'bg-white border-gray-100 hover:border-gray-200 hover:shadow-gray-200/60'
               }`}
             >
               <div className="flex items-center justify-between mb-3">
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
-                  stat.highlight ? 'bg-white/10 text-white' : 'bg-gray-100 text-gray-500 group-hover:bg-white/80'
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors duration-300 ${
+                  stat.highlight ? 'bg-white/10 text-white' : 'bg-gray-100 text-gray-500 group-hover:bg-gray-200/70 group-hover:text-gray-700'
                 }`}>
                   {stat.icon}
                 </div>
               </div>
-              <p className={`text-2xl font-bold ${stat.highlight ? 'text-white' : 'text-gray-900'}`}>{stat.value}</p>
-              <p className={`text-xs mt-1 font-medium ${stat.highlight ? 'text-white/60' : 'text-gray-400'}`}>{stat.label}</p>
+              <p className={`text-2xl font-bold transition-colors duration-300 ${stat.highlight ? 'text-white' : 'text-gray-900'}`}>{stat.value}</p>
+              <p className={`text-xs mt-1 font-medium transition-colors duration-300 ${stat.highlight ? 'text-white/60' : 'text-gray-400 group-hover:text-gray-500'}`}>{stat.label}</p>
             </div>
           ))}
         </div>
@@ -314,14 +314,14 @@ export default function MyPage() {
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold whitespace-nowrap rounded-lg transition-all ${
+                className={`flex items-center justify-center gap-1.5 px-5 py-2.5 text-sm font-semibold whitespace-nowrap rounded-lg transition-all duration-200 ${
                   activeTab === tab.key
                     ? 'bg-white text-gray-900 shadow-sm'
                     : 'text-gray-400 hover:text-gray-600'
                 }`}
               >
                 {tab.icon}
-                {tab.label}
+                <span className="hidden sm:inline">{tab.label}</span>
               </button>
             ))}
           </div>
@@ -463,15 +463,17 @@ export default function MyPage() {
           <Link
             key={item.label}
             href={item.href}
-            className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group"
+            className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md hover:border-gray-200 group"
           >
             <div className="flex items-center justify-between mb-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center shadow-sm">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow duration-300">
                 {item.icon}
               </div>
-              <IconArrowRight className="w-4 h-4 text-gray-300 group-hover:text-gray-900 group-hover:translate-x-0.5 transition-all" />
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-gray-50 group-hover:bg-gray-900 transition-colors duration-300">
+                <IconArrowRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-white transition-colors duration-300" />
+              </div>
             </div>
-            <p className="text-sm font-semibold text-gray-900">{item.label}</p>
+            <p className="text-sm font-semibold text-gray-900 group-hover:text-gray-800">{item.label}</p>
           </Link>
         ))}
       </div>
@@ -504,20 +506,31 @@ export default function MyPage() {
       {showWithdrawModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
           <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl animate-scaleIn">
-            <h3 className="text-lg font-bold text-gray-900 mb-2">회원 탈퇴</h3>
+            {/* Modal close button */}
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-900">회원 탈퇴</h3>
+              <button
+                onClick={() => setShowWithdrawModal(false)}
+                className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
             <p className="text-sm text-gray-400 mb-4">
               탈퇴 시 모든 데이터(포인트, 투표 내역, 구매 내역 등)가 삭제되며 복구할 수 없습니다.
             </p>
-            <div className="bg-gray-50 rounded-xl p-4 mb-5">
+            <div className="bg-gray-50 rounded-xl p-4 mb-6">
               <p className="text-sm text-gray-600 font-medium mb-0.5">탈퇴 문의</p>
               <p className="text-sm text-gray-900 font-semibold">support@ples.co.kr</p>
               <p className="text-xs text-gray-400 mt-1">위 이메일로 탈퇴를 요청해주세요</p>
             </div>
             <button
               onClick={() => setShowWithdrawModal(false)}
-              className="w-full py-3 rounded-xl text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors"
+              className="w-full py-3 rounded-xl text-sm font-semibold text-white bg-gray-900 hover:bg-gray-800 transition-colors duration-200"
             >
-              닫기
+              확인
             </button>
           </div>
         </div>
@@ -527,7 +540,18 @@ export default function MyPage() {
       {showNicknameModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
           <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl animate-scaleIn">
-            <h3 className="text-lg font-bold text-gray-900 mb-1">닉네임 수정</h3>
+            {/* Modal header with close button */}
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="text-lg font-bold text-gray-900">닉네임 수정</h3>
+              <button
+                onClick={() => setShowNicknameModal(false)}
+                className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
             <p className="text-sm text-gray-400 mb-5">새로운 닉네임을 입력해주세요</p>
 
             <input
@@ -541,23 +565,23 @@ export default function MyPage() {
             />
             <p className="text-xs text-gray-300 mt-2 text-right">{newNickname.length}/20</p>
 
-            <div className="flex gap-3 mt-4">
+            <div className="flex gap-3 mt-5">
               <button
                 onClick={() => setShowNicknameModal(false)}
-                className="flex-1 py-3 rounded-xl text-sm font-semibold text-gray-500 bg-gray-100 hover:bg-gray-200 transition-colors"
+                className="flex-1 py-3 rounded-xl text-sm font-semibold text-gray-500 border border-gray-200 bg-white hover:bg-gray-50 transition-colors duration-200"
               >
                 취소
               </button>
               <button
                 onClick={handleSaveNickname}
                 disabled={!newNickname.trim() || savingNickname}
-                className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all ${
+                className={`flex-[1.5] py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
                   newNickname.trim() && !savingNickname
-                    ? 'bg-gray-900 text-white hover:bg-gray-800'
+                    ? 'bg-gray-900 text-white hover:bg-gray-800 shadow-sm hover:shadow-md'
                     : 'bg-gray-100 text-gray-300 cursor-not-allowed'
                 }`}
               >
-                {savingNickname ? '저장 중...' : '저장'}
+                {savingNickname ? '저장 중...' : '저장하기'}
               </button>
             </div>
           </div>

@@ -245,17 +245,20 @@ export default function Home() {
               <div className="mt-12 flex flex-wrap items-center gap-4">
                 <Link
                   href={user ? '/vote' : '/login'}
-                  className="group inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-gray-900 text-white text-sm font-medium rounded-2xl hover:bg-black transition-all duration-300 hover:shadow-xl hover:shadow-black/10 hover:-translate-y-0.5"
+                  className="group relative inline-flex items-center justify-center gap-2.5 px-10 py-4.5 bg-gray-900 text-white text-sm font-bold rounded-2xl hover:bg-black transition-all duration-300 hover:shadow-2xl hover:shadow-black/20 hover:-translate-y-1 overflow-hidden"
                 >
-                  지금 시작하기
-                  <IconArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                  <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/[0.07] to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                  <span className="relative z-10 flex items-center gap-2.5">
+                    지금 시작하기
+                    <IconArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                  </span>
                 </Link>
                 <Link
                   href="#features"
-                  className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-gray-700 text-sm font-medium rounded-2xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 hover:shadow-sm transition-all duration-300"
+                  className="group inline-flex items-center justify-center gap-2.5 px-8 py-4.5 bg-white/80 backdrop-blur-sm text-gray-600 text-sm font-semibold rounded-2xl border border-gray-200 hover:border-gray-300 hover:bg-white hover:text-gray-900 hover:shadow-md transition-all duration-300"
                 >
                   더 알아보기
-                  <svg className="w-4 h-4 text-gray-400 group-hover:translate-y-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 text-gray-400 group-hover:text-gray-600 group-hover:translate-y-0.5 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                   </svg>
                 </Link>
@@ -509,11 +512,13 @@ export default function Home() {
                     <p className={`text-gray-400 leading-relaxed flex-1 ${spanTwo ? 'text-base max-w-md' : 'text-sm'}`}>
                       {feature.desc}
                     </p>
-                    <div className="mt-6 flex items-center gap-1.5 text-sm text-gray-300 group-hover:text-gray-600 transition-colors duration-300">
-                      <span className="text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="mt-6 flex items-center gap-2 text-sm text-gray-300 group-hover:text-gray-900 transition-colors duration-300">
+                      <span className="text-xs font-semibold opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-300">
                         바로가기
                       </span>
-                      <IconArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform duration-300" />
+                      <span className="w-7 h-7 rounded-lg bg-transparent group-hover:bg-gray-900 flex items-center justify-center transition-all duration-300">
+                        <IconArrowRight className="w-4 h-4 group-hover:text-white group-hover:translate-x-0.5 transition-all duration-300" />
+                      </span>
                     </div>
                   </div>
                 </Link>
@@ -548,10 +553,10 @@ export default function Home() {
             </div>
             <Link
               href="/artists"
-              className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-gray-500 bg-gray-50 border border-gray-100 hover:bg-gray-100 hover:text-gray-900 transition-all duration-300"
+              className="group hidden sm:inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-gray-700 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-900 hover:text-white shadow-sm hover:shadow-md transition-all duration-300"
             >
               전체보기
-              <IconArrowRight className="w-3.5 h-3.5" />
+              <IconArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-300" />
             </Link>
           </div>
 
@@ -693,13 +698,13 @@ export default function Home() {
           )}
 
           {/* Mobile view all link */}
-          <div className="sm:hidden mt-6 text-center">
+          <div className="sm:hidden mt-8 text-center">
             <Link
               href="/artists"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-medium text-gray-600 bg-gray-50 border border-gray-100 hover:bg-gray-100 transition-colors"
+              className="group inline-flex items-center justify-center gap-2.5 w-full max-w-sm px-6 py-4 rounded-2xl text-sm font-bold text-white bg-gray-900 hover:bg-black shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
             >
               전체 아티스트 보기
-              <IconArrowRight className="w-3.5 h-3.5" />
+              <IconArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform duration-300" />
             </Link>
           </div>
         </div>
@@ -825,16 +830,20 @@ export default function Home() {
               >
                 <Link
                   href={user ? '/vote' : '/login'}
-                  className="group inline-flex items-center justify-center gap-2.5 px-10 py-4.5 bg-white text-gray-900 text-sm font-bold rounded-2xl hover:bg-gray-100 transition-all duration-300 hover:shadow-2xl hover:shadow-black/30 hover:-translate-y-0.5"
+                  className="group relative inline-flex items-center justify-center gap-2.5 px-12 py-5 bg-white text-gray-900 text-sm font-bold rounded-2xl hover:bg-gray-50 transition-all duration-300 hover:shadow-2xl hover:shadow-white/20 hover:-translate-y-1 overflow-hidden"
                 >
-                  무료로 시작하기
-                  <IconArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-200/30 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                  <span className="relative z-10 flex items-center gap-2.5">
+                    무료로 시작하기
+                    <IconArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                  </span>
                 </Link>
                 <Link
                   href="/artists"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-medium text-gray-300 rounded-2xl border border-gray-700 hover:border-gray-500 hover:text-white hover:bg-white/5 transition-all duration-300"
+                  className="inline-flex items-center justify-center gap-2.5 px-10 py-5 text-sm font-semibold text-white/90 rounded-2xl border-2 border-white/20 hover:border-white/40 hover:text-white hover:bg-white/10 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:shadow-white/5"
                 >
                   아티스트 둘러보기
+                  <IconArrowRight className="w-4 h-4 opacity-60" />
                 </Link>
               </div>
             </div>

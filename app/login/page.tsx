@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
-import { IconVote, IconTrophy, IconCoin, IconCheck, IconSparkle } from '@/components/icons';
+import { IconVote, IconTrophy, IconCoin, IconCheck, IconSparkle, IconArrowRight } from '@/components/icons';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -113,7 +113,7 @@ export default function LoginPage() {
     },
   ];
 
-  const inputClass = "w-full px-4 py-3.5 text-sm bg-gray-50/50 border border-gray-200 rounded-2xl outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-900/5 focus:bg-white transition-all duration-300 placeholder:text-gray-300";
+  const inputClass = "w-full px-4 py-3.5 text-sm bg-gray-50/50 border border-gray-200 rounded-2xl outline-none focus:border-gray-900 focus:ring-[3px] focus:ring-gray-900/[0.08] focus:bg-white focus:shadow-sm transition-all duration-300 placeholder:text-gray-300 hover:border-gray-300";
 
   return (
     <div className="min-h-[calc(100vh-64px)] flex bg-white">
@@ -167,17 +167,28 @@ export default function LoginPage() {
           </div>
 
           {/* Social proof */}
-          <div className="mt-14 flex items-center gap-4">
-            <div className="flex -space-x-1.5">
-              {['A', 'B', 'C'].map((l, i) => (
-                <div key={l} className="w-7 h-7 rounded-full bg-gray-700 text-gray-300 text-[10px] font-semibold flex items-center justify-center border-2 border-gray-900" style={{ zIndex: 3 - i }}>
-                  {l}
-                </div>
-              ))}
+          <div className="mt-14 p-5 rounded-2xl bg-white/[0.04] border border-white/[0.06]">
+            <div className="flex items-center gap-4">
+              <div className="flex -space-x-2">
+                {['A', 'B', 'C', 'D'].map((l, i) => (
+                  <div key={l} className="w-8 h-8 rounded-full bg-gray-700 text-gray-300 text-[10px] font-bold flex items-center justify-center border-2 border-gray-900 ring-1 ring-white/5" style={{ zIndex: 4 - i }}>
+                    {l}
+                  </div>
+                ))}
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-white">1,000+</p>
+                <p className="text-xs text-gray-500">팬들이 참여 중</p>
+              </div>
             </div>
-            <p className="text-xs text-gray-500">
-              <span className="text-gray-300 font-medium">1,000+</span> 팬들이 참여 중
-            </p>
+            <div className="flex items-center gap-3 mt-4 pt-4 border-t border-white/[0.06]">
+              <div className="flex items-center gap-1.5">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-[11px] text-gray-500">실시간 활동 중</span>
+              </div>
+              <span className="text-gray-700">·</span>
+              <span className="text-[11px] text-gray-500">오늘 <span className="text-gray-400 font-medium">128</span>명 참여</span>
+            </div>
           </div>
         </div>
       </div>
@@ -209,26 +220,26 @@ export default function LoginPage() {
           {/* Card */}
           <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
             {/* Tab Switcher */}
-            <div className="flex mb-8 p-1 bg-gray-50 rounded-xl relative">
+            <div className="flex mb-8 p-1.5 bg-gray-100/80 rounded-2xl relative">
               <div
-                className="absolute top-1 h-[calc(100%-8px)] bg-white rounded-lg shadow-sm transition-all duration-300 ease-out"
+                className="absolute top-1.5 h-[calc(100%-12px)] bg-white rounded-xl shadow-sm border border-gray-100 transition-all duration-300 ease-out"
                 style={{
-                  left: tab === 'login' ? '4px' : '50%',
-                  width: 'calc(50% - 4px)',
+                  left: tab === 'login' ? '6px' : '50%',
+                  width: 'calc(50% - 6px)',
                 }}
               />
               <button
                 onClick={() => { setTab('login'); clearMessages(); }}
-                className={`relative z-10 flex-1 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200 ${
-                  tab === 'login' ? 'text-gray-900' : 'text-gray-400 hover:text-gray-600'
+                className={`relative z-10 flex-1 py-2.5 text-sm font-semibold rounded-xl transition-colors duration-200 ${
+                  tab === 'login' ? 'text-gray-900' : 'text-gray-400 hover:text-gray-500'
                 }`}
               >
                 로그인
               </button>
               <button
                 onClick={() => { setTab('register'); clearMessages(); }}
-                className={`relative z-10 flex-1 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200 ${
-                  tab === 'register' ? 'text-gray-900' : 'text-gray-400 hover:text-gray-600'
+                className={`relative z-10 flex-1 py-2.5 text-sm font-semibold rounded-xl transition-colors duration-200 ${
+                  tab === 'register' ? 'text-gray-900' : 'text-gray-400 hover:text-gray-500'
                 }`}
               >
                 회원가입
@@ -259,8 +270,8 @@ export default function LoginPage() {
 
             {/* Login Form */}
             {tab === 'login' && (
-              <form onSubmit={handleLogin} className="flex flex-col gap-5">
-                <div>
+              <form onSubmit={handleLogin} className="flex flex-col gap-0">
+                <div className="pb-5">
                   <label className="block text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">
                     이메일
                   </label>
@@ -272,7 +283,7 @@ export default function LoginPage() {
                     className={inputClass}
                   />
                 </div>
-                <div>
+                <div className="border-t border-gray-100 pt-5">
                   <label className="block text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">
                     비밀번호
                   </label>
@@ -287,7 +298,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-4 mt-2 bg-gray-900 text-white text-sm font-semibold rounded-2xl hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-lg hover:shadow-gray-900/10 hover:-translate-y-px flex items-center justify-center gap-2"
+                  className="group w-full py-4 mt-7 bg-gray-900 text-white text-sm font-semibold rounded-2xl hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-lg hover:shadow-gray-900/10 hover:-translate-y-px flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <>
@@ -298,7 +309,10 @@ export default function LoginPage() {
                       로그인 중...
                     </>
                   ) : (
-                    '로그인'
+                    <>
+                      로그인
+                      <IconArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform duration-200" />
+                    </>
                   )}
                 </button>
               </form>
@@ -306,8 +320,8 @@ export default function LoginPage() {
 
             {/* Signup Form */}
             {tab === 'register' && (
-              <form onSubmit={handleSignup} className="flex flex-col gap-5">
-                <div>
+              <form onSubmit={handleSignup} className="flex flex-col gap-0">
+                <div className="pb-5">
                   <label className="block text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">
                     닉네임
                   </label>
@@ -319,7 +333,7 @@ export default function LoginPage() {
                     className={inputClass}
                   />
                 </div>
-                <div>
+                <div className="border-t border-gray-100 pt-5 pb-5">
                   <label className="block text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">
                     이메일
                   </label>
@@ -331,7 +345,7 @@ export default function LoginPage() {
                     className={inputClass}
                   />
                 </div>
-                <div>
+                <div className="border-t border-gray-100 pt-5 pb-5">
                   <label className="block text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">
                     비밀번호
                   </label>
@@ -343,7 +357,7 @@ export default function LoginPage() {
                     className={inputClass}
                   />
                 </div>
-                <div>
+                <div className="border-t border-gray-100 pt-5">
                   <label className="block text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">
                     비밀번호 확인
                   </label>
@@ -358,7 +372,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-4 mt-2 bg-gray-900 text-white text-sm font-semibold rounded-2xl hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-lg hover:shadow-gray-900/10 hover:-translate-y-px flex items-center justify-center gap-2"
+                  className="group w-full py-4 mt-7 bg-gray-900 text-white text-sm font-semibold rounded-2xl hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-lg hover:shadow-gray-900/10 hover:-translate-y-px flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <>
@@ -369,10 +383,13 @@ export default function LoginPage() {
                       가입 중...
                     </>
                   ) : (
-                    '회원가입'
+                    <>
+                      회원가입
+                      <IconArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform duration-200" />
+                    </>
                   )}
                 </button>
-                <p className="text-center text-xs text-gray-400">
+                <p className="text-center text-xs text-gray-400 mt-4">
                   이메일 확인 불필요, 바로 로그인됩니다
                 </p>
               </form>

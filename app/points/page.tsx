@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth-context';
 import Link from 'next/link';
-import { IconWallet, IconCoin, IconGift, IconClock, IconVote, IconPlay, IconShoppingBag, IconCheck } from '@/components/icons';
+import { IconWallet, IconCoin, IconGift, IconClock, IconVote, IconPlay, IconShoppingBag, IconCheck, IconArrowRight } from '@/components/icons';
 
 interface PointTransaction {
   id: string;
@@ -164,9 +164,11 @@ export default function PointsPage() {
               </p>
               <button
                 onClick={() => setShowChargeSection(!showChargeSection)}
-                className="px-5 py-2.5 rounded-xl bg-white text-gray-900 font-semibold text-sm hover:bg-gray-100 hover:shadow-lg transition-all duration-300"
+                className="group relative inline-flex items-center gap-2 px-7 py-3 rounded-xl bg-white text-gray-900 font-bold text-sm hover:bg-gray-50 hover:shadow-xl hover:shadow-white/10 transition-all duration-300 hover:-translate-y-0.5 overflow-hidden"
               >
-                {showChargeSection ? '충전 닫기' : '포인트 충전하기'}
+                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-200/40 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                <IconCoin className="w-4 h-4 text-gray-500 relative z-10" />
+                <span className="relative z-10">{showChargeSection ? '충전 닫기' : '포인트 충전하기'}</span>
               </button>
             </div>
           </div>
@@ -181,21 +183,30 @@ export default function PointsPage() {
             </div>
             <p className="text-sm text-gray-400 mb-6">충전할 금액을 선택하세요</p>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
               {chargeOptions.map((option, index) => (
                 <button
                   key={option.amount}
                   onClick={() => setSelectedCharge(index)}
-                  className={`relative p-5 rounded-2xl border-2 transition-all duration-300 text-center hover:-translate-y-1 hover:shadow-md ${
+                  className={`group relative p-6 rounded-2xl border-2 transition-all duration-300 text-center hover:-translate-y-1 ${
                     selectedCharge === index
-                      ? 'border-gray-900 bg-gray-50 scale-[1.02] shadow-lg'
-                      : 'border-gray-100 hover:border-gray-300 bg-white'
+                      ? 'border-gray-900 bg-gray-900 scale-[1.02] shadow-xl'
+                      : 'border-gray-100 hover:border-gray-300 hover:shadow-md bg-white'
                   }`}
                 >
-                  <p className="text-lg font-bold text-gray-900 mb-1">
+                  {selectedCharge === index && (
+                    <div className="absolute top-3 right-3">
+                      <IconCheck className="w-5 h-5 text-white" />
+                    </div>
+                  )}
+                  <p className={`text-lg font-bold mb-1 transition-colors duration-300 ${
+                    selectedCharge === index ? 'text-white' : 'text-gray-900'
+                  }`}>
                     {option.amount.toLocaleString()}원
                   </p>
-                  <p className="text-sm text-gray-500">
+                  <p className={`text-sm font-medium transition-colors duration-300 ${
+                    selectedCharge === index ? 'text-gray-300' : 'text-gray-400'
+                  }`}>
                     {option.points.toLocaleString()}P
                   </p>
                   {option.bonus && (
@@ -210,12 +221,15 @@ export default function PointsPage() {
             <button
               onClick={handleCharge}
               disabled={selectedCharge === null || isCharging}
-              className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all ${
+              className={`group relative w-full py-4 rounded-2xl font-bold text-base transition-all duration-300 overflow-hidden ${
                 selectedCharge !== null && !isCharging
-                  ? 'bg-gray-900 text-white hover:bg-gray-800'
+                  ? 'bg-gray-900 text-white hover:bg-black hover:shadow-xl hover:shadow-gray-900/20 hover:-translate-y-0.5'
                   : 'bg-gray-100 text-gray-300 cursor-not-allowed'
               }`}
             >
+              {selectedCharge !== null && !isCharging && (
+                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.07] to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+              )}
               {isCharging ? (
                 <span className="flex items-center justify-center gap-2">
                   <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -224,8 +238,13 @@ export default function PointsPage() {
                   </svg>
                   충전 중...
                 </span>
+              ) : selectedCharge !== null ? (
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  {chargeOptions[selectedCharge].amount.toLocaleString()}원 충전하기
+                  <IconArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                </span>
               ) : (
-                '충전하기'
+                '충전할 금액을 선택하세요'
               )}
             </button>
           </div>
@@ -248,15 +267,15 @@ export default function PointsPage() {
             <h2 className="text-lg font-bold text-gray-900">포인트 내역</h2>
           </div>
           {/* Filter Tabs - pill segment style */}
-          <div className="inline-flex bg-gray-50 rounded-xl p-1.5 gap-1">
+          <div className="inline-flex bg-gray-100 rounded-xl p-1 gap-0.5">
             {filters.map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-5 py-2 text-sm font-semibold rounded-lg transition-all ${
+                className={`px-6 py-2.5 text-sm font-bold rounded-lg transition-all duration-300 ${
                   filter === f
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-400 hover:text-gray-600'
+                    ? 'bg-gray-900 text-white shadow-md'
+                    : 'text-gray-400 hover:text-gray-700 hover:bg-gray-50'
                 }`}
               >
                 {f}
@@ -286,11 +305,24 @@ export default function PointsPage() {
         ) : (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-16">
             {transactionsWithBalance.length === 0 ? (
-              <div className="py-20 text-center">
-                <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-3">
-                  <IconClock className="w-7 h-7 text-gray-300" />
+              <div className="py-24 text-center">
+                <div className="relative w-20 h-20 rounded-3xl bg-gray-50 border border-gray-100 flex items-center justify-center mx-auto mb-5">
+                  <div className="absolute inset-0 rounded-3xl dot-pattern opacity-40" />
+                  <IconClock className="w-8 h-8 text-gray-300 relative z-10" />
                 </div>
-                <p className="text-gray-400 text-sm">내역이 없습니다</p>
+                <p className="text-gray-900 font-semibold text-base mb-1.5">
+                  {filter === '전체' ? '아직 포인트 내역이 없어요' : filter === '적립' ? '적립 내역이 없어요' : '사용 내역이 없어요'}
+                </p>
+                <p className="text-gray-400 text-sm mb-6">
+                  {filter === '전체' ? '투표, 영상 시청 등 활동으로 포인트를 모아보세요' : filter === '적립' ? '활동에 참여하면 포인트가 적립됩니다' : '마켓에서 포인트를 사용해보세요'}
+                </p>
+                <Link
+                  href={filter === '사용' ? '/artworks' : '/vote'}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-semibold hover:bg-black transition-colors"
+                >
+                  {filter === '사용' ? '마켓 둘러보기' : '포인트 적립하러 가기'}
+                  <IconArrowRight className="w-3.5 h-3.5" />
+                </Link>
               </div>
             ) : (
               transactionsWithBalance.map((item) => (

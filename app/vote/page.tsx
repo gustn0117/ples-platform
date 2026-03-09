@@ -235,17 +235,17 @@ export default function VotePage() {
                           +{vote.reward_points || 10}P
                         </span>
                         {hasVoted && (
-                          <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 rounded-xl px-3 py-1.5 text-xs font-semibold">
-                            <IconCheck className="w-3.5 h-3.5" />
+                          <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-600 rounded-full px-3.5 py-1.5 text-xs font-semibold ring-1 ring-emerald-100">
+                            <IconCheck className="w-3 h-3" />
                             완료
                           </span>
                         )}
                         {!hasVoted && (
                           <span
-                            className={`rounded-xl px-3 py-1.5 text-xs font-semibold ${
+                            className={`rounded-full px-3.5 py-1.5 text-xs font-semibold tracking-wide ${
                               vote.is_active
-                                ? 'bg-gray-900 text-white'
-                                : 'bg-gray-100 text-gray-400'
+                                ? 'bg-gray-900 text-white shadow-sm shadow-gray-900/20'
+                                : 'bg-gray-100 text-gray-400 ring-1 ring-gray-200'
                             }`}
                           >
                             {vote.is_active ? '진행중' : '종료'}
@@ -275,11 +275,11 @@ export default function VotePage() {
                               setSelectedOptions({ ...selectedOptions, [vote.id]: option.id });
                           }}
                           disabled={!vote.is_active || hasVoted || isVoting}
-                          className={`relative w-full text-left p-4 rounded-2xl border-2 transition-all duration-300 ${
+                          className={`relative w-full text-left p-4 rounded-2xl border-2 transition-all duration-300 group/option ${
                             isSelected
-                              ? 'border-gray-900 bg-gray-50'
-                              : 'border-gray-100 hover:border-gray-200 bg-white'
-                          } ${!vote.is_active || hasVoted ? 'cursor-default' : 'cursor-pointer'}`}
+                              ? 'border-gray-900 bg-gray-50 shadow-sm shadow-gray-900/5'
+                              : 'border-gray-100 hover:border-gray-300 hover:bg-gray-50/50 bg-white'
+                          } ${!vote.is_active || hasVoted ? 'cursor-default' : 'cursor-pointer active:scale-[0.98]'}`}
                         >
                           <div className="relative flex items-center justify-between">
                             <div className="flex items-center gap-3">
@@ -287,15 +287,15 @@ export default function VotePage() {
                               <div
                                 className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-300 ${
                                   isSelected
-                                    ? 'border-gray-900 bg-gray-900 scale-105'
-                                    : 'border-gray-300'
+                                    ? 'border-gray-900 bg-gray-900 scale-110'
+                                    : 'border-gray-300 group-hover/option:border-gray-400'
                                 }`}
                               >
                                 {isSelected && (
-                                  <div className="w-2 h-2 rounded-full bg-white" />
+                                  <IconCheck className="w-3 h-3 text-white" />
                                 )}
                               </div>
-                              <span className={`font-medium text-sm ${isSelected ? 'text-gray-900' : 'text-gray-700'}`}>{option.label}</span>
+                              <span className={`font-medium text-sm transition-colors duration-200 ${isSelected ? 'text-gray-900 font-semibold' : 'text-gray-600 group-hover/option:text-gray-900'}`}>{option.label}</span>
                             </div>
                             {(hasVoted || !vote.is_active) && (
                               <span className="text-sm font-bold text-gray-900 tabular-nums">
@@ -306,9 +306,9 @@ export default function VotePage() {
 
                           {/* Progress bar */}
                           {(hasVoted || !vote.is_active) && (
-                            <div className="mt-3 w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+                            <div className="mt-3 w-full bg-gray-100 rounded-full h-2 overflow-hidden">
                               <div
-                                className="bg-gray-900 h-2.5 rounded-full transition-all duration-1000 ease-out"
+                                className="bg-gray-900 h-2 rounded-full transition-all duration-1000 ease-out"
                                 style={{ width: `${percentage}%` }}
                               />
                             </div>
@@ -319,50 +319,55 @@ export default function VotePage() {
                   </div>
 
                   {/* Footer / Action */}
-                  <div className="px-8 pb-8 pt-2">
-                    {justVoted ? (
-                      <div className="flex items-center justify-center gap-2.5 py-4 bg-emerald-50 border border-emerald-100 rounded-2xl animate-fade-in-up">
-                        <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center">
-                          <IconCheck className="w-3.5 h-3.5 text-white" />
+                  <div className="px-8 pb-8 pt-4">
+                    <div className="border-t border-gray-100 pt-5">
+                      {justVoted ? (
+                        <div className="flex items-center justify-center gap-2.5 py-4 bg-emerald-50 border border-emerald-100 rounded-2xl animate-fade-in-up">
+                          <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center">
+                            <IconCheck className="w-3.5 h-3.5 text-white" />
+                          </div>
+                          <span className="text-sm font-semibold text-emerald-600">
+                            투표 완료! +{vote.reward_points || 10}P 적립되었습니다
+                          </span>
                         </div>
-                        <span className="text-sm font-semibold text-emerald-700">
-                          투표 완료! +{vote.reward_points || 10}P 적립되었습니다
-                        </span>
-                      </div>
-                    ) : vote.is_active && !hasVoted ? (
-                      <button
-                        onClick={() => handleVote(vote.id)}
-                        disabled={!selectedOptions[vote.id] || isVoting}
-                        className={`w-full py-4 rounded-2xl text-sm font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${
-                          selectedOptions[vote.id] && !isVoting
-                            ? 'bg-gray-900 text-white hover:bg-gray-800 hover:shadow-lg hover:shadow-gray-900/10 hover:-translate-y-px'
-                            : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        }`}
-                      >
-                        {isVoting ? (
-                          <>
-                            <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                            </svg>
-                            투표 중...
-                          </>
-                        ) : (
-                          '투표하기'
-                        )}
-                      </button>
-                    ) : hasVoted ? (
-                      <div className="flex items-center justify-center gap-2.5 py-4 bg-gray-50 rounded-2xl">
-                        <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
-                          <IconCheck className="w-3 h-3 text-white" />
+                      ) : vote.is_active && !hasVoted ? (
+                        <button
+                          onClick={() => handleVote(vote.id)}
+                          disabled={!selectedOptions[vote.id] || isVoting}
+                          className={`w-full py-4 rounded-2xl text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2.5 ${
+                            selectedOptions[vote.id] && !isVoting
+                              ? 'bg-gray-900 text-white hover:bg-gray-800 hover:shadow-xl hover:shadow-gray-900/15 hover:-translate-y-0.5 active:translate-y-0 active:shadow-md'
+                              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                          }`}
+                        >
+                          {isVoting ? (
+                            <>
+                              <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                              </svg>
+                              투표 중...
+                            </>
+                          ) : (
+                            <>
+                              <IconCheck className="w-4 h-4" />
+                              투표하기
+                            </>
+                          )}
+                        </button>
+                      ) : hasVoted ? (
+                        <div className="flex items-center justify-center gap-2.5 py-4 bg-gray-50 rounded-2xl border border-gray-100">
+                          <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
+                            <IconCheck className="w-3 h-3 text-white" />
+                          </div>
+                          <span className="text-sm text-gray-500 font-medium">투표 완료</span>
                         </div>
-                        <span className="text-sm text-gray-500 font-medium">투표 완료</span>
-                      </div>
-                    ) : (
-                      <div className="text-center py-4 bg-gray-50 rounded-2xl">
-                        <span className="text-sm text-gray-400">종료된 투표입니다</span>
-                      </div>
-                    )}
+                      ) : (
+                        <div className="text-center py-4 bg-gray-50 rounded-2xl border border-gray-100">
+                          <span className="text-sm text-gray-400 font-medium">종료된 투표입니다</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               );
