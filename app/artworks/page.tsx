@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/lib/auth-context';
-import { initStore, getArtworks, getUserPoints, purchaseArtwork, getPointHistory } from '@/lib/store';
+import { initStore, getArtworks, getUserPoints } from '@/lib/store';
 import Link from 'next/link';
-import { IconShoppingBag, IconCoin, IconWallet, IconCheck, IconPalette } from '@/components/icons';
+import { IconShoppingBag, IconCoin, IconPalette } from '@/components/icons';
 import type { Artwork } from '@/lib/mock-data';
 import { ArtworkIcon } from '@/lib/icons';
 
@@ -16,10 +16,6 @@ export default function ArtworksPage() {
   const [artworks, setArtworks] = useState<Artwork[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<Category>('전체');
-  const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'points'>('cash');
-  const [purchasing, setPurchasing] = useState(false);
-  const [purchaseSuccess, setPurchaseSuccess] = useState(false);
   const [userPoints, setUserPoints] = useState(0);
 
   useEffect(() => {
@@ -28,11 +24,6 @@ export default function ArtworksPage() {
     setUserPoints(getUserPoints());
     setLoading(false);
   }, []);
-
-  function refreshData() {
-    setArtworks(getArtworks());
-    setUserPoints(getUserPoints());
-  }
 
   const filteredArtworks = useMemo(() => {
     if (selectedCategory === '전체') return artworks;
@@ -46,53 +37,6 @@ export default function ArtworksPage() {
     }
     return counts;
   }, [artworks]);
-
-  function handleClickPurchase(artwork: Artwork) {
-    if (!user) {
-      alert('로그인이 필요합니다. 로그인 후 이용해주세요.');
-      return;
-    }
-    setSelectedArtwork(artwork);
-    setPaymentMethod('cash');
-    setPurchaseSuccess(false);
-  }
-
-  function handleConfirmPurchase() {
-    if (!selectedArtwork) return;
-    setPurchasing(true);
-
-    const result = purchaseArtwork(selectedArtwork.id, paymentMethod);
-
-    if (!result.success) {
-      alert(result.error || '구매에 실패했습니다.');
-      setPurchasing(false);
-      return;
-    }
-
-    setPurchaseSuccess(true);
-    refreshData();
-
-    setTimeout(() => {
-      setPurchaseSuccess(false);
-      setSelectedArtwork(null);
-      setPurchasing(false);
-    }, 2000);
-  }
-
-  function closeModal() {
-    if (!purchasing) {
-      setSelectedArtwork(null);
-      setPurchaseSuccess(false);
-    }
-  }
-
-  const discount = selectedArtwork
-    ? selectedArtwork.price - selectedArtwork.pointPrice
-    : 0;
-
-  const insufficientPoints = selectedArtwork
-    ? userPoints < selectedArtwork.pointPrice
-    : false;
 
   if (loading) {
     return (
@@ -195,7 +139,7 @@ export default function ArtworksPage() {
                   }`}
                 >
                   {/* Image Area */}
-                  <div className="relative aspect-square bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center overflow-hidden">
+                  <Link href={`/artworks/${artwork.id}`} className="relative aspect-square bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center overflow-hidden">
                     <span className="group-hover:scale-110 transition-transform duration-500 text-gray-400">
                       <ArtworkIcon category={artwork.category} className="w-12 h-12" />
                     </span>
@@ -233,11 +177,11 @@ export default function ArtworksPage() {
                         {artwork.category}
                       </span>
                     </div>
-                  </div>
+                  </Link>
 
                   {/* Product Info */}
                   <div className="p-4">
-                    <p className="font-semibold text-gray-900 text-sm truncate mb-0.5">{artwork.title}</p>
+                    <Link href={`/artworks/${artwork.id}`} className="font-semibold text-gray-900 text-sm truncate block mb-0.5 hover:text-gray-600 transition-colors">{artwork.title}</Link>
                     <p className="text-xs text-gray-500 mb-3">{artwork.artist}</p>
 
                     <div className="flex items-baseline gap-2 mb-4">
@@ -252,20 +196,19 @@ export default function ArtworksPage() {
                     </div>
 
                     {!isSoldOut ? (
-                      <button
-                        onClick={() => handleClickPurchase(artwork)}
+                      <Link
+                        href={`/artworks/${artwork.id}`}
                         className="w-full py-3.5 rounded-xl bg-gray-900 text-white text-sm font-bold hover:bg-gray-800 transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2"
                       >
                         <IconShoppingBag className="w-4 h-4" />
                         구매하기
-                      </button>
+                      </Link>
                     ) : (
-                      <button
-                        disabled
-                        className="w-full py-3.5 rounded-xl bg-gray-100 text-gray-400 text-sm font-medium cursor-not-allowed border border-gray-200"
+                      <div
+                        className="w-full py-3.5 rounded-xl bg-gray-100 text-gray-400 text-sm font-medium text-center border border-gray-200"
                       >
                         품절
-                      </button>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -275,251 +218,6 @@ export default function ArtworksPage() {
         )}
       </div>
 
-      {/* Detail/Purchase Modal */}
-      {selectedArtwork && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
-          onClick={closeModal}
-        >
-          <div
-            className="bg-white rounded-2xl max-w-md w-full shadow-2xl shadow-gray-300/50 border border-gray-200 overflow-hidden"
-            style={{ animation: 'modalIn 0.25s ease-out' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {purchaseSuccess ? (
-              /* Success State */
-              <div className="text-center py-16 px-6">
-                <div
-                  className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center mx-auto mb-5"
-                  style={{ animation: 'bounceIn 0.5s ease-out' }}
-                >
-                  <IconCheck className="w-7 h-7 text-emerald-500" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">구매 완료!</h3>
-                <p className="text-sm text-gray-500">주문이 성공적으로 처리되었습니다</p>
-              </div>
-            ) : (
-              <>
-                {/* Modal Header */}
-                <div className="flex items-start justify-between p-5 pb-0">
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900">구매 확인</h3>
-                    <p className="text-sm text-gray-500 mt-0.5">결제 방법을 선택해주세요</p>
-                  </div>
-                  <button
-                    onClick={closeModal}
-                    className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-all"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-
-                {/* Product Summary */}
-                <div className="mx-5 mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-gray-100 rounded-xl border border-gray-200 flex items-center justify-center shrink-0 text-gray-400">
-                      <ArtworkIcon category={selectedArtwork.category} className="w-7 h-7" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-gray-900 truncate">{selectedArtwork.title}</p>
-                      <p className="text-sm text-gray-500">{selectedArtwork.artist}</p>
-                      <p className="text-xs text-gray-400 mt-1 line-clamp-1">{selectedArtwork.description}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Payment Label */}
-                <div className="mx-5 mt-5 mb-3">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">결제 방법</p>
-                </div>
-
-                {/* Payment Options */}
-                <div className="px-5 flex flex-col gap-3">
-                  {/* Cash Payment */}
-                  <button
-                    onClick={() => setPaymentMethod('cash')}
-                    className={`p-4 rounded-xl border-2 text-left transition-all duration-200 ${
-                      paymentMethod === 'cash'
-                        ? 'border-gray-900 bg-gray-50'
-                        : 'border-gray-200 bg-white hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
-                            paymentMethod === 'cash' ? 'bg-gray-900' : 'bg-gray-100'
-                          }`}
-                        >
-                          <IconWallet
-                            className={`w-5 h-5 ${paymentMethod === 'cash' ? 'text-white' : 'text-gray-400'}`}
-                          />
-                        </div>
-                        <div>
-                          <p className={`font-semibold text-sm ${paymentMethod === 'cash' ? 'text-gray-900' : 'text-gray-500'}`}>
-                            일반결제
-                          </p>
-                          <p className="text-sm text-gray-500 mt-0.5 tabular-nums">
-                            {selectedArtwork.price.toLocaleString()}원
-                          </p>
-                        </div>
-                      </div>
-                      <div
-                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                          paymentMethod === 'cash' ? 'border-gray-900 bg-gray-900' : 'border-gray-300'
-                        }`}
-                      >
-                        {paymentMethod === 'cash' && <IconCheck className="w-3 h-3 text-white" />}
-                      </div>
-                    </div>
-                  </button>
-
-                  {/* Points Payment */}
-                  <button
-                    onClick={() => setPaymentMethod('points')}
-                    className={`relative p-4 rounded-xl border-2 text-left transition-all duration-200 ${
-                      paymentMethod === 'points'
-                        ? 'border-yellow-500 bg-yellow-50'
-                        : 'border-gray-200 bg-white hover:border-gray-300'
-                    }`}
-                  >
-                    {/* Discount badge */}
-                    {discount > 0 && (
-                      <div className="absolute -top-2.5 left-4">
-                        <span className="text-[10px] font-bold text-gray-900 bg-yellow-400 px-2 py-0.5 rounded-md shadow-lg shadow-yellow-400/20">
-                          {discount.toLocaleString()}원 할인
-                        </span>
-                      </div>
-                    )}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
-                            paymentMethod === 'points' ? 'bg-yellow-500' : 'bg-gray-100'
-                          }`}
-                        >
-                          <IconCoin
-                            className={`w-5 h-5 ${paymentMethod === 'points' ? 'text-white' : 'text-gray-400'}`}
-                          />
-                        </div>
-                        <div>
-                          <p className={`font-semibold text-sm ${paymentMethod === 'points' ? 'text-gray-900' : 'text-gray-500'}`}>
-                            포인트결제
-                          </p>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <span className="text-sm text-yellow-600 tabular-nums font-medium">
-                              {selectedArtwork.pointPrice.toLocaleString()}P
-                            </span>
-                            {discount > 0 && (
-                              <span className="text-xs text-gray-400 line-through tabular-nums">
-                                {selectedArtwork.price.toLocaleString()}원
-                              </span>
-                            )}
-                          </div>
-                          {/* Current balance */}
-                          {user && (
-                            <p className="text-xs text-gray-500 mt-1 tabular-nums">
-                              보유: {userPoints.toLocaleString()}P
-                            </p>
-                          )}
-                          {/* Insufficient warning */}
-                          {user && insufficientPoints && (
-                            <p className="text-xs text-red-500 mt-1.5 flex items-center gap-1">
-                              <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                              포인트가 부족합니다.{' '}
-                              <Link href="/points" className="underline hover:text-red-400 font-medium">
-                                충전하기
-                              </Link>
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <div
-                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                          paymentMethod === 'points' ? 'border-yellow-500 bg-yellow-500' : 'border-gray-300'
-                        }`}
-                      >
-                        {paymentMethod === 'points' && <IconCheck className="w-3 h-3 text-white" />}
-                      </div>
-                    </div>
-                  </button>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="px-5 pb-5 mt-5">
-                  <div className="border-t border-gray-200 pt-4">
-                    <div className="flex gap-3">
-                      <button
-                        onClick={closeModal}
-                        className="w-[35%] py-4 rounded-xl border border-gray-200 text-base font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-all duration-200 active:scale-[0.98]"
-                      >
-                        취소
-                      </button>
-                      <button
-                        onClick={handleConfirmPurchase}
-                        disabled={
-                          purchasing ||
-                          (paymentMethod === 'points' && insufficientPoints)
-                        }
-                        className="flex-1 py-4 rounded-xl bg-gray-900 text-white text-base font-bold hover:bg-gray-800 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-[0.98]"
-                      >
-                        {purchasing ? (
-                          <>
-                            <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                            </svg>
-                            처리 중...
-                          </>
-                        ) : (
-                          <>
-                            <IconShoppingBag className="w-4 h-4" />
-                            결제하기
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Modal Animation Styles */}
-      <style jsx>{`
-        @keyframes modalIn {
-          from {
-            opacity: 0;
-            transform: scale(0.95) translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-          }
-        }
-        @keyframes bounceIn {
-          0% {
-            opacity: 0;
-            transform: scale(0.3);
-          }
-          50% {
-            transform: scale(1.1);
-          }
-          70% {
-            transform: scale(0.9);
-          }
-          100% {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-      `}</style>
     </div>
   );
 }
