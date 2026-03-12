@@ -1,5 +1,6 @@
 // localStorage-based data store for PLES Platform
-// All data persists in localStorage, initialized from mock-data on first load
+// Shared data (admin-managed) syncs with server JSON file via /api/store
+// User-specific data stays in localStorage only
 
 import {
   artists as defaultArtists,
@@ -29,6 +30,44 @@ function getItem<T>(key: string, fallback: T): T {
 
 function setItem<T>(key: string, value: T) {
   localStorage.setItem(key, JSON.stringify(value));
+}
+
+// ============ Server sync ============
+
+// Map localStorage keys → server JSON keys (only shared/admin data)
+const SERVER_KEY_MAP: Record<string, string> = {
+  ples_artists: 'artists',
+  ples_votes: 'votes',
+  ples_artworks: 'artworks',
+  ples_videos: 'videos',
+  ples_banners: 'banners',
+  ples_charge_rate: 'chargeRate',
+};
+
+function syncToServer(localKey: string, value: any) {
+  const serverKey = SERVER_KEY_MAP[localKey];
+  if (!serverKey) return;
+  fetch('/api/store', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ key: serverKey, value }),
+  }).catch(() => {});
+}
+
+export async function syncFromServer(): Promise<void> {
+  try {
+    const res = await fetch('/api/store');
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.artists) setItem('ples_artists', data.artists);
+    if (data.votes) setItem('ples_votes', data.votes);
+    if (data.artworks) setItem('ples_artworks', data.artworks);
+    if (data.videos) setItem('ples_videos', data.videos);
+    if (data.banners) setItem('ples_banners', data.banners);
+    if (data.chargeRate !== undefined) setItem('ples_charge_rate', data.chargeRate);
+  } catch {
+    // Fallback to existing localStorage data
+  }
 }
 
 // ============ Keys ============
@@ -85,6 +124,7 @@ export function getArtists(): Artist[] {
 
 export function setArtists(artists: Artist[]) {
   setItem(KEYS.ARTISTS, artists);
+  syncToServer(KEYS.ARTISTS, artists);
 }
 
 export function getArtist(id: number): Artist | undefined {
@@ -138,6 +178,7 @@ export function getVotes(): Vote[] {
 
 export function setVotes(votes: Vote[]) {
   setItem(KEYS.VOTES, votes);
+  syncToServer(KEYS.VOTES, votes);
 }
 
 export function addVote(vote: Omit<Vote, 'id'>) {
@@ -201,6 +242,7 @@ export function getArtworks(): Artwork[] {
 
 export function setArtworks(artworks: Artwork[]) {
   setItem(KEYS.ARTWORKS, artworks);
+  syncToServer(KEYS.ARTWORKS, artworks);
 }
 
 export function addArtwork(artwork: Omit<Artwork, 'id'>) {
@@ -273,6 +315,7 @@ export function getVideos(): Video[] {
 
 export function setVideos(videos: Video[]) {
   setItem(KEYS.VIDEOS, videos);
+  syncToServer(KEYS.VIDEOS, videos);
 }
 
 export function addVideo(video: Omit<Video, 'id'>) {
@@ -396,6 +439,7 @@ export function getChargeRate(): number {
 
 export function setChargeRate(rate: number) {
   setItem(KEYS.CHARGE_RATE, rate);
+  syncToServer(KEYS.CHARGE_RATE, rate);
 }
 
 // ============ Admin helpers ============
@@ -422,6 +466,7 @@ export function getActiveBanners(): Banner[] {
 
 export function setBanners(banners: Banner[]) {
   setItem(KEYS.BANNERS, banners);
+  syncToServer(KEYS.BANNERS, banners);
 }
 
 export function addBanner(banner: Omit<Banner, 'id'>) {

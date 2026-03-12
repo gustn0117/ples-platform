@@ -39,6 +39,18 @@ export default function VideosPage() {
     initStore();
     refreshData();
     setLoading(false);
+
+    // Refresh data when tab regains focus or localStorage changes from another tab
+    const handleFocus = () => refreshData();
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'ples_videos' || e.key === null) refreshData();
+    };
+    window.addEventListener('focus', handleFocus);
+    window.addEventListener('storage', handleStorage);
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('storage', handleStorage);
+    };
   }, [refreshData]);
 
   // Countdown timer
