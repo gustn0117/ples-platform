@@ -69,7 +69,21 @@ export default function Home() {
       .map((a) => ({ id: String(a.id), name: a.name, genre: a.genre, likes: a.likes }));
     setHotArtists(top5);
     setArtistsLoading(false);
-    setBanners(getActiveBanners());
+
+    // Fetch banners directly from server to avoid localStorage size limits
+    fetch('/api/store')
+      .then((res) => res.json())
+      .then((data) => {
+        const allBanners: Banner[] = data.banners ?? [];
+        const active = allBanners
+          .filter((b) => b.isActive)
+          .sort((a, b) => a.order - b.order);
+        setBanners(active);
+      })
+      .catch(() => {
+        // Fallback to localStorage
+        setBanners(getActiveBanners());
+      });
   }, []);
 
   // Total pages (2 banners per page)
