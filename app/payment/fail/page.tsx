@@ -1,9 +1,14 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 export default function PaymentFailPage() {
+  return <Suspense fallback={<div className="min-h-screen bg-white" />}><PaymentFailContent /></Suspense>
+}
+
+function PaymentFailContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
 

@@ -1,12 +1,16 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import { TOSS_CLIENT_KEY } from '@/lib/toss'
 import { IconShoppingBag } from '@/components/icons'
 
 export default function CheckoutPage() {
+  return <Suspense fallback={<div className="min-h-screen bg-white" />}><CheckoutContent /></Suspense>
+}
+
+function CheckoutContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { user } = useAuth()

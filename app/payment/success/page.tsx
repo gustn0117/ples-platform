@@ -1,11 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { chargePoints, addPoints, getUserPurchases, getUserPoints } from '@/lib/store'
 import { useAuth } from '@/lib/auth-context'
 import { IconCheck, IconShoppingBag, IconCoin } from '@/components/icons'
+
+export default function PaymentSuccessPage() {
+  return <Suspense fallback={<div className="min-h-screen bg-white" />}><PaymentSuccessContent /></Suspense>
+}
 
 interface ConfirmResult {
   success: boolean
@@ -20,7 +24,7 @@ interface ConfirmResult {
   error?: string
 }
 
-export default function PaymentSuccessPage() {
+function PaymentSuccessContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { user } = useAuth()
