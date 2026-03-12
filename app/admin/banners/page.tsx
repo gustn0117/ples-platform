@@ -117,7 +117,7 @@ export default function AdminBannersPage() {
     if (editingId !== null) {
       updatedBanners = banners.map((b) => (b.id === editingId ? { ...b, ...bannerData } : b))
     } else {
-      const newId = banners.length > 0 ? Math.max(...banners.map((b) => b.id)) + 1 : 1
+      const newId = Date.now()
       updatedBanners = [...banners, { ...bannerData, id: newId } as Banner]
     }
 

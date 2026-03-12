@@ -132,7 +132,7 @@ export default function AdminArtworksPage() {
     if (editingId !== null) {
       updated = artworks.map((a) => (a.id === editingId ? { ...a, ...data } : a))
     } else {
-      const newId = artworks.length > 0 ? Math.max(...artworks.map((a) => a.id)) + 1 : 1
+      const newId = Date.now()
       updated = [...artworks, { ...data, id: newId, soldOut: false } as Artwork]
     }
 

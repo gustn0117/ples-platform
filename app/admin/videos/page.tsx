@@ -95,7 +95,7 @@ export default function AdminVideosPage() {
     if (editingId !== null) {
       updated = videos.map((v) => (v.id === editingId ? { ...v, ...videoData } : v))
     } else {
-      const newId = videos.length > 0 ? Math.max(...videos.map((v) => v.id)) + 1 : 1
+      const newId = Date.now()
       updated = [...videos, { ...videoData, id: newId, watched: false } as Video]
     }
 

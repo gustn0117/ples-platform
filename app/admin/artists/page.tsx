@@ -87,7 +87,7 @@ export default function AdminArtistsPage() {
     if (editingId !== null) {
       updated = artists.map((a) => (a.id === editingId ? { ...a, ...artistData } : a))
     } else {
-      const newId = artists.length > 0 ? Math.max(...artists.map((a) => a.id)) + 1 : 1
+      const newId = Date.now()
       updated = [...artists, { ...artistData, id: newId, likes: 0 } as Artist]
     }
 

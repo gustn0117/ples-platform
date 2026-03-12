@@ -142,7 +142,7 @@ export default function AdminVotesPage() {
     if (editingId !== null) {
       updated = votes.map((v) => (v.id === editingId ? { ...v, ...voteData } : v))
     } else {
-      const newId = votes.length > 0 ? Math.max(...votes.map((v) => v.id)) + 1 : 1
+      const newId = Date.now()
       updated = [...votes, { ...voteData, id: newId, isActive: true } as Vote]
     }
 
