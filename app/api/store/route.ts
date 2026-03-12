@@ -23,6 +23,9 @@ const DEFAULTS: Record<string, any> = {
 export async function GET() {
   let data = readServerStore();
   if (!data) {
+    // Only write defaults if store.json truly doesn't exist (first run)
+    // readServerStore already tries backup recovery, so if we're here
+    // it means both main and backup are gone
     data = { ...DEFAULTS };
     writeServerStore(data);
   }
