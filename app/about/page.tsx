@@ -2,20 +2,30 @@ export default function AboutPage() {
   return (
     <div className="bg-white">
       {/* Hero */}
-      <section className="py-28 sm:py-36">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+      <section className="relative py-28 sm:py-36 overflow-hidden">
+        {/* Background image */}
+        <div className="absolute inset-0">
+          <img
+            src="/KakaoTalk_Photo_2026-03-12-20-37-09.jpeg"
+            alt=""
+            className="w-full h-full object-cover object-top"
+          />
+          <div className="absolute inset-0 bg-white/85 backdrop-blur-sm" />
+        </div>
+
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
           <h1 className="text-7xl sm:text-8xl font-bold text-gray-900 tracking-tighter mb-4">
             PLES
           </h1>
-          <p className="text-xl sm:text-2xl text-gray-400 font-medium tracking-wide">
+          <p className="text-xl sm:text-2xl text-gray-500 font-medium tracking-wide">
             이상을 현실로 구현하는 창조적 허브
           </p>
           <div className="mt-12 flex items-center justify-center gap-3">
-            <div className="w-12 h-px bg-gray-200" />
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="text-gray-300">
+            <div className="w-12 h-px bg-gray-300" />
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="text-gray-400">
               <path d="M10 2l2.09 6.26L18 10l-5.91 1.74L10 18l-2.09-6.26L2 10l5.91-1.74L10 2z" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            <div className="w-12 h-px bg-gray-200" />
+            <div className="w-12 h-px bg-gray-300" />
           </div>
         </div>
       </section>
