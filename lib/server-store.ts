@@ -2,18 +2,27 @@ import { createServiceClient } from './supabase-server'
 
 const TABLE = 'store'
 
-export async function readServerStore(): Promise<Record<string, any> | null> {
+// Returns { data, error } instead of null — so callers can distinguish
+// "DB has no data" from "DB connection failed"
+export async function readServerStore(): Promise<{ data: Record<string, any> | null; error: boolean }> {
   try {
     const supabase = createServiceClient()
     const { data, error } = await supabase.from(TABLE).select('key, value')
-    if (error || !data || data.length === 0) return null
+    if (error) {
+      console.error('[readServerStore] Supabase error:', error)
+      return { data: null, error: true }
+    }
+    if (!data || data.length === 0) {
+      return { data: null, error: false } // DB is empty, not an error
+    }
     const result: Record<string, any> = {}
     for (const row of data) {
       result[row.key] = row.value
     }
-    return result
-  } catch {
-    return null
+    return { data: result, error: false }
+  } catch (e) {
+    console.error('[readServerStore] Connection error:', e)
+    return { data: null, error: true }
   }
 }
 

@@ -21,12 +21,26 @@ const DEFAULTS: Record<string, any> = {
 };
 
 export async function GET() {
-  let data = await readServerStore();
-  if (!data) {
-    data = { ...DEFAULTS };
-    await writeServerStore(data);
+  const result = await readServerStore();
+
+  if (result.error) {
+    // DB connection failed — return defaults for display but NEVER overwrite DB
+    console.warn('[GET /api/store] DB read failed, returning defaults (not writing to DB)');
+    return NextResponse.json({ ...DEFAULTS }, {
+      headers: { 'Cache-Control': 'no-store' },
+    });
   }
-  return NextResponse.json(data, {
+
+  if (!result.data) {
+    // DB is genuinely empty (first-ever run) — initialize with defaults
+    const data = { ...DEFAULTS };
+    await writeServerStore(data);
+    return NextResponse.json(data, {
+      headers: { 'Cache-Control': 'no-store' },
+    });
+  }
+
+  return NextResponse.json(result.data, {
     headers: { 'Cache-Control': 'no-store' },
   });
 }
