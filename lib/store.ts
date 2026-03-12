@@ -301,7 +301,9 @@ export function setVideos(videos: Video[]) {
 }
 
 export function getUserWatched(): number[] {
-  return getItem(KEYS.USER_WATCHED, []);
+  const watched: number[] = getItem(KEYS.USER_WATCHED, []);
+  const videoIds = new Set(getVideos().map((v) => v.id));
+  return watched.filter((id) => videoIds.has(id));
 }
 
 export function getTodayWatchCount(): number {
