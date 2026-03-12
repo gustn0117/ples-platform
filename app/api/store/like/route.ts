@@ -1,0 +1,34 @@
+import { NextResponse } from 'next/server';
+import { readServerStore, writeServerStore } from '@/lib/server-store';
+import { artists as defaultArtists, type Artist } from '@/lib/mock-data';
+
+export const dynamic = 'force-dynamic';
+
+// Lightweight endpoint for like/unlike — only sends { artistId, delta: +1 | -1 }
+// Avoids sending the entire artists array (which can include large base64 images)
+export async function POST(request: Request) {
+  try {
+    const { artistId, delta } = await request.json();
+    if (typeof artistId !== 'number' || (delta !== 1 && delta !== -1)) {
+      return NextResponse.json({ error: 'invalid params' }, { status: 400 });
+    }
+
+    const data = readServerStore() || { artists: defaultArtists };
+    const artists: Artist[] = data.artists || defaultArtists;
+
+    const updated = artists.map((a) => {
+      if (a.id === artistId) {
+        return { ...a, likes: Math.max(0, a.likes + delta) };
+      }
+      return a;
+    });
+
+    data.artists = updated;
+    writeServerStore(data);
+
+    const artist = updated.find((a) => a.id === artistId);
+    return NextResponse.json({ success: true, likes: artist?.likes ?? 0 });
+  } catch {
+    return NextResponse.json({ error: 'server error' }, { status: 500 });
+  }
+}

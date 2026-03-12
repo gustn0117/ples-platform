@@ -67,23 +67,7 @@ export async function syncFromServer(): Promise<void> {
     if (!res.ok) return;
     const data = await res.json();
     // Always overwrite localStorage with server data (server is the source of truth)
-    let artists: Artist[] = data.artists ?? defaultArtists;
-
-    // Reconcile: ensure likes count reflects this user's liked state
-    // If user liked an artist but server shows 0 likes, the sync was lost — fix it
-    const userLiked: number[] = getItem('ples_user_liked', []);
-    if (userLiked.length > 0) {
-      artists = artists.map((a) => {
-        if (userLiked.includes(a.id) && a.likes < 1) {
-          return { ...a, likes: 1 };
-        }
-        return a;
-      });
-      // Sync corrected data back to server
-      syncToServer('ples_artists', artists);
-    }
-
-    setItem('ples_artists', artists);
+    setItem('ples_artists', data.artists ?? defaultArtists);
     setItem('ples_votes', data.votes ?? defaultVotes);
     setItem('ples_artworks', data.artworks ?? defaultArtworks);
     setItem('ples_videos', data.videos ?? defaultVideos);
@@ -181,6 +165,17 @@ export function getUserLiked(): number[] {
   return getItem(KEYS.USER_LIKED, []);
 }
 
+// Lightweight server sync for likes — only sends { artistId, delta }
+// instead of the entire artists array (which can include large base64 images)
+function syncLikeToServer(artistId: number, delta: 1 | -1) {
+  fetch('/api/store/like', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ artistId, delta }),
+    keepalive: true,
+  }).catch((e) => console.error('[syncLike] error:', e));
+}
+
 export function toggleLike(artistId: number): boolean {
   const liked = getUserLiked();
   const artists = getArtists();
@@ -190,15 +185,14 @@ export function toggleLike(artistId: number): boolean {
   if (isLiked) {
     setItem(KEYS.USER_LIKED, liked.filter((id) => id !== artistId));
     updatedArtists = artists.map((a) => (a.id === artistId ? { ...a, likes: Math.max(0, a.likes - 1) } : a));
+    syncLikeToServer(artistId, -1);
   } else {
     setItem(KEYS.USER_LIKED, [...liked, artistId]);
     updatedArtists = artists.map((a) => (a.id === artistId ? { ...a, likes: a.likes + 1 } : a));
+    syncLikeToServer(artistId, 1);
   }
 
   setItem(KEYS.ARTISTS, updatedArtists);
-  // Sync to server in background (don't block UI)
-  syncToServer(KEYS.ARTISTS, updatedArtists);
-
   return !isLiked;
 }
 
