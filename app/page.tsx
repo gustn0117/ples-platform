@@ -150,7 +150,7 @@ export default function Home() {
                   <Wrapper
                     key={banner.id}
                     {...(wrapperProps as any)}
-                    className="group relative rounded-2xl overflow-hidden p-7 sm:p-8 min-h-[160px] sm:min-h-[180px] flex flex-col justify-end transition-all duration-500 hover:shadow-xl hover:-translate-y-0.5 cursor-pointer animate-fade-in-up"
+                    className="group relative rounded-2xl overflow-hidden p-7 sm:p-9 min-h-[200px] sm:min-h-[240px] flex flex-col justify-end transition-all duration-500 hover:shadow-xl hover:-translate-y-0.5 cursor-pointer animate-fade-in-up"
                     style={{ backgroundColor: banner.bgColor }}
                   >
                     {/* Subtle pattern overlay */}
