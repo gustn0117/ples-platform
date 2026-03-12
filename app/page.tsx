@@ -55,6 +55,7 @@ export default function Home() {
   const [artistsLoading, setArtistsLoading] = useState(true);
   const [banners, setBanners] = useState<Banner[]>([]);
   const [bannerPage, setBannerPage] = useState(0);
+  const [bannerFade, setBannerFade] = useState(true);
 
   const featuresSection = useFadeInOnScroll();
   const hotSection = useFadeInOnScroll();
@@ -75,14 +76,22 @@ export default function Home() {
   // Total pages (2 banners per page)
   const totalBannerPages = Math.ceil(banners.length / 2);
 
-  // Auto-rotate banners every 5 seconds
+  // Auto-rotate banners with fade transition
+  const changeBannerPage = useCallback((next: number) => {
+    setBannerFade(false);
+    setTimeout(() => {
+      setBannerPage(next);
+      setBannerFade(true);
+    }, 300);
+  }, []);
+
   useEffect(() => {
     if (totalBannerPages <= 1) return;
     const interval = setInterval(() => {
-      setBannerPage((prev) => (prev + 1) % totalBannerPages);
+      changeBannerPage((bannerPage + 1) % totalBannerPages);
     }, 5000);
     return () => clearInterval(interval);
-  }, [totalBannerPages]);
+  }, [totalBannerPages, bannerPage, changeBannerPage]);
 
   const currentBanners = banners.slice(bannerPage * 2, bannerPage * 2 + 2);
 
@@ -146,7 +155,10 @@ export default function Home() {
         {banners.length > 0 && (
           <div className="relative z-20 pt-6 pb-2">
             <div className="max-w-7xl mx-auto px-6 sm:px-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div
+                className="grid grid-cols-1 md:grid-cols-2 gap-4 transition-all duration-500 ease-in-out"
+                style={{ opacity: bannerFade ? 1 : 0, transform: bannerFade ? 'translateY(0)' : 'translateY(8px)' }}
+              >
                 {currentBanners.map((banner) => {
                   const isLight = banner.textColor === 'light';
                   const Wrapper = banner.link ? Link : 'div';
@@ -199,7 +211,7 @@ export default function Home() {
                   {Array.from({ length: totalBannerPages }).map((_, i) => (
                     <button
                       key={i}
-                      onClick={() => setBannerPage(i)}
+                      onClick={() => changeBannerPage(i)}
                       className={`h-1.5 rounded-full transition-all duration-300 ${
                         i === bannerPage ? 'w-6 bg-gray-900' : 'w-1.5 bg-gray-200 hover:bg-gray-400'
                       }`}
