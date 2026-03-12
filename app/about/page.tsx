@@ -1,9 +1,11 @@
 export default function AboutPage() {
   const teamMembers = [
-    { name: 'June', role: 'K-pop Music Producer', desc: '글로벌 음악 프로젝트 및 사운드 디렉팅 총괄', color: 'bg-violet-100 text-violet-600' },
     { name: 'Lee', role: 'Art Director', desc: '전시 및 비주얼 아트, 문화 콘텐츠 기획 리더', color: 'bg-rose-100 text-rose-600' },
+    { name: 'June', role: 'K-pop Music Producer', desc: '글로벌 음악 프로젝트 및 사운드 디렉팅 총괄', color: 'bg-violet-100 text-violet-600' },
     { name: 'Jung', role: 'IT Specialist', desc: '플랫폼 고도화 및 기술 시스템 구축 전문가', color: 'bg-blue-100 text-blue-600' },
     { name: 'Hong', role: 'Film PD', desc: '고감도 영상 콘텐츠 프로덕션 디렉터', color: 'bg-amber-100 text-amber-600' },
+    { name: 'Hyo', role: 'Influencer Leader', desc: '미스코리아 & 인플루언서 관리', color: 'bg-pink-100 text-pink-600' },
+    { name: 'Seung', role: 'Shooting PD', desc: '촬영 기술 리더', color: 'bg-indigo-100 text-indigo-600' },
     { name: 'Aitonia', role: 'AI PD', desc: 'AI 기반 콘텐츠 및 디지털 휴먼 프로젝트 총괄', color: 'bg-emerald-100 text-emerald-600' },
     { name: 'Grimdal', role: 'AI Creator', desc: '생성형 AI 영상 및 디지털 비주얼 크리에이터', color: 'bg-cyan-100 text-cyan-600' },
     { name: 'Um', role: 'Writer', desc: '문학도 출신의 시나리오 작가', color: 'bg-orange-100 text-orange-600' },
@@ -29,7 +31,7 @@ export default function AboutPage() {
     { icon: '🎵', label: 'Global K-pop Projects' },
     { icon: '🤖', label: 'AI-Driven Content' },
     { icon: '🎨', label: 'Digital Art & Exhibition' },
-    { icon: '🎬', label: 'Animation & Cinematic' },
+    { icon: '🎬', label: 'Animation & Cinematic & Commercial' },
     { icon: '👤', label: 'Digital Human' },
     { icon: '🌏', label: 'Global Cultural Initiatives' },
   ];
@@ -75,7 +77,7 @@ export default function AboutPage() {
               K-pop부터 디지털 아트, AI 콘텐츠, 영상 제작, 그리고 글로벌 엔터테인먼트 프로젝트까지. PLES는 경계 없는 융합을 통해 차세대 문화 플랫폼의 기준을 제시합니다.
             </p>
             <p>
-              더 나아가 &ldquo;우리가 만드는 월드 아티스트&rdquo;라는 슬로건 아래 <span className="font-semibold text-gray-800 underline underline-offset-4 decoration-gray-300">ples.world</span> 사이트를 통해 이 플랫폼을 활용하는 모든 분들께 혜택을 드리는 서비스를 제공하고 있습니다.
+              더 나아가 &ldquo;우리가 만드는 월드 아티스트&rdquo;라는 슬로건을 걸고 <span className="font-semibold text-gray-800 underline underline-offset-4 decoration-gray-300">ples.world</span>라는 사이트를 개발함으로서 이 플랫폼을 활용하는 모든 분들께 혜택을 드리는 서비스를 제공하게 되었습니다.
             </p>
           </div>
         </div>
@@ -106,7 +108,7 @@ export default function AboutPage() {
                   유리아 대표는 형이상학을 강조한 플라톤과 형이하학을 강조한 아리스토텔레스 이름에서 각각 앞글자와 뒷글자를 따와 사명을 지었습니다. 예술적 감각과 첨단 기술의 조화를 통해 새로운 문화적 문법을 제시하기 위함이었습니다.
                 </p>
                 <p>
-                  &lt;Cheer up Star&gt; 애니메이션 등의 콘텐츠 기획과 글로벌 전시 프로젝트를 필두로, 창작자와 기술, 그리고 대중이 유기적으로 소통하는 혁신적인 창작 생태계를 구축해 나가고 있습니다.
+                  &lt;Cheer up Star&gt;라는 애니메이션 등의 콘텐츠 기획과 글로벌 전시 프로젝트를 필두로, 창작자와 기술, 그리고 대중이 유기적으로 소통하는 혁신적인 창작 생태계를 구축해 나가고 있습니다. 우리는 예술이 단순한 표현을 넘어 삶과 세계를 변화시키는 강력한 동력이 될 것이라 확신합니다.
                 </p>
               </div>
             </div>
@@ -213,10 +215,10 @@ export default function AboutPage() {
             예술이 단순한 표현을 넘어<br />삶과 세계를 변화시키는 강력한 동력
           </h2>
           <p className="text-gray-500 leading-relaxed text-[17px] mb-4 max-w-2xl mx-auto">
-            기술이 심화될수록 대중은 더 깊은 서사와 본질적인 감동을 갈망합니다. PLES는 예술과 기술의 완벽한 결합을 통해 시대를 앞서가는 문화 경험을 설계합니다.
+            기술이 심화될수록 대중은 더 깊은 서사와 본질적인 감동을 갈망합니다. PLES는 예술과 기술의 완벽한 결합을 통해 시대를 앞서가는 문화 경험을 설계합니다. 우리는 지금, 그 찬란한 미래를 현실로 만들고 있습니다.
           </p>
           <p className="text-gray-500 leading-relaxed text-[17px] max-w-2xl mx-auto">
-            소속 아티스트와의 협업 또는 플레스 팀원과의 협업 문의는 언제든지 환영합니다.
+            소속 아티스트와의 협업 또는 플레스 팀원과의 협업문의는 언제든지 환영합니다. 감사합니다.
           </p>
           <div className="mt-10">
             <a
@@ -228,6 +230,23 @@ export default function AboutPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M12 5l7 7-7 7" />
               </svg>
             </a>
+          </div>
+        </div>
+      </section>
+
+      {/* Partners */}
+      <section className="py-16 border-t border-gray-100">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-1 h-8 rounded-full bg-gray-900" />
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Partners</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-6">
+            {['대한민국축구협회', '서울옥션블루'].map((partner) => (
+              <div key={partner} className="px-8 py-5 rounded-2xl border border-gray-100 bg-white hover:shadow-sm transition-shadow">
+                <p className="text-sm font-semibold text-gray-800">{partner}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
