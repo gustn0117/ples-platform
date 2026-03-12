@@ -51,7 +51,6 @@ export function syncToServer(localKey: string, value: any): Promise<boolean> {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ key: serverKey, value }),
-    keepalive: true, // ensure request completes even during page refresh/navigation
   }).then((res) => {
     if (!res.ok) console.error(`[syncToServer] ${serverKey} failed: ${res.status}`);
     return res.ok;
