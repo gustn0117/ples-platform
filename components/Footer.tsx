@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
 
 const SERVICE_LINKS = [
@@ -19,76 +18,12 @@ const SUPPORT_LINKS = [
 ]
 
 export default function Footer() {
-  const [email, setEmail] = useState('')
-  const [subscribed, setSubscribed] = useState(false)
-
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (email.trim()) {
-      setSubscribed(true)
-      setEmail('')
-      setTimeout(() => setSubscribed(false), 3000)
-    }
-  }
-
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   return (
     <footer className="relative bg-gray-50/50 border-t border-gray-100">
-
-      {/* Newsletter / CTA Section */}
-      <div className="border-b border-gray-200/60">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
-          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
-            <div className="max-w-md">
-              <h3 className="text-lg font-bold text-gray-900 tracking-tight">
-                PLES 소식을 받아보세요
-              </h3>
-              <p className="mt-2 text-sm text-gray-400 leading-relaxed">
-                새로운 아티스트, 투표 이벤트, 갤러리 소식을 가장 먼저 만나보세요.
-              </p>
-            </div>
-            <form onSubmit={handleSubscribe} className="flex w-full lg:w-auto gap-2">
-              <div className="relative flex-1 lg:w-72 input-gradient-focus-wrapper">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="이메일 주소"
-                  className="w-full rounded-xl border border-transparent bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none transition-all duration-200 relative z-[1]"
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                className="shrink-0 rounded-xl bg-gray-900 px-6 py-3 text-sm font-medium text-white hover:bg-black hover:shadow-lg hover:shadow-black/10 hover:-translate-y-px transition-all duration-300 overflow-hidden relative group"
-                style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
-              >
-                <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <span className="relative flex items-center gap-2">
-                  {subscribed ? (
-                    <span className="flex items-center gap-1.5 animate-check-scale">
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                      </svg>
-                      완료!
-                    </span>
-                  ) : (
-                    <>
-                      <svg className="w-4 h-4 envelope-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-                      </svg>
-                      구독하기
-                    </>
-                  )}
-                </span>
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
