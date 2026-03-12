@@ -108,7 +108,7 @@ export default function Footer() {
               </div>
             </Link>
             <p className="mt-3 text-sm text-gray-400 leading-relaxed">
-              프로듀서가 만드는 국가대표 아티스트
+              우리가 만드는<br />월드 아티스트
             </p>
 
             {/* Social icons - with tooltips and stagger */}
@@ -219,7 +219,7 @@ export default function Footer() {
 
             <div className="flex items-center gap-4">
               <p className="text-xs text-gray-300 tracking-wide">
-                프로듀서가 만드는 국가대표 아티스트
+                우리가 만드는 월드 아티스트
               </p>
 
               {/* Back to top button */}

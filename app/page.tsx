@@ -230,7 +230,7 @@ export default function Home() {
                   <span className="absolute inset-0 rounded-full bg-gray-900 ring-pulse" />
                 </span>
                 <span className="text-xs font-semibold text-gray-600 tracking-wider uppercase">
-                  프로듀서가 만드는 국가대표 아티스트
+                  우리가 만드는 월드 아티스트
                 </span>
               </div>
 
@@ -245,10 +245,10 @@ export default function Home() {
                   }}
                 />
                 <h1 className="relative text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight text-gray-900 leading-[1.1]">
-                  <span className="whitespace-nowrap">프로듀서가 만드는</span>
+                  <span className="whitespace-nowrap">우리가 만드는</span>
                   <br />
                   <span className="relative inline-block">
-                    <span className="whitespace-nowrap">국가대표 아티스트</span>
+                    <span className="whitespace-nowrap">월드 아티스트</span>
                     <svg className="absolute -bottom-2 left-0 w-full h-3 text-gray-300" viewBox="0 0 200 12" preserveAspectRatio="none">
                       <path d="M0 8 Q50 0, 100 8 Q150 16, 200 8" stroke="currentColor" strokeWidth="3" fill="none" />
                     </svg>

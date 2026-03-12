@@ -202,7 +202,7 @@ export default function LoginPage() {
 
           {/* Tagline */}
           <h2 className="text-3xl xl:text-4xl font-bold text-white tracking-tight leading-tight">
-            <span className="whitespace-nowrap">프로듀서가 만드는</span>
+            <span className="whitespace-nowrap">우리가 만드는</span>
             <br />
             <span
               className="inline-block whitespace-nowrap"
@@ -215,7 +215,7 @@ export default function LoginPage() {
                 animation: 'tagline-gradient-flow 6s ease infinite',
               }}
             >
-              국가대표 아티스트
+              월드 아티스트
             </span>
           </h2>
           <p className="mt-5 text-gray-500 text-sm leading-relaxed max-w-sm">
