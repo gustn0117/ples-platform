@@ -38,30 +38,13 @@ function setItem<T>(key: string, value: T) {
 
 // ============ Server sync ============
 
-// Map localStorage keys → server JSON keys (only shared/admin data)
-const SERVER_KEY_MAP: Record<string, string> = {
-  ples_artists: 'artists',
-  ples_votes: 'votes',
-  ples_artworks: 'artworks',
-  ples_videos: 'videos',
-  ples_banners: 'banners',
-  ples_charge_rate: 'chargeRate',
-};
-
-export function syncToServer(localKey: string, value: any): Promise<boolean> {
-  const serverKey = SERVER_KEY_MAP[localKey];
-  if (!serverKey) return Promise.resolve(false);
-  return fetch('/api/store', {
+// Sync specific key to server (fire-and-forget, lightweight data only)
+function syncKeyToServer(serverKey: string, value: any) {
+  fetch('/api/store', {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ key: serverKey, value }),
-  }).then((res) => {
-    if (!res.ok) console.error(`[syncToServer] ${serverKey} failed: ${res.status}`);
-    return res.ok;
-  }).catch((e) => {
-    console.error(`[syncToServer] ${serverKey} error:`, e);
-    return false;
-  });
+  }).catch((e) => console.error(`[syncKey] ${serverKey} error:`, e));
 }
 
 export async function syncFromServer(): Promise<void> {
@@ -77,7 +60,7 @@ export async function syncFromServer(): Promise<void> {
     setItem('ples_banners', data.banners ?? defaultBanners);
     setItem('ples_charge_rate', data.chargeRate ?? 1.2);
   } catch {
-    // If server is unreachable, use defaults if localStorage is empty
+    // If server is unreachable, ensure localStorage has at least defaults
     if (!localStorage.getItem('ples_videos')) setItem('ples_videos', defaultVideos);
     if (!localStorage.getItem('ples_artists')) setItem('ples_artists', defaultArtists);
     if (!localStorage.getItem('ples_votes')) setItem('ples_votes', defaultVotes);
@@ -144,23 +127,6 @@ export function getArtist(id: number): Artist | undefined {
   return getArtists().find((a) => a.id === id);
 }
 
-export function addArtist(artist: Omit<Artist, 'id'>) {
-  const artists = getArtists();
-  const newId = artists.length > 0 ? Math.max(...artists.map((a) => a.id)) + 1 : 1;
-  artists.push({ ...artist, id: newId });
-  setArtists(artists);
-  return newId;
-}
-
-export function updateArtist(id: number, data: Partial<Artist>) {
-  const artists = getArtists().map((a) => (a.id === id ? { ...a, ...data } : a));
-  setArtists(artists);
-}
-
-export function deleteArtist(id: number) {
-  setArtists(getArtists().filter((a) => a.id !== id));
-}
-
 // ============ Likes ============
 
 export function getUserLiked(): number[] {
@@ -168,7 +134,6 @@ export function getUserLiked(): number[] {
 }
 
 // Lightweight server sync for likes — only sends { artistId, delta }
-// instead of the entire artists array (which can include large base64 images)
 function syncLikeToServer(artistId: number, delta: 1 | -1) {
   fetch('/api/store/like', {
     method: 'POST',
@@ -208,22 +173,6 @@ export function setVotes(votes: Vote[]) {
   setItem(KEYS.VOTES, votes);
 }
 
-export function addVote(vote: Omit<Vote, 'id'>) {
-  const votes = getVotes();
-  const newId = votes.length > 0 ? Math.max(...votes.map((v) => v.id)) + 1 : 1;
-  votes.push({ ...vote, id: newId });
-  setVotes(votes);
-  return newId;
-}
-
-export function updateVote(id: number, data: Partial<Vote>) {
-  setVotes(getVotes().map((v) => (v.id === id ? { ...v, ...data } : v)));
-}
-
-export function deleteVote(id: number) {
-  setVotes(getVotes().filter((v) => v.id !== id));
-}
-
 export function getUserVoted(): Record<number, number> {
   return getItem(KEYS.USER_VOTED, {});
 }
@@ -251,6 +200,9 @@ export function castVote(voteId: number, optionId: number): { success: boolean; 
   });
   setVotes(updated);
 
+  // Sync vote counts to server so other users see the result
+  syncKeyToServer('votes', updated);
+
   // Record user vote
   voted[voteId] = optionId;
   setItem(KEYS.USER_VOTED, voted);
@@ -269,22 +221,6 @@ export function getArtworks(): Artwork[] {
 
 export function setArtworks(artworks: Artwork[]) {
   setItem(KEYS.ARTWORKS, artworks);
-}
-
-export function addArtwork(artwork: Omit<Artwork, 'id'>) {
-  const artworks = getArtworks();
-  const newId = artworks.length > 0 ? Math.max(...artworks.map((a) => a.id)) + 1 : 1;
-  artworks.push({ ...artwork, id: newId });
-  setArtworks(artworks);
-  return newId;
-}
-
-export function updateArtwork(id: number, data: Partial<Artwork>) {
-  setArtworks(getArtworks().map((a) => (a.id === id ? { ...a, ...data } : a)));
-}
-
-export function deleteArtwork(id: number) {
-  setArtworks(getArtworks().filter((a) => a.id !== id));
 }
 
 export function purchaseArtwork(
@@ -341,22 +277,6 @@ export function getVideos(): Video[] {
 
 export function setVideos(videos: Video[]) {
   setItem(KEYS.VIDEOS, videos);
-}
-
-export function addVideo(video: Omit<Video, 'id'>) {
-  const videos = getVideos();
-  const newId = videos.length > 0 ? Math.max(...videos.map((v) => v.id)) + 1 : 1;
-  videos.push({ ...video, id: newId });
-  setVideos(videos);
-  return newId;
-}
-
-export function updateVideo(id: number, data: Partial<Video>) {
-  setVideos(getVideos().map((v) => (v.id === id ? { ...v, ...data } : v)));
-}
-
-export function deleteVideo(id: number) {
-  setVideos(getVideos().filter((v) => v.id !== id));
 }
 
 export function getUserWatched(): number[] {
@@ -486,26 +406,6 @@ export function getActiveBanners(): Banner[] {
   return getBanners()
     .filter((b) => b.isActive)
     .sort((a, b) => a.order - b.order);
-}
-
-export function setBanners(banners: Banner[]) {
-  setItem(KEYS.BANNERS, banners);
-}
-
-export function addBanner(banner: Omit<Banner, 'id'>) {
-  const banners = getBanners();
-  const newId = banners.length > 0 ? Math.max(...banners.map((b) => b.id)) + 1 : 1;
-  banners.push({ ...banner, id: newId });
-  setBanners(banners);
-  return newId;
-}
-
-export function updateBanner(id: number, data: Partial<Banner>) {
-  setBanners(getBanners().map((b) => (b.id === id ? { ...b, ...data } : b)));
-}
-
-export function deleteBanner(id: number) {
-  setBanners(getBanners().filter((b) => b.id !== id));
 }
 
 // ============ Reset (for testing) ============
