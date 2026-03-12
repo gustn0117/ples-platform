@@ -52,7 +52,7 @@ export default function AdminArtistsPage() {
     reader.readAsDataURL(file)
   }
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!form.name || !form.genre) return alert('이름과 장르는 필수입니다.')
 
     const snsData = {
@@ -81,21 +81,20 @@ export default function AdminArtistsPage() {
       })
     }
 
-    const ok = await syncToServer('ples_artists', getArtists())
-    if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
-
     setModalOpen(false)
     reload()
+    syncToServer('ples_artists', getArtists()).then((ok) => {
+      if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
+    })
   }
 
-  const handleDelete = async (id: number, name: string) => {
+  const handleDelete = (id: number, name: string) => {
     if (!confirm(`"${name}" 아티스트를 삭제하시겠습니까?`)) return
     deleteArtistFromStore(id)
-
-    const ok = await syncToServer('ples_artists', getArtists())
-    if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
-
     reload()
+    syncToServer('ples_artists', getArtists()).then((ok) => {
+      if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
+    })
   }
 
   return (

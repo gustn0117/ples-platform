@@ -66,7 +66,7 @@ export default function AdminVideosPage() {
     reader.readAsDataURL(file)
   }
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!form.title) return alert('제목은 필수입니다.')
 
     const data = {
@@ -87,23 +87,20 @@ export default function AdminVideosPage() {
       })
     }
 
-    // Wait for server sync to complete
-    const ok = await syncToServer('ples_videos', getVideos())
-    if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
-
     setModalOpen(false)
     reload()
+    syncToServer('ples_videos', getVideos()).then((ok) => {
+      if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
+    })
   }
 
-  const handleDelete = async (id: number, title: string) => {
+  const handleDelete = (id: number, title: string) => {
     if (!confirm(`"${title}" 미디어를 삭제하시겠습니까?`)) return
     deleteVideoFromStore(id)
-
-    // Wait for server sync to complete
-    const ok = await syncToServer('ples_videos', getVideos())
-    if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
-
     reload()
+    syncToServer('ples_videos', getVideos()).then((ok) => {
+      if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
+    })
   }
 
   return (

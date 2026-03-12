@@ -104,7 +104,7 @@ export default function AdminVotesPage() {
     setOptions(updated)
   }
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!form.title) return alert('제목은 필수입니다.')
     const validOptions = options.filter((o) => o.label.trim())
     if (validOptions.length < 2) return alert('최소 2개의 선택지를 입력하세요.')
@@ -136,25 +136,26 @@ export default function AdminVotesPage() {
       })
     }
 
-    const ok = await syncToServer('ples_votes', getVotes())
-    if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
-
     setModalOpen(false)
     reload()
+    syncToServer('ples_votes', getVotes()).then((ok) => {
+      if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
+    })
   }
 
-  const toggleActive = async (id: number, current: boolean) => {
+  const toggleActive = (id: number, current: boolean) => {
     updateVote(id, { isActive: !current })
-    await syncToServer('ples_votes', getVotes())
     reload()
+    syncToServer('ples_votes', getVotes())
   }
 
-  const handleDelete = async (id: number, title: string) => {
+  const handleDelete = (id: number, title: string) => {
     if (!confirm(`"${title}" 투표를 삭제하시겠습니까?`)) return
     deleteVoteFromStore(id)
-    const ok = await syncToServer('ples_votes', getVotes())
-    if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
     reload()
+    syncToServer('ples_votes', getVotes()).then((ok) => {
+      if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
+    })
   }
 
   const getTotalVotes = (v: Vote) => v.options.reduce((sum, o) => sum + o.votes, 0)

@@ -80,7 +80,7 @@ export default function AdminBannersPage() {
     setModalOpen(true)
   }
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!form.title) return alert('제목은 필수입니다.')
 
     if (editingId !== null) {
@@ -107,25 +107,26 @@ export default function AdminBannersPage() {
       })
     }
 
-    const ok = await syncToServer('ples_banners', getBanners())
-    if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
-
     setModalOpen(false)
     reload()
+    syncToServer('ples_banners', getBanners()).then((ok) => {
+      if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
+    })
   }
 
-  const handleDelete = async (id: number, title: string) => {
+  const handleDelete = (id: number, title: string) => {
     if (!confirm(`"${title}" 배너를 삭제하시겠습니까?`)) return
     deleteBannerFromStore(id)
-    const ok = await syncToServer('ples_banners', getBanners())
-    if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
     reload()
+    syncToServer('ples_banners', getBanners()).then((ok) => {
+      if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
+    })
   }
 
-  const toggleActive = async (b: Banner) => {
+  const toggleActive = (b: Banner) => {
     updateBanner(b.id, { isActive: !b.isActive })
-    await syncToServer('ples_banners', getBanners())
     reload()
+    syncToServer('ples_banners', getBanners())
   }
 
   return (

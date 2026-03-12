@@ -98,7 +98,7 @@ export default function AdminArtworksPage() {
     reader.readAsDataURL(file)
   }
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!form.title || !form.artist) return alert('제목과 아티스트는 필수입니다.')
 
     const data = {
@@ -124,25 +124,26 @@ export default function AdminArtworksPage() {
       })
     }
 
-    const ok = await syncToServer('ples_artworks', getArtworks())
-    if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
-
     setModalOpen(false)
     reload()
+    syncToServer('ples_artworks', getArtworks()).then((ok) => {
+      if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
+    })
   }
 
-  const toggleSoldOut = async (id: number, current: boolean) => {
+  const toggleSoldOut = (id: number, current: boolean) => {
     updateArtwork(id, { soldOut: !current })
-    await syncToServer('ples_artworks', getArtworks())
     reload()
+    syncToServer('ples_artworks', getArtworks())
   }
 
-  const handleDelete = async (id: number, title: string) => {
+  const handleDelete = (id: number, title: string) => {
     if (!confirm(`"${title}" 작품을 삭제하시겠습니까?`)) return
     deleteArtworkFromStore(id)
-    const ok = await syncToServer('ples_artworks', getArtworks())
-    if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
     reload()
+    syncToServer('ples_artworks', getArtworks()).then((ok) => {
+      if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
+    })
   }
 
   const categoryIcon = (cat: string) => {
