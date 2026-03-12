@@ -8,6 +8,9 @@ import {
   banners as defaultBanners,
 } from '@/lib/mock-data';
 
+// Prevent Next.js from caching API responses
+export const dynamic = 'force-dynamic';
+
 const DEFAULTS: Record<string, any> = {
   artists: defaultArtists,
   votes: defaultVotes,
@@ -23,7 +26,9 @@ export async function GET() {
     data = { ...DEFAULTS };
     writeServerStore(data);
   }
-  return NextResponse.json(data);
+  return NextResponse.json(data, {
+    headers: { 'Cache-Control': 'no-store' },
+  });
 }
 
 export async function PUT(request: Request) {
