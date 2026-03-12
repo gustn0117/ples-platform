@@ -6,6 +6,7 @@ export interface Artist {
   likes: number;
   genre: string;
   description?: string;
+  imageData?: string; // base64 profile image
   sns?: { instagram?: string; youtube?: string; twitter?: string };
 }
 

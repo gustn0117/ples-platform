@@ -163,11 +163,15 @@ export default function ArtistsPage() {
                   {/* Avatar Area */}
                   <Link
                     href={`/artists/${artist.id}`}
-                    className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center cursor-pointer relative"
+                    className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center cursor-pointer relative overflow-hidden"
                   >
-                    <span className="group-hover:scale-110 transition-transform duration-300 text-gray-400">
-                      <ArtistIcon genre={artist.genre} className="w-12 h-12" />
-                    </span>
+                    {artist.imageData ? (
+                      <img src={artist.imageData} alt={artist.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    ) : (
+                      <span className="group-hover:scale-110 transition-transform duration-300 text-gray-400">
+                        <ArtistIcon genre={artist.genre} className="w-12 h-12" />
+                      </span>
+                    )}
                   </Link>
 
                   {/* Info */}

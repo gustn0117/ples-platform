@@ -85,10 +85,16 @@ export default function ArtistDetailPage() {
         </button>
 
         {/* Hero */}
-        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-12 text-center mb-8">
-          <span className="block mb-5 text-gray-400">
-            <ArtistIcon genre={artist.genre} className="w-24 h-24 mx-auto" />
-          </span>
+        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-12 text-center mb-8 relative overflow-hidden">
+          {artist.imageData ? (
+            <div className="w-28 h-28 rounded-full overflow-hidden mx-auto mb-5 border-4 border-white shadow-lg">
+              <img src={artist.imageData} alt={artist.name} className="w-full h-full object-cover" />
+            </div>
+          ) : (
+            <span className="block mb-5 text-gray-400">
+              <ArtistIcon genre={artist.genre} className="w-24 h-24 mx-auto" />
+            </span>
+          )}
           <h1 className="text-3xl font-bold text-gray-900 mb-2">{artist.name}</h1>
           <span className="inline-block text-sm text-gray-400 bg-white border border-gray-100 rounded-full px-4 py-1.5">
             {artist.genre}
