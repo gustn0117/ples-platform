@@ -1,7 +1,7 @@
 // app/admin/banners/page.tsx
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import {
   initStore,
   getBanners,
@@ -27,6 +27,28 @@ export default function AdminBannersPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [form, setForm] = useState(emptyForm)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith('image/')) {
+      alert('이미지 파일만 업로드 가능합니다.')
+      return
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      alert('이미지 크기는 2MB 이하만 가능합니다.')
+      return
+    }
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      const result = ev.target?.result as string
+      setForm((prev) => ({ ...prev, bgImage: result }))
+    }
+    reader.readAsDataURL(file)
+    // Reset input so the same file can be re-selected
+    e.target.value = ''
+  }
 
   const reload = () => setBanners(getBanners().sort((a, b) => a.order - b.order))
 
@@ -283,15 +305,50 @@ export default function AdminBannersPage() {
               </div>
 
               <div>
-                <label className="text-xs font-medium text-gray-500 mb-1.5 block">배경 이미지 URL (선택)</label>
+                <label className="text-xs font-medium text-gray-500 mb-1.5 block">배경 이미지 (선택)</label>
                 <input
-                  type="text"
-                  value={form.bgImage}
-                  onChange={(e) => setForm({ ...form, bgImage: e.target.value })}
-                  placeholder="https://example.com/image.jpg"
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400"
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
                 />
-                <p className="text-[11px] text-gray-400 mt-1">이미지를 설정하면 배경색 위에 이미지가 표시됩니다.</p>
+                {form.bgImage ? (
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="w-20 h-14 rounded-lg bg-cover bg-center border border-gray-200 shrink-0"
+                      style={{ backgroundImage: `url(${form.bgImage})` }}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-gray-500 truncate">이미지 등록됨</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, bgImage: '' })}
+                      className="shrink-0 px-3 py-1.5 text-xs text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                    >
+                      삭제
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="shrink-0 px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      변경
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full px-4 py-4 border-2 border-dashed border-gray-200 rounded-xl text-sm text-gray-400 hover:border-gray-300 hover:text-gray-500 transition-colors flex flex-col items-center gap-1.5"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                    </svg>
+                    클릭하여 이미지 업로드 (최대 2MB)
+                  </button>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
