@@ -29,7 +29,11 @@ function getItem<T>(key: string, fallback: T): T {
 }
 
 function setItem<T>(key: string, value: T) {
-  localStorage.setItem(key, JSON.stringify(value));
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (e) {
+    console.warn(`[setItem] localStorage full or error for ${key}:`, e);
+  }
 }
 
 // ============ Server sync ============
@@ -134,7 +138,6 @@ export function getArtists(): Artist[] {
 
 export function setArtists(artists: Artist[]) {
   setItem(KEYS.ARTISTS, artists);
-  syncToServer(KEYS.ARTISTS, artists);
 }
 
 export function getArtist(id: number): Artist | undefined {
@@ -203,7 +206,6 @@ export function getVotes(): Vote[] {
 
 export function setVotes(votes: Vote[]) {
   setItem(KEYS.VOTES, votes);
-  syncToServer(KEYS.VOTES, votes);
 }
 
 export function addVote(vote: Omit<Vote, 'id'>) {
@@ -267,7 +269,6 @@ export function getArtworks(): Artwork[] {
 
 export function setArtworks(artworks: Artwork[]) {
   setItem(KEYS.ARTWORKS, artworks);
-  syncToServer(KEYS.ARTWORKS, artworks);
 }
 
 export function addArtwork(artwork: Omit<Artwork, 'id'>) {
@@ -340,7 +341,6 @@ export function getVideos(): Video[] {
 
 export function setVideos(videos: Video[]) {
   setItem(KEYS.VIDEOS, videos);
-  syncToServer(KEYS.VIDEOS, videos);
 }
 
 export function addVideo(video: Omit<Video, 'id'>) {
@@ -464,7 +464,6 @@ export function getChargeRate(): number {
 
 export function setChargeRate(rate: number) {
   setItem(KEYS.CHARGE_RATE, rate);
-  syncToServer(KEYS.CHARGE_RATE, rate);
 }
 
 // ============ Admin helpers ============
@@ -491,7 +490,6 @@ export function getActiveBanners(): Banner[] {
 
 export function setBanners(banners: Banner[]) {
   setItem(KEYS.BANNERS, banners);
-  syncToServer(KEYS.BANNERS, banners);
 }
 
 export function addBanner(banner: Omit<Banner, 'id'>) {
