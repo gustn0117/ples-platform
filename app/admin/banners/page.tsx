@@ -8,6 +8,7 @@ import {
   addBanner,
   updateBanner,
   deleteBanner as deleteBannerFromStore,
+  syncToServer,
 } from '@/lib/store'
 import type { Banner } from '@/lib/mock-data'
 
@@ -79,7 +80,7 @@ export default function AdminBannersPage() {
     setModalOpen(true)
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.title) return alert('제목은 필수입니다.')
 
     if (editingId !== null) {
@@ -106,18 +107,24 @@ export default function AdminBannersPage() {
       })
     }
 
+    const ok = await syncToServer('ples_banners', getBanners())
+    if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
+
     setModalOpen(false)
     reload()
   }
 
-  const handleDelete = (id: number, title: string) => {
+  const handleDelete = async (id: number, title: string) => {
     if (!confirm(`"${title}" 배너를 삭제하시겠습니까?`)) return
     deleteBannerFromStore(id)
+    const ok = await syncToServer('ples_banners', getBanners())
+    if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
     reload()
   }
 
-  const toggleActive = (b: Banner) => {
+  const toggleActive = async (b: Banner) => {
     updateBanner(b.id, { isActive: !b.isActive })
+    await syncToServer('ples_banners', getBanners())
     reload()
   }
 

@@ -9,6 +9,7 @@ import {
   adminAdjustPoints,
   getChargeRate,
   setChargeRate,
+  syncToServer,
 } from '@/lib/store'
 import type { PointHistory } from '@/lib/mock-data'
 
@@ -50,10 +51,11 @@ export default function AdminPointsPage() {
     reload()
   }
 
-  const handleRateUpdate = () => {
+  const handleRateUpdate = async () => {
     const rate = parseFloat(newRate)
     if (isNaN(rate) || rate <= 0) return alert('유효한 비율을 입력하세요.')
     setChargeRate(rate)
+    await syncToServer('ples_charge_rate', rate)
     reload()
     alert(`충전 비율이 ${rate}로 변경되었습니다.`)
   }
