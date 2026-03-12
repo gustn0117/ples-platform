@@ -59,14 +59,21 @@ export async function syncFromServer(): Promise<void> {
     const res = await fetch('/api/store');
     if (!res.ok) return;
     const data = await res.json();
-    if (data.artists) setItem('ples_artists', data.artists);
-    if (data.votes) setItem('ples_votes', data.votes);
-    if (data.artworks) setItem('ples_artworks', data.artworks);
-    if (data.videos) setItem('ples_videos', data.videos);
-    if (data.banners) setItem('ples_banners', data.banners);
-    if (data.chargeRate !== undefined) setItem('ples_charge_rate', data.chargeRate);
+    // Always overwrite localStorage with server data (server is the source of truth)
+    setItem('ples_artists', data.artists ?? defaultArtists);
+    setItem('ples_votes', data.votes ?? defaultVotes);
+    setItem('ples_artworks', data.artworks ?? defaultArtworks);
+    setItem('ples_videos', data.videos ?? defaultVideos);
+    setItem('ples_banners', data.banners ?? defaultBanners);
+    setItem('ples_charge_rate', data.chargeRate ?? 1.2);
   } catch {
-    // Fallback to existing localStorage data
+    // If server is unreachable, use defaults if localStorage is empty
+    if (!localStorage.getItem('ples_videos')) setItem('ples_videos', defaultVideos);
+    if (!localStorage.getItem('ples_artists')) setItem('ples_artists', defaultArtists);
+    if (!localStorage.getItem('ples_votes')) setItem('ples_votes', defaultVotes);
+    if (!localStorage.getItem('ples_artworks')) setItem('ples_artworks', defaultArtworks);
+    if (!localStorage.getItem('ples_banners')) setItem('ples_banners', defaultBanners);
+    if (!localStorage.getItem('ples_charge_rate')) setItem('ples_charge_rate', 1.2);
   }
 }
 
@@ -91,19 +98,18 @@ const KEYS = {
 
 // ============ Initialize ============
 
-const DATA_VERSION = '6';
+const DATA_VERSION = '7';
 
 export function initStore() {
   if (typeof window === 'undefined') return;
   if (localStorage.getItem(KEYS.INIT_DONE) === DATA_VERSION) return;
 
-  // Clear old data and re-initialize with latest mock data
+  // Clear old data and re-initialize
   Object.values(KEYS).forEach((key) => localStorage.removeItem(key));
 
-  setItem(KEYS.ARTISTS, defaultArtists);
-  setItem(KEYS.VOTES, defaultVotes);
-  setItem(KEYS.ARTWORKS, defaultArtworks);
-  setItem(KEYS.VIDEOS, defaultVideos);
+  // Only initialize user-specific data locally
+  // Shared data (artists, votes, artworks, videos, banners, chargeRate)
+  // will be loaded from server via syncFromServer()
   setItem(KEYS.POINT_HISTORY, []);
   setItem(KEYS.USER_POINTS, 0);
   setItem(KEYS.USER_VOTED, {});
@@ -111,8 +117,6 @@ export function initStore() {
   setItem(KEYS.USER_WATCHED, []);
   setItem(KEYS.USER_PURCHASED, []);
   setItem(KEYS.USER_WATCH_TODAY, { date: '', count: 0 });
-  setItem(KEYS.CHARGE_RATE, 1.2);
-  setItem(KEYS.BANNERS, defaultBanners);
   localStorage.setItem(KEYS.INIT_DONE, DATA_VERSION);
 }
 
