@@ -136,88 +136,86 @@ export default function Home() {
   return (
     <div className="overflow-hidden bg-white">
       {/* =============================================
-          BANNER CAROUSEL — Two banners side by side
-          ============================================= */}
-      {banners.length > 0 && (
-        <section className="pt-6 pb-2 bg-white">
-          <div className="max-w-7xl mx-auto px-6 sm:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {currentBanners.map((banner) => {
-                const isLight = banner.textColor === 'light';
-                const Wrapper = banner.link ? Link : 'div';
-                const wrapperProps = banner.link ? { href: banner.link } : {};
-                return (
-                  <Wrapper
-                    key={banner.id}
-                    {...(wrapperProps as any)}
-                    className="group relative rounded-2xl overflow-hidden p-7 sm:p-9 min-h-[200px] sm:min-h-[240px] flex flex-col justify-end transition-all duration-500 hover:shadow-xl hover:-translate-y-0.5 cursor-pointer animate-fade-in-up"
-                    style={{ backgroundColor: banner.bgColor }}
-                  >
-                    {/* Background image */}
-                    {banner.bgImage && (
-                      <div
-                        className="absolute inset-0 bg-cover bg-center"
-                        style={{ backgroundImage: `url(${banner.bgImage})` }}
-                      />
-                    )}
-                    {/* Gradient overlay for readability when image is present */}
-                    {banner.bgImage && (
-                      <div className={`absolute inset-0 ${isLight ? 'bg-gradient-to-t from-black/60 via-black/20 to-transparent' : 'bg-gradient-to-t from-white/80 via-white/40 to-transparent'}`} />
-                    )}
-                    {/* Subtle pattern overlay */}
-                    {!banner.bgImage && <div className="absolute inset-0 dot-pattern opacity-[0.04] pointer-events-none" />}
-                    {/* Hover shine */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/[0.04] to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 pointer-events-none" />
-
-                    <h3 className={`relative z-10 text-lg sm:text-xl font-bold leading-tight ${isLight ? 'text-white' : 'text-gray-900'}`}>
-                      {banner.title}
-                    </h3>
-                    <p className={`relative z-10 mt-1.5 text-xs sm:text-sm leading-relaxed ${isLight ? 'text-white/60' : 'text-gray-500'}`}>
-                      {banner.subtitle}
-                    </p>
-                    {banner.link && (
-                      <div className={`relative z-10 mt-3 flex items-center gap-1.5 text-xs font-semibold ${isLight ? 'text-white/40 group-hover:text-white/70' : 'text-gray-400 group-hover:text-gray-700'} transition-colors duration-300`}>
-                        자세히 보기
-                        <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </div>
-                    )}
-                  </Wrapper>
-                );
-              })}
-            </div>
-
-            {/* Pagination dots */}
-            {totalBannerPages > 1 && (
-              <div className="flex items-center justify-center gap-2 mt-4">
-                {Array.from({ length: totalBannerPages }).map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setBannerPage(i)}
-                    className={`h-1.5 rounded-full transition-all duration-300 ${
-                      i === bannerPage ? 'w-6 bg-gray-900' : 'w-1.5 bg-gray-200 hover:bg-gray-400'
-                    }`}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-      )}
-
-      {/* =============================================
           HERO SECTION — Split layout with glowing orb
           ============================================= */}
-      <section className="relative min-h-[calc(100vh-64px)] flex items-center overflow-hidden noise-overlay">
+      <section className="relative min-h-[calc(100vh-64px)] flex flex-col overflow-hidden noise-overlay">
         {/* Mesh gradient background */}
         <div className="absolute inset-0 mesh-gradient-1 pointer-events-none" />
+
+        {/* ---- Banner Carousel (inside hero) ---- */}
+        {banners.length > 0 && (
+          <div className="relative z-20 pt-6 pb-2">
+            <div className="max-w-7xl mx-auto px-6 sm:px-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {currentBanners.map((banner) => {
+                  const isLight = banner.textColor === 'light';
+                  const Wrapper = banner.link ? Link : 'div';
+                  const wrapperProps = banner.link ? { href: banner.link } : {};
+                  return (
+                    <Wrapper
+                      key={banner.id}
+                      {...(wrapperProps as any)}
+                      className="group relative rounded-2xl overflow-hidden p-7 sm:p-9 min-h-[200px] sm:min-h-[240px] flex flex-col justify-end transition-all duration-500 hover:shadow-xl hover:-translate-y-0.5 cursor-pointer animate-fade-in-up"
+                      style={{ backgroundColor: banner.bgColor }}
+                    >
+                      {/* Background image */}
+                      {banner.bgImage && (
+                        <div
+                          className="absolute inset-0 bg-cover bg-center"
+                          style={{ backgroundImage: `url(${banner.bgImage})` }}
+                        />
+                      )}
+                      {/* Gradient overlay for readability when image is present */}
+                      {banner.bgImage && (
+                        <div className={`absolute inset-0 ${isLight ? 'bg-gradient-to-t from-black/60 via-black/20 to-transparent' : 'bg-gradient-to-t from-white/80 via-white/40 to-transparent'}`} />
+                      )}
+                      {/* Subtle pattern overlay */}
+                      {!banner.bgImage && <div className="absolute inset-0 dot-pattern opacity-[0.04] pointer-events-none" />}
+                      {/* Hover shine */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/[0.04] to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 pointer-events-none" />
+
+                      <h3 className={`relative z-10 text-lg sm:text-xl font-bold leading-tight ${isLight ? 'text-white' : 'text-gray-900'}`}>
+                        {banner.title}
+                      </h3>
+                      <p className={`relative z-10 mt-1.5 text-xs sm:text-sm leading-relaxed ${isLight ? 'text-white/60' : 'text-gray-500'}`}>
+                        {banner.subtitle}
+                      </p>
+                      {banner.link && (
+                        <div className={`relative z-10 mt-3 flex items-center gap-1.5 text-xs font-semibold ${isLight ? 'text-white/40 group-hover:text-white/70' : 'text-gray-400 group-hover:text-gray-700'} transition-colors duration-300`}>
+                          자세히 보기
+                          <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
+                      )}
+                    </Wrapper>
+                  );
+                })}
+              </div>
+
+              {/* Pagination dots */}
+              {totalBannerPages > 1 && (
+                <div className="flex items-center justify-center gap-2 mt-4">
+                  {Array.from({ length: totalBannerPages }).map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setBannerPage(i)}
+                      className={`h-1.5 rounded-full transition-all duration-300 ${
+                        i === bannerPage ? 'w-6 bg-gray-900' : 'w-1.5 bg-gray-200 hover:bg-gray-400'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Bottom fade */}
         <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-white to-transparent z-10" />
 
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-8 py-20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-8 py-20 flex-1 flex items-center">
+          <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left — Content */}
             <div>
               {/* Badge with animated border glow */}
