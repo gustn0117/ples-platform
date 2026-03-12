@@ -51,6 +51,7 @@ export function syncToServer(localKey: string, value: any): Promise<boolean> {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ key: serverKey, value }),
+    keepalive: true, // ensure request completes even during page refresh/navigation
   }).then((res) => {
     if (!res.ok) console.error(`[syncToServer] ${serverKey} failed: ${res.status}`);
     return res.ok;
@@ -66,7 +67,23 @@ export async function syncFromServer(): Promise<void> {
     if (!res.ok) return;
     const data = await res.json();
     // Always overwrite localStorage with server data (server is the source of truth)
-    setItem('ples_artists', data.artists ?? defaultArtists);
+    let artists: Artist[] = data.artists ?? defaultArtists;
+
+    // Reconcile: ensure likes count reflects this user's liked state
+    // If user liked an artist but server shows 0 likes, the sync was lost — fix it
+    const userLiked: number[] = getItem('ples_user_liked', []);
+    if (userLiked.length > 0) {
+      artists = artists.map((a) => {
+        if (userLiked.includes(a.id) && a.likes < 1) {
+          return { ...a, likes: 1 };
+        }
+        return a;
+      });
+      // Sync corrected data back to server
+      syncToServer('ples_artists', artists);
+    }
+
+    setItem('ples_artists', artists);
     setItem('ples_votes', data.votes ?? defaultVotes);
     setItem('ples_artworks', data.artworks ?? defaultArtworks);
     setItem('ples_videos', data.videos ?? defaultVideos);
