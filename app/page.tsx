@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useAuth } from '@/lib/auth-context';
-import { initStore, getArtists } from '@/lib/store';
+import { initStore, getArtists, getActiveBanners } from '@/lib/store';
+import type { Banner } from '@/lib/mock-data';
 import {
   IconVote,
   IconMicrophone,
@@ -52,6 +53,8 @@ export default function Home() {
   const { user } = useAuth();
   const [hotArtists, setHotArtists] = useState<Artist[]>([]);
   const [artistsLoading, setArtistsLoading] = useState(true);
+  const [banners, setBanners] = useState<Banner[]>([]);
+  const [bannerPage, setBannerPage] = useState(0);
 
   const featuresSection = useFadeInOnScroll();
   const hotSection = useFadeInOnScroll();
@@ -66,7 +69,22 @@ export default function Home() {
       .map((a) => ({ id: String(a.id), name: a.name, genre: a.genre, likes: a.likes }));
     setHotArtists(top5);
     setArtistsLoading(false);
+    setBanners(getActiveBanners());
   }, []);
+
+  // Total pages (2 banners per page)
+  const totalBannerPages = Math.ceil(banners.length / 2);
+
+  // Auto-rotate banners every 5 seconds
+  useEffect(() => {
+    if (totalBannerPages <= 1) return;
+    const interval = setInterval(() => {
+      setBannerPage((prev) => (prev + 1) % totalBannerPages);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [totalBannerPages]);
+
+  const currentBanners = banners.slice(bannerPage * 2, bannerPage * 2 + 2);
 
   const features = [
     {
@@ -117,6 +135,66 @@ export default function Home() {
 
   return (
     <div className="overflow-hidden bg-white">
+      {/* =============================================
+          BANNER CAROUSEL — Two banners side by side
+          ============================================= */}
+      {banners.length > 0 && (
+        <section className="pt-6 pb-2 bg-white">
+          <div className="max-w-7xl mx-auto px-6 sm:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {currentBanners.map((banner) => {
+                const isLight = banner.textColor === 'light';
+                const Wrapper = banner.link ? Link : 'div';
+                const wrapperProps = banner.link ? { href: banner.link } : {};
+                return (
+                  <Wrapper
+                    key={banner.id}
+                    {...(wrapperProps as any)}
+                    className="group relative rounded-2xl overflow-hidden p-7 sm:p-8 min-h-[160px] sm:min-h-[180px] flex flex-col justify-end transition-all duration-500 hover:shadow-xl hover:-translate-y-0.5 cursor-pointer animate-fade-in-up"
+                    style={{ backgroundColor: banner.bgColor }}
+                  >
+                    {/* Subtle pattern overlay */}
+                    <div className="absolute inset-0 dot-pattern opacity-[0.04] pointer-events-none" />
+                    {/* Hover shine */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/[0.04] to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 pointer-events-none" />
+
+                    <h3 className={`relative z-10 text-lg sm:text-xl font-bold leading-tight ${isLight ? 'text-white' : 'text-gray-900'}`}>
+                      {banner.title}
+                    </h3>
+                    <p className={`relative z-10 mt-1.5 text-xs sm:text-sm leading-relaxed ${isLight ? 'text-white/60' : 'text-gray-500'}`}>
+                      {banner.subtitle}
+                    </p>
+                    {banner.link && (
+                      <div className={`relative z-10 mt-3 flex items-center gap-1.5 text-xs font-semibold ${isLight ? 'text-white/40 group-hover:text-white/70' : 'text-gray-400 group-hover:text-gray-700'} transition-colors duration-300`}>
+                        자세히 보기
+                        <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    )}
+                  </Wrapper>
+                );
+              })}
+            </div>
+
+            {/* Pagination dots */}
+            {totalBannerPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-4">
+                {Array.from({ length: totalBannerPages }).map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setBannerPage(i)}
+                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                      i === bannerPage ? 'w-6 bg-gray-900' : 'w-1.5 bg-gray-200 hover:bg-gray-400'
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
       {/* =============================================
           HERO SECTION — Split layout with glowing orb
           ============================================= */}

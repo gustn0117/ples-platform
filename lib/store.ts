@@ -6,11 +6,13 @@ import {
   votes as defaultVotes,
   artworks as defaultArtworks,
   videos as defaultVideos,
+  banners as defaultBanners,
   type Artist,
   type Vote,
   type Artwork,
   type Video,
   type PointHistory,
+  type Banner,
 } from './mock-data';
 
 // ============ Generic helpers ============
@@ -44,12 +46,13 @@ const KEYS = {
   USER_PURCHASED: 'ples_user_purchased', // { artworkId, date, method, amount }[]
   USER_WATCH_TODAY: 'ples_user_watch_today', // { date: string, count: number }
   CHARGE_RATE: 'ples_charge_rate',      // bonus rate (e.g., 1.2 = 20% bonus)
+  BANNERS: 'ples_banners',
   INIT_DONE: 'ples_init_done',
 };
 
 // ============ Initialize ============
 
-const DATA_VERSION = '3';
+const DATA_VERSION = '4';
 
 export function initStore() {
   if (typeof window === 'undefined') return;
@@ -70,6 +73,7 @@ export function initStore() {
   setItem(KEYS.USER_PURCHASED, []);
   setItem(KEYS.USER_WATCH_TODAY, { date: '', count: 0 });
   setItem(KEYS.CHARGE_RATE, 1.2);
+  setItem(KEYS.BANNERS, defaultBanners);
   localStorage.setItem(KEYS.INIT_DONE, DATA_VERSION);
 }
 
@@ -402,6 +406,38 @@ export function adminAdjustPoints(amount: number, reason: string) {
   } else {
     usePoints(Math.abs(amount), '관리자 차감', reason);
   }
+}
+
+// ============ Banners ============
+
+export function getBanners(): Banner[] {
+  return getItem(KEYS.BANNERS, defaultBanners);
+}
+
+export function getActiveBanners(): Banner[] {
+  return getBanners()
+    .filter((b) => b.isActive)
+    .sort((a, b) => a.order - b.order);
+}
+
+export function setBanners(banners: Banner[]) {
+  setItem(KEYS.BANNERS, banners);
+}
+
+export function addBanner(banner: Omit<Banner, 'id'>) {
+  const banners = getBanners();
+  const newId = banners.length > 0 ? Math.max(...banners.map((b) => b.id)) + 1 : 1;
+  banners.push({ ...banner, id: newId });
+  setBanners(banners);
+  return newId;
+}
+
+export function updateBanner(id: number, data: Partial<Banner>) {
+  setBanners(getBanners().map((b) => (b.id === id ? { ...b, ...data } : b)));
+}
+
+export function deleteBanner(id: number) {
+  setBanners(getBanners().filter((b) => b.id !== id));
 }
 
 // ============ Reset (for testing) ============

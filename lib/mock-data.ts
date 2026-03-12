@@ -81,4 +81,58 @@ export const videos: Video[] = [
   { id: 1, title: 'PLES 아티스트 비하인드 EP.1', duration: '4:32', pointReward: 20, watched: false },
 ];
 
+export interface Banner {
+  id: number;
+  title: string;
+  subtitle: string;
+  bgColor: string; // tailwind gradient or hex color
+  textColor: 'light' | 'dark';
+  link?: string;
+  isActive: boolean;
+  order: number;
+}
+
+export const banners: Banner[] = [
+  {
+    id: 1,
+    title: "PLES 시즌2 투표 오픈",
+    subtitle: "지금 바로 참여하고 포인트를 받으세요!",
+    bgColor: '#1a1a1a',
+    textColor: 'light',
+    link: '/vote',
+    isActive: true,
+    order: 1,
+  },
+  {
+    id: 2,
+    title: "봄 시즌 한정판 굿즈",
+    subtitle: "갤러리에서 예약 판매 중!",
+    bgColor: '#f0ebe3',
+    textColor: 'dark',
+    link: '/artworks',
+    isActive: true,
+    order: 2,
+  },
+  {
+    id: 3,
+    title: "TOP 아티스트 랭킹",
+    subtitle: "이번 주 인기 아티스트를 확인하세요",
+    bgColor: '#374151',
+    textColor: 'light',
+    link: '/ranking',
+    isActive: true,
+    order: 3,
+  },
+  {
+    id: 4,
+    title: "미디어 리워드 이벤트",
+    subtitle: "영상 시청하고 2배 포인트 적립!",
+    bgColor: '#e8e0d4',
+    textColor: 'dark',
+    link: '/videos',
+    isActive: true,
+    order: 4,
+  },
+];
+
 export const pointHistory: PointHistory[] = [];
