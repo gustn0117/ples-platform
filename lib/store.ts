@@ -1,6 +1,7 @@
 // localStorage-based data store for PLES Platform
 // Shared data (admin-managed) syncs with server JSON file via /api/store
 // User-specific data stays in localStorage only
+// In-memory cache ensures data is available even when localStorage is full
 
 import {
   artists as defaultArtists,
@@ -15,6 +16,12 @@ import {
   type PointHistory,
   type Banner,
 } from './mock-data';
+
+// ============ In-memory cache for server data ============
+// localStorage has ~5MB limit and fails silently with large data (base64 images).
+// This cache ensures getter functions always return fresh server data.
+
+let serverCache: Record<string, any> = {};
 
 // ============ Generic helpers ============
 
@@ -36,6 +43,12 @@ function setItem<T>(key: string, value: T) {
   }
 }
 
+// Get shared data: check memory cache first, then localStorage
+function getShared<T>(cacheKey: string, localKey: string, fallback: T): T {
+  if (serverCache[cacheKey] !== undefined) return serverCache[cacheKey];
+  return getItem(localKey, fallback);
+}
+
 // ============ Server sync ============
 
 // Sync specific key to server (fire-and-forget, lightweight data only)
@@ -52,7 +65,11 @@ export async function syncFromServer(): Promise<void> {
     const res = await fetch('/api/store');
     if (!res.ok) return;
     const data = await res.json();
-    // Always overwrite localStorage with server data (server is the source of truth)
+
+    // Always update in-memory cache (never fails)
+    serverCache = data;
+
+    // Also try localStorage (may fail with large data, but that's OK now)
     setItem('ples_artists', data.artists ?? defaultArtists);
     setItem('ples_votes', data.votes ?? defaultVotes);
     setItem('ples_artworks', data.artworks ?? defaultArtworks);
@@ -116,10 +133,11 @@ export function initStore() {
 // ============ Artists ============
 
 export function getArtists(): Artist[] {
-  return getItem(KEYS.ARTISTS, defaultArtists);
+  return getShared('artists', KEYS.ARTISTS, defaultArtists);
 }
 
 export function setArtists(artists: Artist[]) {
+  serverCache.artists = artists;
   setItem(KEYS.ARTISTS, artists);
 }
 
@@ -159,17 +177,18 @@ export function toggleLike(artistId: number): boolean {
     syncLikeToServer(artistId, 1);
   }
 
-  setItem(KEYS.ARTISTS, updatedArtists);
+  setArtists(updatedArtists);
   return !isLiked;
 }
 
 // ============ Votes ============
 
 export function getVotes(): Vote[] {
-  return getItem(KEYS.VOTES, defaultVotes);
+  return getShared('votes', KEYS.VOTES, defaultVotes);
 }
 
 export function setVotes(votes: Vote[]) {
+  serverCache.votes = votes;
   setItem(KEYS.VOTES, votes);
 }
 
@@ -216,10 +235,11 @@ export function castVote(voteId: number, optionId: number): { success: boolean; 
 // ============ Artworks ============
 
 export function getArtworks(): Artwork[] {
-  return getItem(KEYS.ARTWORKS, defaultArtworks);
+  return getShared('artworks', KEYS.ARTWORKS, defaultArtworks);
 }
 
 export function setArtworks(artworks: Artwork[]) {
+  serverCache.artworks = artworks;
   setItem(KEYS.ARTWORKS, artworks);
 }
 
@@ -272,10 +292,11 @@ export function getUserPurchases(): Purchase[] {
 // ============ Videos ============
 
 export function getVideos(): Video[] {
-  return getItem(KEYS.VIDEOS, defaultVideos);
+  return getShared('videos', KEYS.VIDEOS, defaultVideos);
 }
 
 export function setVideos(videos: Video[]) {
+  serverCache.videos = videos;
   setItem(KEYS.VIDEOS, videos);
 }
 
@@ -372,17 +393,18 @@ export function usePoints(amount: number, category: string, detail?: string) {
 }
 
 export function chargePoints(cashAmount: number): number {
-  const rate = getItem(KEYS.CHARGE_RATE, 1.2);
+  const rate = getChargeRate();
   const pointsToAdd = Math.floor(cashAmount * rate);
   addPoints(pointsToAdd, '포인트 충전', `${cashAmount.toLocaleString()}원`);
   return pointsToAdd;
 }
 
 export function getChargeRate(): number {
-  return getItem(KEYS.CHARGE_RATE, 1.2);
+  return getShared('chargeRate', KEYS.CHARGE_RATE, 1.2);
 }
 
 export function setChargeRate(rate: number) {
+  serverCache.chargeRate = rate;
   setItem(KEYS.CHARGE_RATE, rate);
 }
 
@@ -399,7 +421,7 @@ export function adminAdjustPoints(amount: number, reason: string) {
 // ============ Banners ============
 
 export function getBanners(): Banner[] {
-  return getItem(KEYS.BANNERS, defaultBanners);
+  return getShared('banners', KEYS.BANNERS, defaultBanners);
 }
 
 export function getActiveBanners(): Banner[] {
@@ -411,6 +433,7 @@ export function getActiveBanners(): Banner[] {
 // ============ Reset (for testing) ============
 
 export function resetStore() {
+  serverCache = {};
   Object.values(KEYS).forEach((key) => localStorage.removeItem(key));
   initStore();
 }
