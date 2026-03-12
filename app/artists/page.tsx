@@ -31,12 +31,12 @@ export default function ArtistsPage() {
     setLikedIds(new Set(getUserLiked()));
   }
 
-  async function handleToggleLike(artistId: number) {
+  function handleToggleLike(artistId: number) {
     if (!user) {
       alert('로그인이 필요합니다.');
       return;
     }
-    await toggleLike(artistId);
+    toggleLike(artistId);
     refreshData();
   }
 
@@ -197,12 +197,12 @@ export default function ArtistsPage() {
                         }}
                         className={`p-2 rounded-lg transition-all duration-200 ${
                           isLiked
-                            ? 'bg-gray-900 hover:bg-gray-800 active:scale-90'
+                            ? 'bg-red-50 hover:bg-red-100 active:scale-90'
                             : 'bg-gray-100 hover:bg-gray-200 active:scale-90'
                         }`}
                       >
                         {isLiked ? (
-                          <IconHeartFilled className="w-4 h-4 text-white" />
+                          <IconHeartFilled className="w-4 h-4 text-red-500" />
                         ) : (
                           <IconHeart className="w-4 h-4 text-gray-400" />
                         )}

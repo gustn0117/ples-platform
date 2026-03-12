@@ -164,7 +164,7 @@ export function getUserLiked(): number[] {
   return getItem(KEYS.USER_LIKED, []);
 }
 
-export async function toggleLike(artistId: number): Promise<boolean> {
+export function toggleLike(artistId: number): boolean {
   const liked = getUserLiked();
   const artists = getArtists();
   const isLiked = liked.includes(artistId);
@@ -179,13 +179,10 @@ export async function toggleLike(artistId: number): Promise<boolean> {
   }
 
   setItem(KEYS.ARTISTS, updatedArtists);
-  await syncToServer(KEYS.ARTISTS, updatedArtists);
+  // Sync to server in background (don't block UI)
+  syncToServer(KEYS.ARTISTS, updatedArtists);
 
-  if (isLiked) {
-    return false;
-  } else {
-    return true;
-  }
+  return !isLiked;
 }
 
 // ============ Votes ============

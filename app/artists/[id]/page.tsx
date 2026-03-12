@@ -7,7 +7,7 @@ import { useAuth } from '@/lib/auth-context';
 import { initStore, getArtist, toggleLike, getUserLiked } from '@/lib/store';
 import type { Artist } from '@/lib/mock-data';
 import { ArtistIcon } from '@/lib/icons';
-import { IconHeart, IconHeartFilled, IconCheck, IconArrowRight } from '@/components/icons';
+import { IconHeart, IconHeartFilled, IconArrowRight } from '@/components/icons';
 
 export default function ArtistDetailPage() {
   const params = useParams();
@@ -31,12 +31,12 @@ export default function ArtistDetailPage() {
     setLoading(false);
   }, [artistId]);
 
-  async function handleToggleLike() {
+  function handleToggleLike() {
     if (!user) {
       alert('로그인이 필요합니다.');
       return;
     }
-    await toggleLike(artistId);
+    toggleLike(artistId);
     setArtist(getArtist(artistId) ?? null);
     setIsLiked(getUserLiked().includes(artistId));
   }
@@ -169,13 +169,13 @@ export default function ArtistDetailPage() {
           onClick={handleToggleLike}
           className={`w-full py-4 rounded-xl text-base font-semibold transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98] ${
             isLiked
-              ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              ? 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100'
               : 'bg-gray-900 text-white hover:bg-gray-800'
           }`}
         >
           {isLiked ? (
             <>
-              <IconCheck className="w-4 h-4 text-gray-500" />
+              <IconHeartFilled className="w-4 h-4 text-red-500" />
               좋아요 취소
             </>
           ) : (
