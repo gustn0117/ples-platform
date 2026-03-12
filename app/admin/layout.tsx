@@ -2,7 +2,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter, usePathname } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth-context'
 
@@ -94,8 +94,7 @@ const navItems = [
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { profile, loading } = useAuth()
-  const router = useRouter()
+  const { profile } = useAuth()
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [authenticated, setAuthenticated] = useState(false)
@@ -103,13 +102,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [passwordError, setPasswordError] = useState(false)
 
   useEffect(() => {
-    if (!loading && !profile) {
-      router.push('/')
-    }
     // Check if already authenticated in this session
     const saved = sessionStorage.getItem('ples_admin_auth')
     if (saved === 'true') setAuthenticated(true)
-  }, [profile, loading, router])
+  }, [])
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -120,21 +116,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     } else {
       setPasswordError(true)
     }
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-2 border-gray-300 border-t-gray-800 mx-auto"></div>
-          <p className="mt-4 text-sm text-gray-500">로딩 중...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!profile) {
-    return null
   }
 
   if (!authenticated) {
@@ -212,7 +193,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
             <div>
               <h1 className="text-base font-semibold tracking-wide">PLES Admin</h1>
-              <p className="text-xs text-white/40">{profile.nickname}</p>
+              <p className="text-xs text-white/40">{profile?.nickname ?? '관리자'}</p>
             </div>
           </div>
         </div>
@@ -278,9 +259,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </h2>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-gray-400 hidden sm:block">{profile.email}</span>
+            <span className="text-xs text-gray-400 hidden sm:block">{profile?.email ?? 'admin'}</span>
             <div className="w-7 h-7 rounded-full bg-gray-900 text-white flex items-center justify-center text-xs font-semibold">
-              {profile.nickname.charAt(0)}
+              {profile?.nickname?.charAt(0) ?? 'A'}
             </div>
           </div>
         </header>
