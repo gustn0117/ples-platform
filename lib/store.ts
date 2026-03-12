@@ -52,7 +52,7 @@ const KEYS = {
 
 // ============ Initialize ============
 
-const DATA_VERSION = '4';
+const DATA_VERSION = '5';
 
 export function initStore() {
   if (typeof window === 'undefined') return;

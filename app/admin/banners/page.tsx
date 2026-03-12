@@ -15,6 +15,7 @@ const emptyForm = {
   title: '',
   subtitle: '',
   bgColor: '#1a1a1a',
+  bgImage: '',
   textColor: 'light' as 'light' | 'dark',
   link: '',
   isActive: true,
@@ -47,6 +48,7 @@ export default function AdminBannersPage() {
       title: b.title,
       subtitle: b.subtitle,
       bgColor: b.bgColor,
+      bgImage: b.bgImage ?? '',
       textColor: b.textColor,
       link: b.link ?? '',
       isActive: b.isActive,
@@ -63,6 +65,7 @@ export default function AdminBannersPage() {
         title: form.title,
         subtitle: form.subtitle,
         bgColor: form.bgColor,
+        bgImage: form.bgImage || undefined,
         textColor: form.textColor,
         link: form.link || undefined,
         isActive: form.isActive,
@@ -73,6 +76,7 @@ export default function AdminBannersPage() {
         title: form.title,
         subtitle: form.subtitle,
         bgColor: form.bgColor,
+        bgImage: form.bgImage || undefined,
         textColor: form.textColor,
         link: form.link || undefined,
         isActive: form.isActive,
@@ -131,7 +135,16 @@ export default function AdminBannersPage() {
                   className="w-32 sm:w-48 shrink-0 flex flex-col items-center justify-center p-4 relative overflow-hidden"
                   style={{ backgroundColor: banner.bgColor }}
                 >
-                  <div className="absolute inset-0 dot-pattern opacity-[0.06]" />
+                  {banner.bgImage && (
+                    <div
+                      className="absolute inset-0 bg-cover bg-center"
+                      style={{ backgroundImage: `url(${banner.bgImage})` }}
+                    />
+                  )}
+                  {banner.bgImage && (
+                    <div className={`absolute inset-0 ${banner.textColor === 'light' ? 'bg-black/30' : 'bg-white/40'}`} />
+                  )}
+                  {!banner.bgImage && <div className="absolute inset-0 dot-pattern opacity-[0.06]" />}
                   <span className={`relative z-10 text-xs font-bold truncate max-w-full px-2 ${banner.textColor === 'light' ? 'text-white' : 'text-gray-900'}`}>
                     {banner.title}
                   </span>
@@ -158,6 +171,7 @@ export default function AdminBannersPage() {
                       <span>순서: {banner.order}</span>
                       {banner.link && <span>링크: {banner.link}</span>}
                       <span>색상: {banner.bgColor}</span>
+                      {banner.bgImage && <span>이미지: 있음</span>}
                     </div>
                   </div>
 
@@ -227,7 +241,16 @@ export default function AdminBannersPage() {
                   className="rounded-xl p-6 min-h-[100px] flex flex-col justify-end relative overflow-hidden"
                   style={{ backgroundColor: form.bgColor }}
                 >
-                  <div className="absolute inset-0 dot-pattern opacity-[0.04]" />
+                  {form.bgImage && (
+                    <div
+                      className="absolute inset-0 bg-cover bg-center"
+                      style={{ backgroundImage: `url(${form.bgImage})` }}
+                    />
+                  )}
+                  {form.bgImage && (
+                    <div className={`absolute inset-0 ${form.textColor === 'light' ? 'bg-gradient-to-t from-black/60 via-black/20 to-transparent' : 'bg-gradient-to-t from-white/80 via-white/40 to-transparent'}`} />
+                  )}
+                  {!form.bgImage && <div className="absolute inset-0 dot-pattern opacity-[0.04]" />}
                   <h3 className={`relative z-10 text-base font-bold ${form.textColor === 'light' ? 'text-white' : 'text-gray-900'}`}>
                     {form.title || '배너 제목'}
                   </h3>
@@ -257,6 +280,18 @@ export default function AdminBannersPage() {
                   placeholder="배너 설명"
                   className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400"
                 />
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-gray-500 mb-1.5 block">배경 이미지 URL (선택)</label>
+                <input
+                  type="text"
+                  value={form.bgImage}
+                  onChange={(e) => setForm({ ...form, bgImage: e.target.value })}
+                  placeholder="https://example.com/image.jpg"
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400"
+                />
+                <p className="text-[11px] text-gray-400 mt-1">이미지를 설정하면 배경색 위에 이미지가 표시됩니다.</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">

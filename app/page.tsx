@@ -153,8 +153,19 @@ export default function Home() {
                     className="group relative rounded-2xl overflow-hidden p-7 sm:p-9 min-h-[200px] sm:min-h-[240px] flex flex-col justify-end transition-all duration-500 hover:shadow-xl hover:-translate-y-0.5 cursor-pointer animate-fade-in-up"
                     style={{ backgroundColor: banner.bgColor }}
                   >
+                    {/* Background image */}
+                    {banner.bgImage && (
+                      <div
+                        className="absolute inset-0 bg-cover bg-center"
+                        style={{ backgroundImage: `url(${banner.bgImage})` }}
+                      />
+                    )}
+                    {/* Gradient overlay for readability when image is present */}
+                    {banner.bgImage && (
+                      <div className={`absolute inset-0 ${isLight ? 'bg-gradient-to-t from-black/60 via-black/20 to-transparent' : 'bg-gradient-to-t from-white/80 via-white/40 to-transparent'}`} />
+                    )}
                     {/* Subtle pattern overlay */}
-                    <div className="absolute inset-0 dot-pattern opacity-[0.04] pointer-events-none" />
+                    {!banner.bgImage && <div className="absolute inset-0 dot-pattern opacity-[0.04] pointer-events-none" />}
                     {/* Hover shine */}
                     <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/[0.04] to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 pointer-events-none" />
 

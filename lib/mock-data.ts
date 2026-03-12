@@ -86,6 +86,7 @@ export interface Banner {
   title: string;
   subtitle: string;
   bgColor: string; // tailwind gradient or hex color
+  bgImage?: string; // background image URL
   textColor: 'light' | 'dark';
   link?: string;
   isActive: boolean;
