@@ -16,20 +16,6 @@ export default function AdminUsersPage() {
     <div className="space-y-6">
       <h1 className="text-xl font-semibold text-gray-900">회원관리</h1>
 
-      {/* Notice */}
-      <div className="bg-amber-50/80 border border-amber-200/60 rounded-xl p-5 flex gap-3">
-        <svg className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-        </svg>
-        <div>
-          <p className="text-sm text-amber-800 font-medium mb-0.5">Mock 환경 안내</p>
-          <p className="text-xs text-amber-700/80">
-            Mock 환경에서는 단일 사용자만 지원됩니다. 실제 배포 시 데이터베이스 기반 사용자 관리로
-            전환해야 합니다.
-          </p>
-        </div>
-      </div>
-
       {/* Current User Info */}
       {profile && (
         <div className="bg-white rounded-xl border border-gray-100 p-6">
