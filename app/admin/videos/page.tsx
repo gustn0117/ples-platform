@@ -1,7 +1,7 @@
 // app/admin/videos/page.tsx
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import {
   initStore,
   getVideos,
@@ -15,6 +15,9 @@ const emptyForm = {
   title: '',
   duration: '',
   pointReward: 20,
+  videoUrl: '',
+  thumbnailData: '',
+  link: '',
 }
 
 export default function AdminVideosPage() {
@@ -22,6 +25,7 @@ export default function AdminVideosPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [form, setForm] = useState(emptyForm)
+  const thumbnailInputRef = useRef<HTMLInputElement>(null)
 
   const reload = () => setVideos(getVideos())
 
@@ -42,24 +46,42 @@ export default function AdminVideosPage() {
       title: v.title,
       duration: v.duration,
       pointReward: v.pointReward,
+      videoUrl: v.videoUrl || '',
+      thumbnailData: v.thumbnailData || '',
+      link: v.link || '',
     })
     setModalOpen(true)
+  }
+
+  const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith('image/')) return alert('이미지 파일만 업로드 가능합니다.')
+    if (file.size > 2 * 1024 * 1024) return alert('이미지 크기는 2MB 이하만 가능합니다.')
+    const reader = new FileReader()
+    reader.onload = () => {
+      setForm({ ...form, thumbnailData: reader.result as string })
+    }
+    reader.readAsDataURL(file)
   }
 
   const handleSave = () => {
     if (!form.title) return alert('제목은 필수입니다.')
 
+    const data = {
+      title: form.title,
+      duration: form.duration,
+      pointReward: form.pointReward,
+      videoUrl: form.videoUrl || undefined,
+      thumbnailData: form.thumbnailData || undefined,
+      link: form.link || undefined,
+    }
+
     if (editingId !== null) {
-      updateVideo(editingId, {
-        title: form.title,
-        duration: form.duration,
-        pointReward: form.pointReward,
-      })
+      updateVideo(editingId, data)
     } else {
       addVideo({
-        title: form.title,
-        duration: form.duration,
-        pointReward: form.pointReward,
+        ...data,
         watched: false,
       })
     }
@@ -98,13 +120,14 @@ export default function AdminVideosPage() {
                 <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">미디어</th>
                 <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">재생시간</th>
                 <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">보상</th>
+                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">링크</th>
                 <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">관리</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {videos.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-5 py-12 text-center text-gray-400 text-sm">
+                  <td colSpan={6} className="px-5 py-12 text-center text-gray-400 text-sm">
                     등록된 미디어가 없습니다.
                   </td>
                 </tr>
@@ -114,13 +137,24 @@ export default function AdminVideosPage() {
                     <td className="px-5 py-3.5 text-gray-400 text-xs font-mono">{v.id}</td>
                     <td className="px-5 py-3.5 font-medium text-gray-900">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center">
-                          <svg className="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z" />
-                          </svg>
+                        {v.thumbnailData ? (
+                          <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
+                            <img src={v.thumbnailData} alt="" className="w-full h-full object-cover" />
+                          </div>
+                        ) : (
+                          <div className="w-10 h-10 rounded-lg bg-rose-50 flex items-center justify-center flex-shrink-0">
+                            <svg className="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z" />
+                            </svg>
+                          </div>
+                        )}
+                        <div>
+                          <div>{v.title}</div>
+                          {v.videoUrl && (
+                            <div className="text-[10px] text-gray-400 truncate max-w-[200px]">{v.videoUrl}</div>
+                          )}
                         </div>
-                        {v.title}
                       </div>
                     </td>
                     <td className="px-5 py-3.5 text-gray-500">
@@ -135,6 +169,15 @@ export default function AdminVideosPage() {
                       <span className="inline-flex px-2 py-0.5 bg-emerald-50 text-emerald-600 text-xs font-medium rounded-md">
                         +{v.pointReward}P
                       </span>
+                    </td>
+                    <td className="px-5 py-3.5">
+                      {v.link ? (
+                        <a href={v.link} target="_blank" rel="noopener noreferrer" className="text-indigo-500 hover:text-indigo-700 text-xs underline truncate block max-w-[120px]">
+                          링크
+                        </a>
+                      ) : (
+                        <span className="text-gray-300 text-xs">—</span>
+                      )}
                     </td>
                     <td className="px-5 py-3.5">
                       <div className="flex gap-1.5">
@@ -173,7 +216,7 @@ export default function AdminVideosPage() {
           onClick={() => setModalOpen(false)}
         >
           <div
-            className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6"
+            className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-lg font-semibold text-gray-900 mb-5">
@@ -190,6 +233,79 @@ export default function AdminVideosPage() {
                   className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition-colors"
                 />
               </div>
+
+              {/* Thumbnail Upload */}
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1.5">썸네일 이미지</label>
+                <input
+                  ref={thumbnailInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleThumbnailUpload}
+                  className="hidden"
+                />
+                {form.thumbnailData ? (
+                  <div className="relative group">
+                    <img
+                      src={form.thumbnailData}
+                      alt="썸네일"
+                      className="w-full h-40 object-cover rounded-lg border border-gray-200"
+                    />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => thumbnailInputRef.current?.click()}
+                        className="px-3 py-1.5 bg-white text-gray-900 text-xs font-medium rounded-lg"
+                      >
+                        변경
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setForm({ ...form, thumbnailData: '' })}
+                        className="px-3 py-1.5 bg-red-500 text-white text-xs font-medium rounded-lg"
+                      >
+                        삭제
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => thumbnailInputRef.current?.click()}
+                    className="w-full h-32 border-2 border-dashed border-gray-200 rounded-lg flex flex-col items-center justify-center gap-2 hover:border-gray-400 transition-colors text-gray-400 hover:text-gray-600"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.41a2.25 2.25 0 013.182 0l2.909 2.91m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                    </svg>
+                    <span className="text-xs">클릭하여 썸네일 업로드 (2MB 이하)</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Video URL */}
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1.5">영상 URL (YouTube 등)</label>
+                <input
+                  type="url"
+                  value={form.videoUrl}
+                  onChange={(e) => setForm({ ...form, videoUrl: e.target.value })}
+                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition-colors"
+                  placeholder="https://youtube.com/watch?v=..."
+                />
+              </div>
+
+              {/* External Link */}
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1.5">외부 링크</label>
+                <input
+                  type="url"
+                  value={form.link}
+                  onChange={(e) => setForm({ ...form, link: e.target.value })}
+                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition-colors"
+                  placeholder="https://..."
+                />
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-gray-500 mb-1.5">재생시간</label>

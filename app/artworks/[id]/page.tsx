@@ -109,7 +109,11 @@ export default function ArtworkDetailPage() {
 
         {/* Image Area */}
         <div className="relative aspect-square bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mb-8 overflow-hidden">
-          <ArtworkIcon category={artwork.category} className="w-24 h-24 text-gray-400" />
+          {artwork.imageData ? (
+            <img src={artwork.imageData} alt={artwork.title} className="absolute inset-0 w-full h-full object-cover" />
+          ) : (
+            <ArtworkIcon category={artwork.category} className="w-24 h-24 text-gray-400" />
+          )}
 
           {isSoldOut && (
             <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center">
@@ -146,7 +150,34 @@ export default function ArtworkDetailPage() {
         <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-1">{artwork.title}</h1>
           <p className="text-gray-500 mb-4">{artwork.artist}</p>
-          <p className="text-gray-600 leading-relaxed mb-6">{artwork.description}</p>
+          <p className="text-gray-600 leading-relaxed mb-4">{artwork.description}</p>
+
+          {/* Media attachment */}
+          {artwork.mediaData && artwork.mediaType === 'audio' && (
+            <div className="mb-4">
+              <audio controls className="w-full" src={artwork.mediaData} />
+            </div>
+          )}
+          {artwork.mediaData && artwork.mediaType === 'image' && (
+            <div className="mb-4 rounded-xl overflow-hidden border border-gray-200">
+              <img src={artwork.mediaData} alt="첨부 이미지" className="w-full" />
+            </div>
+          )}
+
+          {/* External link */}
+          {artwork.link && (
+            <a
+              href={artwork.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-semibold rounded-xl hover:bg-indigo-100 transition-colors border border-indigo-100 mb-4"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+              </svg>
+              외부 링크 열기
+            </a>
+          )}
 
           <div className="flex items-baseline gap-3 pb-6 border-b border-gray-100">
             <span className="text-2xl font-extrabold text-gray-900 tabular-nums">

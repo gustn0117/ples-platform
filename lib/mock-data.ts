@@ -32,13 +32,17 @@ export interface Artwork {
   id: number;
   title: string;
   artist: string;
-  category: '앨범' | '포스터' | '포토카드' | '머천다이즈' | '디지털';
+  category: '앨범' | '포스터' | '포토카드' | '머천다이즈' | '디지털' | '평면아트' | '조형아트' | '미디어아트' | '사운드아트' | '책';
   price: number;
   pointPrice: number;
   description: string;
   soldOut: boolean;
   stock: number;
   isNew?: boolean;
+  imageData?: string;       // base64 product image
+  mediaType?: 'image' | 'audio';
+  mediaData?: string;       // base64 media (audio etc.)
+  link?: string;            // external link URL
 }
 
 export interface Video {
@@ -47,6 +51,9 @@ export interface Video {
   duration: string;
   pointReward: number;
   watched: boolean;
+  videoUrl?: string;        // YouTube or external video URL
+  thumbnailData?: string;   // base64 thumbnail image
+  link?: string;            // external link URL
 }
 
 export interface PointHistory {

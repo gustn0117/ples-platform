@@ -8,7 +8,7 @@ import { IconShoppingBag, IconCoin, IconPalette } from '@/components/icons';
 import type { Artwork } from '@/lib/mock-data';
 import { ArtworkIcon } from '@/lib/icons';
 
-const CATEGORIES = ['전체', '앨범', '포스터', '포토카드', '머천다이즈', '디지털'] as const;
+const CATEGORIES = ['전체', '앨범', '포스터', '포토카드', '머천다이즈', '디지털', '평면아트', '조형아트', '미디어아트', '사운드아트', '책'] as const;
 type Category = typeof CATEGORIES[number];
 
 export default function ArtworksPage() {
@@ -140,9 +140,13 @@ export default function ArtworksPage() {
                 >
                   {/* Image Area */}
                   <Link href={`/artworks/${artwork.id}`} className="relative aspect-square bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center overflow-hidden">
-                    <span className="group-hover:scale-110 transition-transform duration-500 text-gray-400">
-                      <ArtworkIcon category={artwork.category} className="w-12 h-12" />
-                    </span>
+                    {artwork.imageData ? (
+                      <img src={artwork.imageData} alt={artwork.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                    ) : (
+                      <span className="group-hover:scale-110 transition-transform duration-500 text-gray-400">
+                        <ArtworkIcon category={artwork.category} className="w-12 h-12" />
+                      </span>
+                    )}
 
                     {/* Sold Out Overlay */}
                     {isSoldOut && (
@@ -194,6 +198,20 @@ export default function ArtworksPage() {
                         {artwork.pointPrice.toLocaleString()}P
                       </span>
                     </div>
+
+                    {artwork.link && (
+                      <a
+                        href={artwork.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full py-2.5 rounded-xl bg-indigo-50 text-indigo-600 text-xs font-semibold hover:bg-indigo-100 transition-colors flex items-center justify-center gap-1.5 mb-2 border border-indigo-100"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                        </svg>
+                        외부 링크
+                      </a>
+                    )}
 
                     {!isSoldOut ? (
                       <Link

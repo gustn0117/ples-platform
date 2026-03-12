@@ -227,10 +227,14 @@ export default function VideosPage() {
                     className="relative aspect-video bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center cursor-pointer overflow-hidden"
                     onClick={() => canEarn && openWatch(video)}
                   >
-                    {/* Emoji thumbnail */}
-                    <span className="opacity-60 group-hover:opacity-80 transition-opacity duration-300 text-gray-400">
-                      <VideoIcon className="w-12 h-12 sm:w-14 sm:h-14" />
-                    </span>
+                    {/* Thumbnail image or fallback icon */}
+                    {video.thumbnailData ? (
+                      <img src={video.thumbnailData} alt={video.title} className="absolute inset-0 w-full h-full object-cover" />
+                    ) : (
+                      <span className="opacity-60 group-hover:opacity-80 transition-opacity duration-300 text-gray-400">
+                        <VideoIcon className="w-12 h-12 sm:w-14 sm:h-14" />
+                      </span>
+                    )}
 
                     {/* Play button overlay */}
                     {canEarn && (
@@ -285,6 +289,21 @@ export default function VideosPage() {
                       )}
                     </div>
 
+                    {/* External link */}
+                    {video.link && (
+                      <a
+                        href={video.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full py-2.5 rounded-xl bg-indigo-50 text-indigo-600 text-xs font-semibold hover:bg-indigo-100 transition-colors flex items-center justify-center gap-1.5 mb-2 border border-indigo-100"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                        </svg>
+                        외부 링크
+                      </a>
+                    )}
+
                     {/* CTA */}
                     {isWatched ? (
                       <div className="w-full py-3 rounded-xl bg-gray-100 text-center text-sm font-medium text-gray-400 flex items-center justify-center gap-1.5">
@@ -328,7 +347,10 @@ export default function VideosPage() {
           <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-gray-200">
             {/* Player Area */}
             <div className="relative aspect-video bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100 flex items-center justify-center">
-              <div className="text-center">
+              {activeVideo.thumbnailData && (
+                <img src={activeVideo.thumbnailData} alt="" className="absolute inset-0 w-full h-full object-cover opacity-30" />
+              )}
+              <div className="relative text-center">
                 <span className="block mb-4 text-gray-300"><VideoIcon className="w-16 h-16 mx-auto" /></span>
                 <p className="text-sm font-semibold text-gray-900 mb-1 px-4">{activeVideo.title}</p>
                 <p className="text-xs text-gray-500 mb-6">미디어 재생 중...</p>
