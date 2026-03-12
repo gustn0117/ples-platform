@@ -9,7 +9,6 @@ import {
   adminAdjustPoints,
   getChargeRate,
   setChargeRate,
-  syncToServer,
 } from '@/lib/store'
 import type { PointHistory } from '@/lib/mock-data'
 
@@ -57,7 +56,11 @@ export default function AdminPointsPage() {
     setChargeRate(rate)
     reload()
     alert(`충전 비율이 ${rate}로 변경되었습니다.`)
-    syncToServer('ples_charge_rate', rate)
+    fetch('/api/store', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: 'chargeRate', value: rate }),
+    }).catch(() => {})
   }
 
   return (

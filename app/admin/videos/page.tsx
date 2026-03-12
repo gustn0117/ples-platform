@@ -2,14 +2,6 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import {
-  initStore,
-  getVideos,
-  addVideo,
-  updateVideo,
-  deleteVideo as deleteVideoFromStore,
-  syncToServer,
-} from '@/lib/store'
 import type { Video } from '@/lib/mock-data'
 
 const emptyForm = {
@@ -22,17 +14,38 @@ const emptyForm = {
 }
 
 export default function AdminVideosPage() {
-  const [videos, setVideos] = useState<Video[]>([])
+  const [videos, setVideosState] = useState<Video[]>([])
   const [modalOpen, setModalOpen] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [form, setForm] = useState(emptyForm)
   const thumbnailInputRef = useRef<HTMLInputElement>(null)
 
-  const reload = () => setVideos(getVideos())
+  const fetchVideos = async () => {
+    try {
+      const res = await fetch('/api/store')
+      if (!res.ok) return
+      const data = await res.json()
+      setVideosState(data.videos || [])
+    } catch (e) {
+      console.error('Failed to fetch videos:', e)
+    }
+  }
+
+  const saveToServer = async (updatedVideos: Video[]) => {
+    try {
+      const res = await fetch('/api/store', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: 'videos', value: updatedVideos }),
+      })
+      if (!res.ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
+    } catch {
+      alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
+    }
+  }
 
   useEffect(() => {
-    initStore()
-    reload()
+    fetchVideos()
   }, [])
 
   const openCreate = () => {
@@ -69,7 +82,7 @@ export default function AdminVideosPage() {
   const handleSave = () => {
     if (!form.title) return alert('제목은 필수입니다.')
 
-    const data = {
+    const videoData = {
       title: form.title,
       duration: form.duration,
       pointReward: form.pointReward,
@@ -78,29 +91,24 @@ export default function AdminVideosPage() {
       link: form.link || undefined,
     }
 
+    let updated: Video[]
     if (editingId !== null) {
-      updateVideo(editingId, data)
+      updated = videos.map((v) => (v.id === editingId ? { ...v, ...videoData } : v))
     } else {
-      addVideo({
-        ...data,
-        watched: false,
-      })
+      const newId = videos.length > 0 ? Math.max(...videos.map((v) => v.id)) + 1 : 1
+      updated = [...videos, { ...videoData, id: newId, watched: false } as Video]
     }
 
+    setVideosState(updated)
     setModalOpen(false)
-    reload()
-    syncToServer('ples_videos', getVideos()).then((ok) => {
-      if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
-    })
+    saveToServer(updated)
   }
 
   const handleDelete = (id: number, title: string) => {
     if (!confirm(`"${title}" 미디어를 삭제하시겠습니까?`)) return
-    deleteVideoFromStore(id)
-    reload()
-    syncToServer('ples_videos', getVideos()).then((ok) => {
-      if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
-    })
+    const updated = videos.filter((v) => v.id !== id)
+    setVideosState(updated)
+    saveToServer(updated)
   }
 
   return (

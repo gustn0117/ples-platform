@@ -2,14 +2,6 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import {
-  initStore,
-  getBanners,
-  addBanner,
-  updateBanner,
-  deleteBanner as deleteBannerFromStore,
-  syncToServer,
-} from '@/lib/store'
 import type { Banner } from '@/lib/mock-data'
 
 const emptyForm = {
@@ -24,7 +16,7 @@ const emptyForm = {
 }
 
 export default function AdminBannersPage() {
-  const [banners, setBanners] = useState<Banner[]>([])
+  const [banners, setBannersState] = useState<Banner[]>([])
   const [modalOpen, setModalOpen] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [form, setForm] = useState(emptyForm)
@@ -51,11 +43,20 @@ export default function AdminBannersPage() {
     e.target.value = ''
   }
 
-  const reload = () => setBanners(getBanners().sort((a, b) => a.order - b.order))
+  const fetchBanners = async () => {
+    try {
+      const res = await fetch('/api/store')
+      if (!res.ok) return
+      const data = await res.json()
+      const serverBanners: Banner[] = data.banners || []
+      setBannersState(serverBanners.sort((a: Banner, b: Banner) => a.order - b.order))
+    } catch (e) {
+      console.error('Failed to fetch banners:', e)
+    }
+  }
 
   useEffect(() => {
-    initStore()
-    reload()
+    fetchBanners()
   }, [])
 
   const openCreate = () => {
@@ -80,53 +81,67 @@ export default function AdminBannersPage() {
     setModalOpen(true)
   }
 
+  const saveBannersToServer = async (updatedBanners: Banner[]) => {
+    try {
+      const res = await fetch('/api/store', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: 'banners', value: updatedBanners }),
+      })
+      if (!res.ok) {
+        alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
+        return false
+      }
+      return true
+    } catch {
+      alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
+      return false
+    }
+  }
+
   const handleSave = () => {
     if (!form.title) return alert('제목은 필수입니다.')
 
-    if (editingId !== null) {
-      updateBanner(editingId, {
-        title: form.title,
-        subtitle: form.subtitle,
-        bgColor: form.bgColor,
-        bgImage: form.bgImage || undefined,
-        textColor: form.textColor,
-        link: form.link || undefined,
-        isActive: form.isActive,
-        order: form.order,
-      })
-    } else {
-      addBanner({
-        title: form.title,
-        subtitle: form.subtitle,
-        bgColor: form.bgColor,
-        bgImage: form.bgImage || undefined,
-        textColor: form.textColor,
-        link: form.link || undefined,
-        isActive: form.isActive,
-        order: form.order,
-      })
+    const bannerData = {
+      title: form.title,
+      subtitle: form.subtitle,
+      bgColor: form.bgColor,
+      bgImage: form.bgImage || undefined,
+      textColor: form.textColor,
+      link: form.link || undefined,
+      isActive: form.isActive,
+      order: form.order,
     }
 
+    let updatedBanners: Banner[]
+    if (editingId !== null) {
+      updatedBanners = banners.map((b) => (b.id === editingId ? { ...b, ...bannerData } : b))
+    } else {
+      const newId = banners.length > 0 ? Math.max(...banners.map((b) => b.id)) + 1 : 1
+      updatedBanners = [...banners, { ...bannerData, id: newId } as Banner]
+    }
+
+    // Update UI immediately
+    setBannersState(updatedBanners.sort((a, b) => a.order - b.order))
     setModalOpen(false)
-    reload()
-    syncToServer('ples_banners', getBanners()).then((ok) => {
-      if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
-    })
+
+    // Save to server in background
+    saveBannersToServer(updatedBanners)
   }
 
   const handleDelete = (id: number, title: string) => {
     if (!confirm(`"${title}" 배너를 삭제하시겠습니까?`)) return
-    deleteBannerFromStore(id)
-    reload()
-    syncToServer('ples_banners', getBanners()).then((ok) => {
-      if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
-    })
+    const updatedBanners = banners.filter((b) => b.id !== id)
+    setBannersState(updatedBanners)
+    saveBannersToServer(updatedBanners)
   }
 
   const toggleActive = (b: Banner) => {
-    updateBanner(b.id, { isActive: !b.isActive })
-    reload()
-    syncToServer('ples_banners', getBanners())
+    const updatedBanners = banners.map((banner) =>
+      banner.id === b.id ? { ...banner, isActive: !banner.isActive } : banner
+    )
+    setBannersState(updatedBanners)
+    saveBannersToServer(updatedBanners)
   }
 
   return (

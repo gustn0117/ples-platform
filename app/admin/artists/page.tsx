@@ -2,30 +2,43 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import {
-  initStore,
-  getArtists,
-  addArtist,
-  updateArtist,
-  deleteArtist as deleteArtistFromStore,
-  syncToServer,
-} from '@/lib/store'
 import type { Artist } from '@/lib/mock-data'
 
 const emptyForm = { name: '', genre: '', description: '', imageData: '', instagram: '', youtube: '', twitter: '' }
 
 export default function AdminArtistsPage() {
-  const [artists, setArtists] = useState<Artist[]>([])
+  const [artists, setArtistsState] = useState<Artist[]>([])
   const [modalOpen, setModalOpen] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [form, setForm] = useState(emptyForm)
   const imageInputRef = useRef<HTMLInputElement>(null)
 
-  const reload = () => setArtists(getArtists())
+  const fetchArtists = async () => {
+    try {
+      const res = await fetch('/api/store')
+      if (!res.ok) return
+      const data = await res.json()
+      setArtistsState(data.artists || [])
+    } catch (e) {
+      console.error('Failed to fetch artists:', e)
+    }
+  }
+
+  const saveToServer = async (updated: Artist[]) => {
+    try {
+      const res = await fetch('/api/store', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: 'artists', value: updated }),
+      })
+      if (!res.ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
+    } catch {
+      alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
+    }
+  }
 
   useEffect(() => {
-    initStore()
-    reload()
+    fetchArtists()
   }, [])
 
   const openCreate = () => {
@@ -62,39 +75,32 @@ export default function AdminArtistsPage() {
     }
     const hasSns = Object.values(snsData).some(Boolean)
 
-    if (editingId !== null) {
-      updateArtist(editingId, {
-        name: form.name,
-        genre: form.genre,
-        description: form.description || undefined,
-        imageData: form.imageData || undefined,
-        sns: hasSns ? snsData : undefined,
-      })
-    } else {
-      addArtist({
-        name: form.name,
-        genre: form.genre,
-        likes: 0,
-        description: form.description || undefined,
-        imageData: form.imageData || undefined,
-        sns: hasSns ? snsData : undefined,
-      })
+    const artistData = {
+      name: form.name,
+      genre: form.genre,
+      description: form.description || undefined,
+      imageData: form.imageData || undefined,
+      sns: hasSns ? snsData : undefined,
     }
 
+    let updated: Artist[]
+    if (editingId !== null) {
+      updated = artists.map((a) => (a.id === editingId ? { ...a, ...artistData } : a))
+    } else {
+      const newId = artists.length > 0 ? Math.max(...artists.map((a) => a.id)) + 1 : 1
+      updated = [...artists, { ...artistData, id: newId, likes: 0 } as Artist]
+    }
+
+    setArtistsState(updated)
     setModalOpen(false)
-    reload()
-    syncToServer('ples_artists', getArtists()).then((ok) => {
-      if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
-    })
+    saveToServer(updated)
   }
 
   const handleDelete = (id: number, name: string) => {
     if (!confirm(`"${name}" 아티스트를 삭제하시겠습니까?`)) return
-    deleteArtistFromStore(id)
-    reload()
-    syncToServer('ples_artists', getArtists()).then((ok) => {
-      if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
-    })
+    const updated = artists.filter((a) => a.id !== id)
+    setArtistsState(updated)
+    saveToServer(updated)
   }
 
   return (

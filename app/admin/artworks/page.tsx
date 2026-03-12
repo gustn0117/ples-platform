@@ -2,14 +2,6 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import {
-  initStore,
-  getArtworks,
-  addArtwork,
-  updateArtwork,
-  deleteArtwork as deleteArtworkFromStore,
-  syncToServer,
-} from '@/lib/store'
 import type { Artwork } from '@/lib/mock-data'
 
 const categories: Artwork['category'][] = [
@@ -32,18 +24,39 @@ const emptyForm = {
 }
 
 export default function AdminArtworksPage() {
-  const [artworks, setArtworks] = useState<Artwork[]>([])
+  const [artworks, setArtworksState] = useState<Artwork[]>([])
   const [modalOpen, setModalOpen] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [form, setForm] = useState(emptyForm)
   const imageInputRef = useRef<HTMLInputElement>(null)
   const mediaInputRef = useRef<HTMLInputElement>(null)
 
-  const reload = () => setArtworks(getArtworks())
+  const fetchArtworks = async () => {
+    try {
+      const res = await fetch('/api/store')
+      if (!res.ok) return
+      const data = await res.json()
+      setArtworksState(data.artworks || [])
+    } catch (e) {
+      console.error('Failed to fetch artworks:', e)
+    }
+  }
+
+  const saveToServer = async (updated: Artwork[]) => {
+    try {
+      const res = await fetch('/api/store', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: 'artworks', value: updated }),
+      })
+      if (!res.ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
+    } catch {
+      alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
+    }
+  }
 
   useEffect(() => {
-    initStore()
-    reload()
+    fetchArtworks()
   }, [])
 
   const openCreate = () => {
@@ -115,35 +128,30 @@ export default function AdminArtworksPage() {
       link: form.link || undefined,
     }
 
+    let updated: Artwork[]
     if (editingId !== null) {
-      updateArtwork(editingId, data)
+      updated = artworks.map((a) => (a.id === editingId ? { ...a, ...data } : a))
     } else {
-      addArtwork({
-        ...data,
-        soldOut: false,
-      })
+      const newId = artworks.length > 0 ? Math.max(...artworks.map((a) => a.id)) + 1 : 1
+      updated = [...artworks, { ...data, id: newId, soldOut: false } as Artwork]
     }
 
+    setArtworksState(updated)
     setModalOpen(false)
-    reload()
-    syncToServer('ples_artworks', getArtworks()).then((ok) => {
-      if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
-    })
+    saveToServer(updated)
   }
 
   const toggleSoldOut = (id: number, current: boolean) => {
-    updateArtwork(id, { soldOut: !current })
-    reload()
-    syncToServer('ples_artworks', getArtworks())
+    const updated = artworks.map((a) => (a.id === id ? { ...a, soldOut: !current } : a))
+    setArtworksState(updated)
+    saveToServer(updated)
   }
 
   const handleDelete = (id: number, title: string) => {
     if (!confirm(`"${title}" 작품을 삭제하시겠습니까?`)) return
-    deleteArtworkFromStore(id)
-    reload()
-    syncToServer('ples_artworks', getArtworks()).then((ok) => {
-      if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
-    })
+    const updated = artworks.filter((a) => a.id !== id)
+    setArtworksState(updated)
+    saveToServer(updated)
   }
 
   const categoryIcon = (cat: string) => {

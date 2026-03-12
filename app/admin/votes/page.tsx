@@ -2,14 +2,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import {
-  initStore,
-  getVotes,
-  addVote,
-  updateVote,
-  deleteVote as deleteVoteFromStore,
-  syncToServer,
-} from '@/lib/store'
 import type { Vote } from '@/lib/mock-data'
 
 interface OptionInput {
@@ -27,7 +19,7 @@ const emptyForm = {
 }
 
 export default function AdminVotesPage() {
-  const [votes, setVotes] = useState<Vote[]>([])
+  const [votes, setVotesState] = useState<Vote[]>([])
   const [modalOpen, setModalOpen] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [form, setForm] = useState(emptyForm)
@@ -35,11 +27,32 @@ export default function AdminVotesPage() {
   const [resultsOpen, setResultsOpen] = useState(false)
   const [selectedVote, setSelectedVote] = useState<Vote | null>(null)
 
-  const reload = () => setVotes(getVotes())
+  const fetchVotes = async () => {
+    try {
+      const res = await fetch('/api/store')
+      if (!res.ok) return
+      const data = await res.json()
+      setVotesState(data.votes || [])
+    } catch (e) {
+      console.error('Failed to fetch votes:', e)
+    }
+  }
+
+  const saveToServer = async (updated: Vote[]) => {
+    try {
+      const res = await fetch('/api/store', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: 'votes', value: updated }),
+      })
+      if (!res.ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
+    } catch {
+      alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
+    }
+  }
 
   useEffect(() => {
-    initStore()
-    reload()
+    fetchVotes()
   }, [])
 
   const openCreate = () => {
@@ -117,45 +130,38 @@ export default function AdminVotesPage() {
       ...(o.link ? { link: o.link } : {}),
     }))
 
-    if (editingId !== null) {
-      updateVote(editingId, {
-        title: form.title,
-        description: form.description || undefined,
-        pointReward: form.pointReward,
-        endDate: form.endDate,
-        options: mappedOptions,
-      })
-    } else {
-      addVote({
-        title: form.title,
-        description: form.description || undefined,
-        pointReward: form.pointReward,
-        endDate: form.endDate,
-        isActive: true,
-        options: mappedOptions,
-      })
+    const voteData = {
+      title: form.title,
+      description: form.description || undefined,
+      pointReward: form.pointReward,
+      endDate: form.endDate,
+      options: mappedOptions,
     }
 
+    let updated: Vote[]
+    if (editingId !== null) {
+      updated = votes.map((v) => (v.id === editingId ? { ...v, ...voteData } : v))
+    } else {
+      const newId = votes.length > 0 ? Math.max(...votes.map((v) => v.id)) + 1 : 1
+      updated = [...votes, { ...voteData, id: newId, isActive: true } as Vote]
+    }
+
+    setVotesState(updated)
     setModalOpen(false)
-    reload()
-    syncToServer('ples_votes', getVotes()).then((ok) => {
-      if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
-    })
+    saveToServer(updated)
   }
 
   const toggleActive = (id: number, current: boolean) => {
-    updateVote(id, { isActive: !current })
-    reload()
-    syncToServer('ples_votes', getVotes())
+    const updated = votes.map((v) => (v.id === id ? { ...v, isActive: !current } : v))
+    setVotesState(updated)
+    saveToServer(updated)
   }
 
   const handleDelete = (id: number, title: string) => {
     if (!confirm(`"${title}" 투표를 삭제하시겠습니까?`)) return
-    deleteVoteFromStore(id)
-    reload()
-    syncToServer('ples_votes', getVotes()).then((ok) => {
-      if (!ok) alert('서버 저장에 실패했습니다. 다시 시도해주세요.')
-    })
+    const updated = votes.filter((v) => v.id !== id)
+    setVotesState(updated)
+    saveToServer(updated)
   }
 
   const getTotalVotes = (v: Vote) => v.options.reduce((sum, o) => sum + o.votes, 0)
