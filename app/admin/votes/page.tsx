@@ -15,6 +15,7 @@ interface OptionInput {
   label: string
   mediaType?: 'image' | 'audio'
   mediaData?: string
+  link?: string
 }
 
 const emptyForm = {
@@ -55,7 +56,7 @@ export default function AdminVotesPage() {
       pointReward: v.pointReward,
       endDate: v.endDate,
     })
-    setOptions(v.options.map((o) => ({ label: o.label, mediaType: o.mediaType, mediaData: o.mediaData })))
+    setOptions(v.options.map((o) => ({ label: o.label, mediaType: o.mediaType, mediaData: o.mediaData, link: o.link })))
     setModalOpen(true)
   }
 
@@ -112,6 +113,7 @@ export default function AdminVotesPage() {
       label: o.label,
       votes: 0,
       ...(o.mediaType && o.mediaData ? { mediaType: o.mediaType, mediaData: o.mediaData } : {}),
+      ...(o.link ? { link: o.link } : {}),
     }))
 
     if (editingId !== null) {
@@ -349,6 +351,18 @@ export default function AdminVotesPage() {
                           </button>
                         )}
                       </div>
+                      {/* Link input */}
+                      <input
+                        type="url"
+                        value={opt.link || ''}
+                        onChange={(e) => {
+                          const updated = [...options]
+                          updated[i] = { ...updated[i], link: e.target.value || undefined }
+                          setOptions(updated)
+                        }}
+                        placeholder="링크 URL (선택사항)"
+                        className="w-full px-3.5 py-2 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition-colors text-gray-500"
+                      />
                       {/* Media upload */}
                       {opt.mediaData ? (
                         <div className="flex items-center gap-3">

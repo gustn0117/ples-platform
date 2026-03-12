@@ -15,6 +15,7 @@ export interface VoteOption {
   votes: number;
   mediaType?: 'image' | 'audio';
   mediaData?: string; // base64 data URL
+  link?: string; // external link URL
 }
 
 export interface Vote {
