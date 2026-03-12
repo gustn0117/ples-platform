@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { initStore, getVideos, getUserWatched, watchVideo, getTodayWatchCount, getUserPoints } from '@/lib/store';
 import type { Video } from '@/lib/mock-data';
@@ -9,6 +9,18 @@ import { VideoIcon, CoinIcon, ChartIcon, PartyIcon } from '@/lib/icons';
 
 const MAX_DAILY = 5;
 const REWARD_POINTS = 20;
+const WATCH_SECONDS = 15; // 최소 시청 시간 (초)
+
+function extractYouTubeId(url: string): string | null {
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+  ];
+  for (const p of patterns) {
+    const m = url.match(p);
+    if (m) return m[1];
+  }
+  return null;
+}
 
 export default function VideosPage() {
   const { user } = useAuth();
@@ -20,10 +32,11 @@ export default function VideosPage() {
 
   // Modal state
   const [activeVideo, setActiveVideo] = useState<Video | null>(null);
-  const [countdown, setCountdown] = useState(3);
-  const [counting, setCounting] = useState(false);
+  const [watchTimer, setWatchTimer] = useState(WATCH_SECONDS);
+  const [canClaim, setCanClaim] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [earnedPoints, setEarnedPoints] = useState(0);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Toast
   const [toast, setToast] = useState<string | null>(null);
@@ -40,7 +53,6 @@ export default function VideosPage() {
     refreshData();
     setLoading(false);
 
-    // Refresh data when tab regains focus or localStorage changes from another tab
     const handleFocus = () => refreshData();
     const handleStorage = (e: StorageEvent) => {
       if (e.key === 'ples_videos' || e.key === null) refreshData();
@@ -53,49 +65,55 @@ export default function VideosPage() {
     };
   }, [refreshData]);
 
-  // Countdown timer
+  // Watch timer countdown
   useEffect(() => {
-    if (!counting || countdown <= 0) return;
-    const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
-    return () => clearTimeout(timer);
-  }, [counting, countdown]);
-
-  // Countdown reached 0
-  useEffect(() => {
-    if (counting && countdown === 0 && activeVideo) {
-      setCounting(false);
-      const result = watchVideo(activeVideo.id);
-      if (result.success && result.points && result.points > 0) {
-        setEarnedPoints(result.points);
-        setCompleted(true);
-        refreshData();
-        setToast(`+${result.points}P 적립 완료!`);
-        setTimeout(() => setToast(null), 2500);
-      } else if (result.success && (result.points === 0 || !result.points)) {
-        // Already watched, no additional points
-        setCompleted(true);
-      } else {
-        // Error (e.g., daily limit)
-        setToast(result.error || '오류가 발생했습니다.');
-        setTimeout(() => setToast(null), 2500);
-        closeModal();
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [countdown, counting]);
+    if (!activeVideo || completed || canClaim) return;
+    timerRef.current = setInterval(() => {
+      setWatchTimer((t) => {
+        if (t <= 1) {
+          setCanClaim(true);
+          if (timerRef.current) clearInterval(timerRef.current);
+          return 0;
+        }
+        return t - 1;
+      });
+    }, 1000);
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [activeVideo, completed, canClaim]);
 
   const openWatch = (video: Video) => {
     if (!user) return;
     setActiveVideo(video);
-    setCountdown(3);
-    setCounting(true);
+    setWatchTimer(WATCH_SECONDS);
+    setCanClaim(false);
     setCompleted(false);
     setEarnedPoints(0);
   };
 
+  const claimReward = () => {
+    if (!activeVideo || !canClaim) return;
+    const result = watchVideo(activeVideo.id);
+    if (result.success && result.points && result.points > 0) {
+      setEarnedPoints(result.points);
+      setCompleted(true);
+      refreshData();
+      setToast(`+${result.points}P 적립 완료!`);
+      setTimeout(() => setToast(null), 2500);
+    } else if (result.success && (result.points === 0 || !result.points)) {
+      setCompleted(true);
+    } else {
+      setToast(result.error || '오류가 발생했습니다.');
+      setTimeout(() => setToast(null), 2500);
+      closeModal();
+    }
+  };
+
   const closeModal = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
     setActiveVideo(null);
-    setCounting(false);
+    setCanClaim(false);
     setCompleted(false);
     setEarnedPoints(0);
   };
@@ -349,90 +367,114 @@ export default function VideosPage() {
       </div>
 
       {/* Watch Modal */}
-      {activeVideo && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
-          onClick={(e) => {
-            if (e.target === e.currentTarget && !counting) closeModal();
-          }}
-        >
-          <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-gray-200">
-            {/* Player Area */}
-            <div className="relative aspect-video bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100 flex items-center justify-center">
-              {activeVideo.thumbnailData && (
-                <img src={activeVideo.thumbnailData} alt="" className="absolute inset-0 w-full h-full object-cover opacity-30" />
-              )}
-              <div className="relative text-center">
-                <span className="block mb-4 text-gray-300"><VideoIcon className="w-16 h-16 mx-auto" /></span>
-                <p className="text-sm font-semibold text-gray-900 mb-1 px-4">{activeVideo.title}</p>
-                <p className="text-xs text-gray-500 mb-6">미디어 재생 중...</p>
-
-                {/* Countdown */}
-                {counting && countdown > 0 && (
-                  <div className="inline-flex items-center gap-3 px-5 py-3 bg-white rounded-2xl border border-gray-200 shadow-sm">
-                    <div className="relative w-14 h-14">
-                      <svg className="w-14 h-14 transform -rotate-90" viewBox="0 0 56 56">
-                        <circle cx="28" cy="28" r="24" fill="none" stroke="#e5e7eb" strokeWidth="2.5" />
-                        <circle
-                          cx="28" cy="28" r="24" fill="none"
-                          stroke="#818cf8" strokeWidth="3" strokeLinecap="round"
-                          strokeDasharray={`${(countdown / 3) * 150.8} 150.8`}
-                          className="transition-all duration-1000"
-                        />
-                      </svg>
-                      <span className="absolute inset-0 flex items-center justify-center text-xl font-bold text-gray-900">
-                        {countdown}
-                      </span>
-                    </div>
-                    <div className="text-left">
-                      <span className="text-xs text-gray-500 block">시청 완료까지</span>
-                      <span className="text-xs text-gray-400">{countdown}초 남음</span>
+      {activeVideo && (() => {
+        const ytId = activeVideo.videoUrl ? extractYouTubeId(activeVideo.videoUrl) : null;
+        return (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+            onClick={(e) => {
+              if (e.target === e.currentTarget && (canClaim || completed)) closeModal();
+            }}
+          >
+            <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-gray-200">
+              {/* Player Area */}
+              <div className="relative aspect-video bg-black">
+                {ytId ? (
+                  <iframe
+                    src={`https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0`}
+                    className="absolute inset-0 w-full h-full"
+                    allow="autoplay; encrypted-media"
+                    allowFullScreen
+                  />
+                ) : activeVideo.videoUrl ? (
+                  <iframe
+                    src={activeVideo.videoUrl}
+                    className="absolute inset-0 w-full h-full"
+                    allow="autoplay; encrypted-media"
+                    allowFullScreen
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                    {activeVideo.thumbnailData && (
+                      <img src={activeVideo.thumbnailData} alt="" className="absolute inset-0 w-full h-full object-cover opacity-40" />
+                    )}
+                    <div className="relative text-center">
+                      <VideoIcon className="w-16 h-16 mx-auto text-gray-300 mb-3" />
+                      <p className="text-sm font-semibold text-gray-600">영상 URL이 등록되지 않았습니다</p>
                     </div>
                   </div>
                 )}
+              </div>
 
-                {/* Completed */}
-                {completed && (
-                  <div className="inline-flex flex-col items-center gap-2">
+              {/* Info & Reward */}
+              <div className="px-5 py-4 border-t border-gray-200">
+                <h3 className="font-semibold text-gray-900 text-sm mb-3 line-clamp-2">{activeVideo.title}</h3>
+
+                {/* Timer / Claim / Completed */}
+                {completed ? (
+                  <div className="flex items-center justify-between">
                     {earnedPoints > 0 ? (
-                      <>
-                        <div className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-2xl shadow-lg shadow-indigo-500/20 animate-bounce">
-                          <CoinIcon className="w-5 h-5" />
-                          <span className="text-base font-bold">+{earnedPoints}P 적립!</span>
-                        </div>
-                        <span className="text-xs text-gray-500">포인트가 적립되었습니다</span>
-                      </>
+                      <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl border border-indigo-200">
+                        <CoinIcon className="w-4 h-4" />
+                        <span className="text-sm font-bold">+{earnedPoints}P 적립 완료!</span>
+                      </div>
                     ) : (
-                      <div className="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-600 rounded-2xl border border-gray-200">
+                      <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-600 rounded-xl border border-gray-200">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4.5 12.75l6 6 9-13.5" /></svg>
                         <span className="text-sm font-semibold">이미 적립된 미디어입니다</span>
                       </div>
                     )}
+                    <button
+                      onClick={closeModal}
+                      className="px-5 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-semibold hover:bg-gray-800 transition-colors"
+                    >
+                      닫기
+                    </button>
+                  </div>
+                ) : canClaim ? (
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-1.5 text-xs font-bold text-green-600 bg-green-50 px-3 py-1.5 rounded-xl border border-green-200">
+                      시청 완료!
+                    </span>
+                    <button
+                      onClick={claimReward}
+                      className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-500 transition-all flex items-center gap-2 animate-pulse"
+                    >
+                      <CoinIcon className="w-4 h-4" />
+                      +{activeVideo.pointReward}P 받기
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-xl">
+                        <div className="relative w-8 h-8">
+                          <svg className="w-8 h-8 transform -rotate-90" viewBox="0 0 36 36">
+                            <circle cx="18" cy="18" r="15" fill="none" stroke="#e5e7eb" strokeWidth="2" />
+                            <circle
+                              cx="18" cy="18" r="15" fill="none"
+                              stroke="#818cf8" strokeWidth="2.5" strokeLinecap="round"
+                              strokeDasharray={`${(watchTimer / WATCH_SECONDS) * 94.2} 94.2`}
+                              className="transition-all duration-1000"
+                            />
+                          </svg>
+                          <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-gray-700">
+                            {watchTimer}
+                          </span>
+                        </div>
+                        <span className="text-xs text-gray-500">{watchTimer}초 후 리워드 수령 가능</span>
+                      </div>
+                    </div>
+                    <span className="flex items-center gap-1.5 text-xs font-bold text-yellow-600 bg-yellow-50 px-3 py-1.5 rounded-xl border border-yellow-200">
+                      <CoinIcon className="w-3.5 h-3.5" /> +{activeVideo.pointReward}P
+                    </span>
                   </div>
                 )}
               </div>
             </div>
-
-            {/* Modal Footer */}
-            <div className="px-5 py-4 flex items-center justify-between border-t border-gray-200">
-              <span className="flex items-center gap-1.5 text-xs font-bold text-yellow-600 bg-yellow-50 px-3 py-1.5 rounded-xl border border-yellow-200">
-                <CoinIcon className="w-3.5 h-3.5" /> +{activeVideo.pointReward}P
-              </span>
-              <button
-                onClick={closeModal}
-                disabled={counting}
-                className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                  counting
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-gray-900 text-white hover:bg-gray-800'
-                }`}
-              >
-                {counting ? '시청 중...' : '닫기'}
-              </button>
-            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Toast */}
       {toast && (
