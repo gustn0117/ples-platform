@@ -12,8 +12,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'invalid params' }, { status: 400 });
     }
 
-    const data = await readServerStore() || { artists: defaultArtists };
-    const artists: Artist[] = data.artists || defaultArtists;
+    const result = await readServerStore();
+    const artists: Artist[] = result.data?.artists || defaultArtists;
 
     const updated = artists.map((a) => {
       if (a.id === artistId) {

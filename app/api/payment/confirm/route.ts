@@ -85,8 +85,8 @@ export async function POST(request: Request) {
     // 4. Fulfill the order based on type
     if (order.order_type === 'artwork') {
       // Decrease stock
-      const storeData = await readServerStore()
-      const artworks = storeData?.artworks || defaultArtworks
+      const storeResult = await readServerStore()
+      const artworks = storeResult.data?.artworks || defaultArtworks
       const updated = artworks.map((a: any) => {
         if (a.id === order.item_id && a.stock > 0) {
           return { ...a, stock: a.stock - 1, soldOut: a.stock - 1 <= 0 }
