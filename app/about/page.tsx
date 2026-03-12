@@ -46,8 +46,8 @@ export default function AboutPage() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">Founder & Vision</p>
           <div className="flex flex-col sm:flex-row gap-8 items-start">
-            <div className="w-20 h-20 rounded-2xl bg-gray-900 flex items-center justify-center shrink-0">
-              <span className="text-2xl font-bold text-white">YL</span>
+            <div className="w-28 h-36 rounded-2xl overflow-hidden shrink-0 shadow-md">
+              <img src="/KakaoTalk_Photo_2026-03-12-20-37-09.jpeg" alt="유리아 CEO" className="w-full h-full object-cover" />
             </div>
             <div>
               <h3 className="text-xl font-bold text-gray-900 mb-1">유리아 (Yu Leah)</h3>
