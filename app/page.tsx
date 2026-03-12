@@ -55,7 +55,6 @@ export default function Home() {
   const [artistsLoading, setArtistsLoading] = useState(true);
   const [banners, setBanners] = useState<Banner[]>([]);
   const [bannerPage, setBannerPage] = useState(0);
-  const [bannerFade, setBannerFade] = useState(true);
 
   const featuresSection = useFadeInOnScroll();
   const hotSection = useFadeInOnScroll();
@@ -76,24 +75,14 @@ export default function Home() {
   // Total pages (2 banners per page)
   const totalBannerPages = Math.ceil(banners.length / 2);
 
-  // Auto-rotate banners with fade transition
-  const changeBannerPage = useCallback((next: number) => {
-    setBannerFade(false);
-    setTimeout(() => {
-      setBannerPage(next);
-      setBannerFade(true);
-    }, 300);
-  }, []);
-
+  // Auto-rotate banners
   useEffect(() => {
     if (totalBannerPages <= 1) return;
     const interval = setInterval(() => {
-      changeBannerPage((bannerPage + 1) % totalBannerPages);
+      setBannerPage((prev) => (prev + 1) % totalBannerPages);
     }, 5000);
     return () => clearInterval(interval);
-  }, [totalBannerPages, bannerPage, changeBannerPage]);
-
-  const currentBanners = banners.slice(bannerPage * 2, bannerPage * 2 + 2);
+  }, [totalBannerPages]);
 
   const features = [
     {
@@ -155,54 +144,59 @@ export default function Home() {
         {banners.length > 0 && (
           <div className="relative z-20 pt-6 pb-2">
             <div className="max-w-7xl mx-auto px-6 sm:px-8">
-              <div
-                className="grid grid-cols-1 md:grid-cols-2 gap-4 transition-all duration-500 ease-in-out"
-                style={{ opacity: bannerFade ? 1 : 0, transform: bannerFade ? 'translateY(0)' : 'translateY(8px)' }}
-              >
-                {currentBanners.map((banner) => {
-                  const isLight = banner.textColor === 'light';
-                  const Wrapper = banner.link ? Link : 'div';
-                  const wrapperProps = banner.link ? { href: banner.link } : {};
-                  return (
-                    <Wrapper
-                      key={banner.id}
-                      {...(wrapperProps as any)}
-                      className="group relative rounded-2xl overflow-hidden p-7 sm:p-9 min-h-[200px] sm:min-h-[240px] flex flex-col justify-end transition-all duration-500 hover:shadow-xl hover:-translate-y-0.5 cursor-pointer animate-fade-in-up"
-                      style={{ backgroundColor: banner.bgColor }}
-                    >
-                      {/* Background image */}
-                      {banner.bgImage && (
-                        <div
-                          className="absolute inset-0 bg-cover bg-center"
-                          style={{ backgroundImage: `url(${banner.bgImage})` }}
-                        />
-                      )}
-                      {/* Gradient overlay for readability when image is present */}
-                      {banner.bgImage && (
-                        <div className={`absolute inset-0 ${isLight ? 'bg-gradient-to-t from-black/60 via-black/20 to-transparent' : 'bg-gradient-to-t from-white/80 via-white/40 to-transparent'}`} />
-                      )}
-                      {/* Subtle pattern overlay */}
-                      {!banner.bgImage && <div className="absolute inset-0 dot-pattern opacity-[0.04] pointer-events-none" />}
-                      {/* Hover shine */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/[0.04] to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 pointer-events-none" />
+              <div className="overflow-hidden">
+                <div
+                  className="flex transition-transform duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)]"
+                  style={{ transform: `translateX(-${bannerPage * 100}%)` }}
+                >
+                  {Array.from({ length: totalBannerPages }).map((_, pageIdx) => {
+                    const pageBanners = banners.slice(pageIdx * 2, pageIdx * 2 + 2);
+                    return (
+                      <div key={pageIdx} className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full shrink-0">
+                        {pageBanners.map((banner) => {
+                          const isLight = banner.textColor === 'light';
+                          const Wrapper = banner.link ? Link : 'div';
+                          const wrapperProps = banner.link ? { href: banner.link } : {};
+                          return (
+                            <Wrapper
+                              key={banner.id}
+                              {...(wrapperProps as any)}
+                              className="group relative rounded-2xl overflow-hidden p-7 sm:p-9 min-h-[200px] sm:min-h-[240px] flex flex-col justify-end transition-all duration-500 hover:shadow-xl hover:-translate-y-0.5 cursor-pointer"
+                              style={{ backgroundColor: banner.bgColor }}
+                            >
+                              {banner.bgImage && (
+                                <div
+                                  className="absolute inset-0 bg-cover bg-center"
+                                  style={{ backgroundImage: `url(${banner.bgImage})` }}
+                                />
+                              )}
+                              {banner.bgImage && (
+                                <div className={`absolute inset-0 ${isLight ? 'bg-gradient-to-t from-black/60 via-black/20 to-transparent' : 'bg-gradient-to-t from-white/80 via-white/40 to-transparent'}`} />
+                              )}
+                              {!banner.bgImage && <div className="absolute inset-0 dot-pattern opacity-[0.04] pointer-events-none" />}
+                              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/[0.04] to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 pointer-events-none" />
 
-                      <h3 className={`relative z-10 text-lg sm:text-xl font-bold leading-tight ${isLight ? 'text-white' : 'text-gray-900'}`}>
-                        {banner.title}
-                      </h3>
-                      <p className={`relative z-10 mt-1.5 text-xs sm:text-sm leading-relaxed ${isLight ? 'text-white/60' : 'text-gray-500'}`}>
-                        {banner.subtitle}
-                      </p>
-                      {banner.link && (
-                        <div className={`relative z-10 mt-3 flex items-center gap-1.5 text-xs font-semibold ${isLight ? 'text-white/40 group-hover:text-white/70' : 'text-gray-400 group-hover:text-gray-700'} transition-colors duration-300`}>
-                          자세히 보기
-                          <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
-                        </div>
-                      )}
-                    </Wrapper>
-                  );
-                })}
+                              <h3 className={`relative z-10 text-lg sm:text-xl font-bold leading-tight ${isLight ? 'text-white' : 'text-gray-900'}`}>
+                                {banner.title}
+                              </h3>
+                              <p className={`relative z-10 mt-1.5 text-xs sm:text-sm leading-relaxed ${isLight ? 'text-white/60' : 'text-gray-500'}`}>
+                                {banner.subtitle}
+                              </p>
+                              {banner.link && (
+                                <div className={`relative z-10 mt-3 flex items-center gap-1.5 text-xs font-semibold ${isLight ? 'text-white/40 group-hover:text-white/70' : 'text-gray-400 group-hover:text-gray-700'} transition-colors duration-300`}>
+                                  자세히 보기
+                                  <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                  </svg>
+                                </div>
+                              )}
+                            </Wrapper>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* Pagination dots */}
@@ -211,7 +205,7 @@ export default function Home() {
                   {Array.from({ length: totalBannerPages }).map((_, i) => (
                     <button
                       key={i}
-                      onClick={() => changeBannerPage(i)}
+                      onClick={() => setBannerPage(i)}
                       className={`h-1.5 rounded-full transition-all duration-300 ${
                         i === bannerPage ? 'w-6 bg-gray-900' : 'w-1.5 bg-gray-200 hover:bg-gray-400'
                       }`}
