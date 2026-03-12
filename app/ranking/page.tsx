@@ -1,25 +1,42 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { initStore, getArtists } from '@/lib/store';
+import { useAuth } from '@/lib/auth-context';
+import { initStore, getArtists, getUserLiked, toggleLike } from '@/lib/store';
 import { type Artist } from '@/lib/mock-data';
 import { ArtistIcon, CrownIcon } from '@/lib/icons';
+import { IconStar, IconStarFilled } from '@/components/icons';
 
 export default function RankingPage() {
+  const { user } = useAuth();
   const [artists, setArtists] = useState<Artist[]>([]);
+  const [likedIds, setLikedIds] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     initStore();
-    const all = getArtists();
-    const sorted = [...all].sort((a, b) => b.likes - a.likes);
-    setArtists(sorted);
+    refreshData();
     setLoading(false);
   }, []);
 
+  function refreshData() {
+    const all = getArtists();
+    const sorted = [...all].sort((a, b) => b.likes - a.likes);
+    setArtists(sorted);
+    setLikedIds(new Set(getUserLiked()));
+  }
+
+  function handleToggleLike(artistId: number) {
+    if (!user) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+    toggleLike(artistId);
+    refreshData();
+  }
+
   const maxLikes = artists.length > 0 ? artists[0].likes : 1;
   const top3 = artists.slice(0, 3);
-  const rest = artists.slice(3);
 
   if (loading) {
     return (
@@ -38,7 +55,7 @@ export default function RankingPage() {
       {/* Header */}
       <div className="mb-10">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">아티스트 랭킹</h1>
-        <p className="text-gray-500">좋아요 수 기준 인기 아티스트 순위</p>
+        <p className="text-gray-500">스타 수 기준 인기 아티스트 순위</p>
       </div>
 
       {/* Top 3 Podium */}
@@ -56,8 +73,10 @@ export default function RankingPage() {
               <div className="bg-white rounded-2xl border border-gray-200 px-4 py-3 text-center w-full shadow-sm">
                 <h3 className="text-sm font-bold text-gray-900 truncate">{top3[1].name}</h3>
                 <span className="text-[11px] text-gray-400 block">{top3[1].genre}</span>
-                <p className="text-lg font-bold text-gray-700 mt-1 tabular-nums">{top3[1].likes.toLocaleString()}</p>
-                <span className="text-[10px] text-gray-400">좋아요</span>
+                <div className="flex items-center justify-center gap-1 mt-1">
+                  <IconStar className="w-3.5 h-3.5 text-yellow-500" />
+                  <p className="text-lg font-bold text-gray-700 tabular-nums">{top3[1].likes.toLocaleString()}</p>
+                </div>
               </div>
             </div>
 
@@ -76,8 +95,10 @@ export default function RankingPage() {
               <div className="bg-white rounded-2xl border border-gray-200 px-5 py-4 text-center w-full shadow-md">
                 <h3 className="text-base font-bold text-gray-900 truncate">{top3[0].name}</h3>
                 <span className="text-xs text-gray-400 block">{top3[0].genre}</span>
-                <p className="text-2xl font-bold text-gray-900 mt-1 tabular-nums">{top3[0].likes.toLocaleString()}</p>
-                <span className="text-[11px] text-gray-400">좋아요</span>
+                <div className="flex items-center justify-center gap-1 mt-1">
+                  <IconStar className="w-4 h-4 text-yellow-500" />
+                  <p className="text-2xl font-bold text-gray-900 tabular-nums">{top3[0].likes.toLocaleString()}</p>
+                </div>
               </div>
             </div>
 
@@ -92,8 +113,10 @@ export default function RankingPage() {
               <div className="bg-white rounded-2xl border border-gray-200 px-4 py-3 text-center w-full shadow-sm">
                 <h3 className="text-sm font-bold text-gray-900 truncate">{top3[2].name}</h3>
                 <span className="text-[11px] text-gray-400 block">{top3[2].genre}</span>
-                <p className="text-lg font-bold text-gray-700 mt-1 tabular-nums">{top3[2].likes.toLocaleString()}</p>
-                <span className="text-[10px] text-gray-400">좋아요</span>
+                <div className="flex items-center justify-center gap-1 mt-1">
+                  <IconStar className="w-3.5 h-3.5 text-yellow-500" />
+                  <p className="text-lg font-bold text-gray-700 tabular-nums">{top3[2].likes.toLocaleString()}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -105,15 +128,17 @@ export default function RankingPage() {
         {/* Table Header */}
         <div className="grid grid-cols-12 gap-2 sm:gap-4 px-4 sm:px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider border-b border-gray-100 bg-gray-50">
           <div className="col-span-1">순위</div>
-          <div className="col-span-5 sm:col-span-4">아티스트</div>
-          <div className="col-span-3 sm:col-span-2">장르</div>
-          <div className="col-span-3 sm:col-span-5 text-right">좋아요</div>
+          <div className="col-span-4 sm:col-span-3">아티스트</div>
+          <div className="col-span-2 sm:col-span-2">장르</div>
+          <div className="col-span-3 sm:col-span-4 text-right">스타</div>
+          <div className="col-span-2 sm:col-span-2 text-center"></div>
         </div>
 
         {/* Rows */}
         {artists.map((artist, index) => {
           const rank = index + 1;
           const barWidth = maxLikes > 0 ? (artist.likes / maxLikes) * 100 : 0;
+          const isLiked = likedIds.has(artist.id);
 
           return (
             <div
@@ -141,8 +166,8 @@ export default function RankingPage() {
                 )}
               </div>
 
-              {/* Artist: Emoji + Name */}
-              <div className="col-span-5 sm:col-span-4 flex items-center gap-2 sm:gap-3 min-w-0">
+              {/* Artist: Icon + Name */}
+              <div className="col-span-4 sm:col-span-3 flex items-center gap-2 sm:gap-3 min-w-0">
                 <div className="w-10 h-10 rounded-xl bg-gray-900 flex items-center justify-center shrink-0">
                   <span className="text-white"><ArtistIcon genre={artist.genre} className="w-5 h-5" /></span>
                 </div>
@@ -150,16 +175,15 @@ export default function RankingPage() {
               </div>
 
               {/* Genre Badge */}
-              <div className="col-span-3 sm:col-span-2">
+              <div className="col-span-2 sm:col-span-2">
                 <span className="text-xs px-2.5 py-1 bg-gray-100 text-gray-500 rounded-lg inline-block truncate max-w-full">
                   {artist.genre}
                 </span>
               </div>
 
-              {/* Like Count with Bar */}
-              <div className="col-span-3 sm:col-span-5">
+              {/* Star Count with Bar */}
+              <div className="col-span-3 sm:col-span-4">
                 <div className="flex items-center gap-2 sm:gap-3 justify-end">
-                  {/* Bar (hidden on mobile for space) */}
                   <div className="hidden sm:block flex-1 max-w-[200px]">
                     <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                       <div
@@ -172,6 +196,24 @@ export default function RankingPage() {
                     {artist.likes.toLocaleString()}
                   </span>
                 </div>
+              </div>
+
+              {/* Star Button */}
+              <div className="col-span-2 sm:col-span-2 flex justify-center">
+                <button
+                  onClick={() => handleToggleLike(artist.id)}
+                  className={`p-2 rounded-lg transition-all duration-200 active:scale-90 ${
+                    isLiked
+                      ? 'bg-yellow-50 hover:bg-yellow-100'
+                      : 'bg-gray-100 hover:bg-gray-200'
+                  }`}
+                >
+                  {isLiked ? (
+                    <IconStarFilled className="w-5 h-5 text-yellow-500" />
+                  ) : (
+                    <IconStar className="w-5 h-5 text-gray-400" />
+                  )}
+                </button>
               </div>
             </div>
           );

@@ -16,7 +16,7 @@ import {
   IconArrowRight,
   IconTrendingUp,
   IconSparkle,
-  IconHeart,
+  IconStar,
 } from '@/components/icons';
 
 interface Artist {
@@ -626,7 +626,7 @@ export default function Home() {
                       </span>
                       <div className="mt-5 flex items-center gap-4">
                         <div className="flex items-center gap-1.5 text-sm text-gray-400">
-                          <IconHeart className="w-4 h-4 text-gray-400" />
+                          <IconStar className="w-4 h-4 text-gray-400" />
                           <span className="font-bold text-gray-600">{hotArtists[0].likes?.toLocaleString() || 0}</span>
                           <span className="text-gray-300 ml-1">likes</span>
                         </div>
@@ -681,7 +681,7 @@ export default function Home() {
                           </div>
                           {/* Like count — more prominent */}
                           <div className="absolute bottom-3 right-3 flex items-center gap-1.5 text-xs font-bold text-gray-700 bg-white backdrop-blur-sm px-3 py-1.5 rounded-xl shadow-md border border-gray-100">
-                            <IconHeart className="w-3.5 h-3.5 text-gray-500" />
+                            <IconStar className="w-3.5 h-3.5 text-gray-500" />
                             {artist.likes?.toLocaleString() || 0}
                           </div>
                         </div>

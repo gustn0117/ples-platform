@@ -31,7 +31,7 @@ import Link from 'next/link';
 import {
   IconCoin,
   IconVote,
-  IconHeart,
+  IconStar,
   IconShoppingBag,
   IconPlay,
   IconArrowRight,
@@ -159,13 +159,13 @@ export default function MyPage() {
   const statCards = [
     { label: '보유 포인트', value: points.toLocaleString(), suffix: 'P', icon: <IconCoin className="w-5 h-5" />, highlight: true },
     { label: '투표 참여', value: voteCount.toString(), suffix: '회', icon: <IconVote className="w-5 h-5" />, highlight: false },
-    { label: '좋아요 아티스트', value: likedCount.toString(), suffix: '명', icon: <IconHeart className="w-5 h-5" />, highlight: false },
+    { label: '스타 아티스트', value: likedCount.toString(), suffix: '명', icon: <IconStar className="w-5 h-5" />, highlight: false },
     { label: '작품 구매', value: purchaseCount.toString(), suffix: '건', icon: <IconShoppingBag className="w-5 h-5" />, highlight: false },
   ];
 
   const tabs: { key: TabKey; label: string; icon: React.ReactNode }[] = [
     { key: 'votes', label: '투표내역', icon: <IconVote className="w-4 h-4" /> },
-    { key: 'artists', label: '좋아요 아티스트', icon: <IconHeart className="w-4 h-4" /> },
+    { key: 'artists', label: '스타 아티스트', icon: <IconStar className="w-4 h-4" /> },
     { key: 'purchases', label: '구매내역', icon: <IconShoppingBag className="w-4 h-4" /> },
     { key: 'videos', label: '시청미디어', icon: <IconPlay className="w-4 h-4" /> },
   ];
@@ -302,12 +302,12 @@ export default function MyPage() {
             )
           )}
 
-          {/* ---- 좋아요 아티스트 Tab ---- */}
+          {/* ---- 스타 아티스트 Tab ---- */}
           {activeTab === 'artists' && (
             likedArtistList.length === 0 ? (
               <EmptyState
-                icon={<IconHeart className="w-8 h-8 text-gray-300" />}
-                title="좋아요한 아티스트가 없어요"
+                icon={<IconStar className="w-8 h-8 text-gray-300" />}
+                title="스타한 아티스트가 없어요"
                 desc="마음에 드는 아티스트를 발견하고 응원해보세요"
                 link="/ranking"
                 linkLabel="아티스트 둘러보기"

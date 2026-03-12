@@ -182,6 +182,21 @@ export function IconStar({ className = 'w-6 h-6' }: IconProps) {
   );
 }
 
+// 9-1. Star filled
+export function IconStarFilled({ className = 'w-6 h-6' }: IconProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      stroke="none"
+      className={className}
+    >
+      <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+    </svg>
+  );
+}
+
 // 10. Music note
 export function IconMusic({ className = 'w-6 h-6' }: IconProps) {
   return (

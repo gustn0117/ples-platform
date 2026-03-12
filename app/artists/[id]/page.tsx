@@ -7,7 +7,7 @@ import { useAuth } from '@/lib/auth-context';
 import { initStore, getArtist, toggleLike, getUserLiked } from '@/lib/store';
 import type { Artist } from '@/lib/mock-data';
 import { ArtistIcon } from '@/lib/icons';
-import { IconHeart, IconHeartFilled, IconArrowRight } from '@/components/icons';
+import { IconStar, IconStarFilled, IconArrowRight } from '@/components/icons';
 
 export default function ArtistDetailPage() {
   const params = useParams();
@@ -105,12 +105,12 @@ export default function ArtistDetailPage() {
         <div className="flex items-center justify-center gap-6 mb-8 py-5 border-y border-gray-100">
           <div className="text-center">
             <div className="flex items-center justify-center gap-1.5 mb-1">
-              <IconHeart className="w-4 h-4 text-red-400" />
+              <IconStar className="w-4 h-4 text-yellow-500" />
               <p className="text-2xl font-bold text-gray-900 tabular-nums">
                 {artist.likes.toLocaleString()}
               </p>
             </div>
-            <p className="text-xs text-gray-400">좋아요</p>
+            <p className="text-xs text-gray-400">스타</p>
           </div>
         </div>
 
@@ -164,24 +164,24 @@ export default function ArtistDetailPage() {
           </div>
         )}
 
-        {/* Like Button */}
+        {/* Star Button */}
         <button
           onClick={handleToggleLike}
           className={`w-full py-4 rounded-xl text-base font-semibold transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98] ${
             isLiked
-              ? 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100'
+              ? 'bg-yellow-50 text-yellow-700 border border-yellow-200 hover:bg-yellow-100'
               : 'bg-gray-900 text-white hover:bg-gray-800'
           }`}
         >
           {isLiked ? (
             <>
-              <IconHeartFilled className="w-4 h-4 text-red-500" />
-              좋아요 취소
+              <IconStarFilled className="w-4 h-4 text-yellow-500" />
+              스타 취소
             </>
           ) : (
             <>
-              <IconHeart className="w-4 h-4" />
-              좋아요
+              <IconStar className="w-4 h-4" />
+              스타
             </>
           )}
         </button>

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { initStore, getArtists, getUserLiked, toggleLike } from '@/lib/store';
 import type { Artist } from '@/lib/mock-data';
-import { IconMicrophone, IconSearch, IconHeart, IconHeartFilled, IconCheck, IconTrendingUp } from '@/components/icons';
+import { IconMicrophone, IconSearch, IconStar, IconStarFilled, IconCheck, IconTrendingUp } from '@/components/icons';
 import { ArtistIcon } from '@/lib/icons';
 
 type SortKey = 'popular' | 'latest' | 'investments';
@@ -186,7 +186,7 @@ export default function ArtistsPage() {
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1 text-gray-400">
-                        <IconHeart className="w-3.5 h-3.5" />
+                        <IconStar className="w-3.5 h-3.5" />
                         <span className="text-xs tabular-nums">{artist.likes.toLocaleString()}</span>
                       </div>
 
@@ -197,14 +197,14 @@ export default function ArtistsPage() {
                         }}
                         className={`p-2 rounded-lg transition-all duration-200 ${
                           isLiked
-                            ? 'bg-red-50 hover:bg-red-100 active:scale-90'
+                            ? 'bg-yellow-50 hover:bg-yellow-100 active:scale-90'
                             : 'bg-gray-100 hover:bg-gray-200 active:scale-90'
                         }`}
                       >
                         {isLiked ? (
-                          <IconHeartFilled className="w-4 h-4 text-red-500" />
+                          <IconStarFilled className="w-4 h-4 text-yellow-500" />
                         ) : (
-                          <IconHeart className="w-4 h-4 text-gray-400" />
+                          <IconStar className="w-4 h-4 text-gray-400" />
                         )}
                       </button>
                     </div>
