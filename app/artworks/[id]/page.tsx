@@ -8,6 +8,7 @@ import { initStore, getArtworks, getUserPoints, purchaseArtwork } from '@/lib/st
 import type { Artwork } from '@/lib/mock-data';
 import { ArtworkIcon } from '@/lib/icons';
 import { IconShoppingBag, IconCoin, IconWallet, IconCheck } from '@/components/icons';
+import { generateOrderId } from '@/lib/toss';
 
 export default function ArtworkDetailPage() {
   const params = useParams();
@@ -36,7 +37,7 @@ export default function ArtworkDetailPage() {
     setUserPoints(getUserPoints());
   }
 
-  function handlePurchase() {
+  async function handlePurchase() {
     if (!user) {
       alert('로그인이 필요합니다. 로그인 후 이용해주세요.');
       return;
@@ -44,6 +45,49 @@ export default function ArtworkDetailPage() {
     if (!artwork) return;
     setPurchasing(true);
 
+    if (paymentMethod === 'cash') {
+      // Real Toss Payments flow
+      try {
+        const orderId = generateOrderId('ART');
+        // Create pending order in DB
+        const res = await fetch('/api/payment/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orderId,
+            userEmail: user.email,
+            userId: user.id,
+            orderType: 'artwork',
+            itemId: artwork.id,
+            itemName: artwork.title,
+            amount: artwork.price,
+            metadata: { artist: artwork.artist, category: artwork.category },
+          }),
+        });
+
+        if (!res.ok) {
+          alert('주문 생성에 실패했습니다.');
+          setPurchasing(false);
+          return;
+        }
+
+        // Redirect to checkout page
+        const params = new URLSearchParams({
+          orderId,
+          orderName: artwork.title,
+          amount: artwork.price.toString(),
+          orderType: 'artwork',
+          email: user.email,
+        });
+        router.push(`/checkout?${params.toString()}`);
+      } catch {
+        alert('결제 요청 중 오류가 발생했습니다.');
+        setPurchasing(false);
+      }
+      return;
+    }
+
+    // Points payment (existing local flow)
     const result = purchaseArtwork(artwork.id, paymentMethod);
     if (!result.success) {
       alert(result.error || '구매에 실패했습니다.');

@@ -15,6 +15,18 @@ import {
   getPointHistory,
   type Purchase,
 } from '@/lib/store';
+
+interface Order {
+  id: string
+  order_type: string
+  item_name: string
+  amount: number
+  points_amount: number | null
+  status: string
+  payment_method: string | null
+  created_at: string
+  paid_at: string | null
+}
 import Link from 'next/link';
 import {
   IconCoin,
@@ -46,6 +58,7 @@ export default function MyPage() {
   const [votedMap, setVotedMap] = useState<Record<number, number>>({});
   const [likedIds, setLikedIds] = useState<number[]>([]);
   const [purchases, setPurchases] = useState<Purchase[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [watchedIds, setWatchedIds] = useState<number[]>([]);
 
   useEffect(() => {
@@ -56,7 +69,15 @@ export default function MyPage() {
     setPurchases(getUserPurchases());
     setWatchedIds(getUserWatched());
     setReady(true);
-  }, []);
+
+    // Fetch real orders from DB
+    if (user?.email) {
+      fetch(`/api/payment/orders?email=${encodeURIComponent(user.email)}&status=paid`)
+        .then((r) => r.ok ? r.json() : [])
+        .then((data) => setOrders(data))
+        .catch(() => {});
+    }
+  }, [user]);
 
   // Redirect to login if not logged in
   if (!user) {
@@ -108,7 +129,8 @@ export default function MyPage() {
 
   const voteCount = Object.keys(votedMap).length;
   const likedCount = likedIds.length;
-  const purchaseCount = purchases.length;
+  const paidOrders = orders.filter((o) => o.status === 'paid');
+  const purchaseCount = purchases.length + paidOrders.length;
   const watchedCount = watchedIds.length;
 
   // Build vote history with chosen option
@@ -309,18 +331,43 @@ export default function MyPage() {
 
           {/* ---- 구매내역 Tab ---- */}
           {activeTab === 'purchases' && (
-            purchases.length === 0 ? (
+            purchaseCount === 0 ? (
               <EmptyState
                 icon={<IconShoppingBag className="w-8 h-8 text-gray-300" />}
                 title="구매 내역이 없어요"
                 desc="아티스트들의 특별한 작품을 만나보세요"
-                link="/market"
+                link="/artworks"
                 linkLabel="갤러리 둘러보기"
               />
             ) : (
               <div className="divide-y divide-gray-50">
+                {/* Real orders from DB (Toss Payments) */}
+                {paidOrders.map((order) => (
+                  <div key={order.id} className="flex items-center justify-between py-3.5 group">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-gray-200 transition-colors ${
+                        order.order_type === 'points' ? 'bg-blue-50' : 'bg-gray-100'
+                      }`}>
+                        {order.order_type === 'points'
+                          ? <IconCoin className="w-4 h-4 text-blue-500" />
+                          : <IconShoppingBag className="w-4 h-4 text-gray-500" />
+                        }
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">{order.item_name}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {new Date(order.paid_at || order.created_at).toLocaleDateString('ko-KR')} | {order.payment_method || '카드'}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-sm font-bold text-gray-900 shrink-0 ml-3">
+                      ₩{order.amount.toLocaleString()}
+                    </span>
+                  </div>
+                ))}
+                {/* Local purchases (points payment) */}
                 {purchases.map((record, idx) => (
-                  <div key={idx} className="flex items-center justify-between py-3.5 group">
+                  <div key={`local-${idx}`} className="flex items-center justify-between py-3.5 group">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center shrink-0 group-hover:bg-gray-200 transition-colors">
                         <IconShoppingBag className="w-4 h-4 text-gray-500" />

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { initStore, getUserPoints, getPointHistory, chargePoints, getChargeRate } from '@/lib/store';
 import type { PointHistory } from '@/lib/mock-data';
+import { generateOrderId } from '@/lib/toss';
 import {
   IconWallet,
   IconCoin,
@@ -116,22 +117,49 @@ export default function PointsPage() {
     '사용': history.filter((h) => h.type === 'use').length,
   }), [history]);
 
-  const handleCharge = () => {
-    if (selectedAmount === null || isCharging) return;
+  const handleCharge = async () => {
+    if (selectedAmount === null || isCharging || !user) return;
 
     setIsCharging(true);
 
-    // Simulate brief delay for UX
-    setTimeout(() => {
-      const earned = chargePoints(selectedAmount);
-      setPoints(getUserPoints());
-      setHistory(getPointHistory());
-      setIsCharging(false);
-      setChargeSuccess(true);
-      setSelectedAmount(null);
+    try {
+      const pointsToAdd = calcPoints(selectedAmount);
+      const orderId = generateOrderId('PTS');
 
-      setTimeout(() => setChargeSuccess(false), 3000);
-    }, 600);
+      // Create pending order in DB
+      const res = await fetch('/api/payment/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId,
+          userEmail: user.email,
+          userId: user.id,
+          orderType: 'points',
+          itemName: `포인트 충전 (${selectedAmount.toLocaleString()}원)`,
+          amount: selectedAmount,
+          pointsAmount: pointsToAdd,
+        }),
+      });
+
+      if (!res.ok) {
+        alert('주문 생성에 실패했습니다.');
+        setIsCharging(false);
+        return;
+      }
+
+      // Redirect to checkout page
+      const params = new URLSearchParams({
+        orderId,
+        orderName: `포인트 충전 ${pointsToAdd.toLocaleString()}P`,
+        amount: selectedAmount.toString(),
+        orderType: 'points',
+        email: user.email,
+      });
+      router.push(`/checkout?${params.toString()}`);
+    } catch {
+      alert('결제 요청 중 오류가 발생했습니다.');
+      setIsCharging(false);
+    }
   };
 
   // Don't render until auth check and store init are done
