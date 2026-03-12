@@ -1,74 +1,36 @@
-import fs from 'fs';
-import path from 'path';
+import { createServiceClient } from './supabase-server'
 
-const DATA_DIR = process.env.DATA_DIR || path.join(process.cwd(), 'data');
-const DATA_FILE = path.join(DATA_DIR, 'store.json');
-const BACKUP_FILE = path.join(DATA_DIR, 'store.backup.json');
-const TEMP_FILE = path.join(DATA_DIR, 'store.tmp.json');
+const TABLE = 'store'
 
-function ensureDir() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-  }
-}
-
-export function readServerStore(): Record<string, any> | null {
+export async function readServerStore(): Promise<Record<string, any> | null> {
   try {
-    ensureDir();
-    // Try main file first
-    if (fs.existsSync(DATA_FILE)) {
-      const content = fs.readFileSync(DATA_FILE, 'utf-8');
-      if (content.trim()) {
-        return JSON.parse(content);
-      }
+    const supabase = createServiceClient()
+    const { data, error } = await supabase.from(TABLE).select('key, value')
+    if (error || !data || data.length === 0) return null
+    const result: Record<string, any> = {}
+    for (const row of data) {
+      result[row.key] = row.value
     }
-    // Main file missing or empty — try backup
-    if (fs.existsSync(BACKUP_FILE)) {
-      const backup = fs.readFileSync(BACKUP_FILE, 'utf-8');
-      if (backup.trim()) {
-        const data = JSON.parse(backup);
-        // Restore main file from backup
-        fs.writeFileSync(DATA_FILE, backup, 'utf-8');
-        console.log('[server-store] Restored from backup');
-        return data;
-      }
-    }
-    return null;
+    return result
   } catch {
-    // Main file corrupt — try backup
-    try {
-      if (fs.existsSync(BACKUP_FILE)) {
-        const backup = fs.readFileSync(BACKUP_FILE, 'utf-8');
-        if (backup.trim()) {
-          const data = JSON.parse(backup);
-          fs.writeFileSync(DATA_FILE, backup, 'utf-8');
-          console.log('[server-store] Restored from backup after corruption');
-          return data;
-        }
-      }
-    } catch {
-      // Both files corrupt
-    }
-    return null;
+    return null
   }
 }
 
-export function writeServerStore(data: Record<string, any>) {
-  ensureDir();
-  const json = JSON.stringify(data);
-  // Atomic write: write to temp file, then rename (rename is atomic on Linux/macOS)
-  fs.writeFileSync(TEMP_FILE, json, 'utf-8');
-  fs.renameSync(TEMP_FILE, DATA_FILE);
-  // Keep a backup copy
-  try {
-    fs.writeFileSync(BACKUP_FILE, json, 'utf-8');
-  } catch {
-    // Backup failure is non-critical
-  }
+export async function writeServerStore(data: Record<string, any>) {
+  const supabase = createServiceClient()
+  const rows = Object.entries(data).map(([key, value]) => ({
+    key,
+    value,
+    updated_at: new Date().toISOString(),
+  }))
+  await supabase.from(TABLE).upsert(rows, { onConflict: 'key' })
 }
 
-export function updateServerKey(key: string, value: any) {
-  const data = readServerStore() || {};
-  data[key] = value;
-  writeServerStore(data);
+export async function updateServerKey(key: string, value: any) {
+  const supabase = createServiceClient()
+  await supabase.from(TABLE).upsert(
+    { key, value, updated_at: new Date().toISOString() },
+    { onConflict: 'key' }
+  )
 }

@@ -21,13 +21,10 @@ const DEFAULTS: Record<string, any> = {
 };
 
 export async function GET() {
-  let data = readServerStore();
+  let data = await readServerStore();
   if (!data) {
-    // Only write defaults if store.json truly doesn't exist (first run)
-    // readServerStore already tries backup recovery, so if we're here
-    // it means both main and backup are gone
     data = { ...DEFAULTS };
-    writeServerStore(data);
+    await writeServerStore(data);
   }
   return NextResponse.json(data, {
     headers: { 'Cache-Control': 'no-store' },
@@ -38,7 +35,7 @@ export async function PUT(request: Request) {
   try {
     const { key, value } = await request.json();
     if (!key) return NextResponse.json({ error: 'key required' }, { status: 400 });
-    updateServerKey(key, value);
+    await updateServerKey(key, value);
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: 'invalid body' }, { status: 400 });
