@@ -44,14 +44,20 @@ const SERVER_KEY_MAP: Record<string, string> = {
   ples_charge_rate: 'chargeRate',
 };
 
-function syncToServer(localKey: string, value: any) {
+export function syncToServer(localKey: string, value: any): Promise<boolean> {
   const serverKey = SERVER_KEY_MAP[localKey];
-  if (!serverKey) return;
-  fetch('/api/store', {
+  if (!serverKey) return Promise.resolve(false);
+  return fetch('/api/store', {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ key: serverKey, value }),
-  }).catch(() => {});
+  }).then((res) => {
+    if (!res.ok) console.error(`[syncToServer] ${serverKey} failed: ${res.status}`);
+    return res.ok;
+  }).catch((e) => {
+    console.error(`[syncToServer] ${serverKey} error:`, e);
+    return false;
+  });
 }
 
 export async function syncFromServer(): Promise<void> {
