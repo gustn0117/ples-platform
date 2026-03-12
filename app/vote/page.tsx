@@ -192,6 +192,26 @@ export default function VotePage() {
                               : 'cursor-default'
                           }`}
                         >
+                          {/* Media preview */}
+                          {option.mediaType === 'image' && option.mediaData && (
+                            <div className="mb-3 rounded-lg overflow-hidden border border-gray-100">
+                              <img
+                                src={option.mediaData}
+                                alt={option.label}
+                                className="w-full h-40 object-cover"
+                              />
+                            </div>
+                          )}
+                          {option.mediaType === 'audio' && option.mediaData && (
+                            <div className="mb-3" onClick={(e) => e.stopPropagation()}>
+                              <audio
+                                src={option.mediaData}
+                                controls
+                                className="w-full h-10"
+                              />
+                            </div>
+                          )}
+
                           <div className="flex items-center justify-between mb-1">
                             <div className="flex items-center gap-3">
                               {/* Radio button */}

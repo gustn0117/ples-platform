@@ -13,6 +13,8 @@ import type { Vote } from '@/lib/mock-data'
 
 interface OptionInput {
   label: string
+  mediaType?: 'image' | 'audio'
+  mediaData?: string
 }
 
 const emptyForm = {
@@ -53,7 +55,7 @@ export default function AdminVotesPage() {
       pointReward: v.pointReward,
       endDate: v.endDate,
     })
-    setOptions(v.options.map((o) => ({ label: o.label })))
+    setOptions(v.options.map((o) => ({ label: o.label, mediaType: o.mediaType, mediaData: o.mediaData })))
     setModalOpen(true)
   }
 
@@ -71,7 +73,32 @@ export default function AdminVotesPage() {
 
   const updateOption = (index: number, label: string) => {
     const updated = [...options]
-    updated[index] = { label }
+    updated[index] = { ...updated[index], label }
+    setOptions(updated)
+  }
+
+  const handleMediaUpload = (index: number, file: File) => {
+    const isImage = file.type.startsWith('image/')
+    const isAudio = file.type.startsWith('audio/')
+    if (!isImage && !isAudio) return alert('이미지 또는 오디오 파일만 업로드 가능합니다.')
+    if (file.size > 5 * 1024 * 1024) return alert('파일 크기는 5MB 이하로 제한됩니다.')
+
+    const reader = new FileReader()
+    reader.onload = () => {
+      const updated = [...options]
+      updated[index] = {
+        ...updated[index],
+        mediaType: isImage ? 'image' : 'audio',
+        mediaData: reader.result as string,
+      }
+      setOptions(updated)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const removeMedia = (index: number) => {
+    const updated = [...options]
+    updated[index] = { ...updated[index], mediaType: undefined, mediaData: undefined }
     setOptions(updated)
   }
 
@@ -80,13 +107,20 @@ export default function AdminVotesPage() {
     const validOptions = options.filter((o) => o.label.trim())
     if (validOptions.length < 2) return alert('최소 2개의 선택지를 입력하세요.')
 
+    const mappedOptions = validOptions.map((o, i) => ({
+      id: i + 1,
+      label: o.label,
+      votes: 0,
+      ...(o.mediaType && o.mediaData ? { mediaType: o.mediaType, mediaData: o.mediaData } : {}),
+    }))
+
     if (editingId !== null) {
       updateVote(editingId, {
         title: form.title,
         description: form.description || undefined,
         pointReward: form.pointReward,
         endDate: form.endDate,
-        options: validOptions.map((o, i) => ({ id: i + 1, label: o.label, votes: 0 })),
+        options: mappedOptions,
       })
     } else {
       addVote({
@@ -95,7 +129,7 @@ export default function AdminVotesPage() {
         pointReward: form.pointReward,
         endDate: form.endDate,
         isActive: true,
-        options: validOptions.map((o, i) => ({ id: i + 1, label: o.label, votes: 0 })),
+        options: mappedOptions,
       })
     }
 
@@ -292,26 +326,62 @@ export default function AdminVotesPage() {
                     추가
                   </button>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {options.map((opt, i) => (
-                    <div key={i} className="flex gap-2">
-                      <input
-                        type="text"
-                        value={opt.label}
-                        onChange={(e) => updateOption(i, e.target.value)}
-                        placeholder={`선택지 ${i + 1}`}
-                        className="flex-1 px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition-colors"
-                      />
-                      {options.length > 2 && (
-                        <button
-                          type="button"
-                          onClick={() => removeOption(i)}
-                          className="px-2 text-gray-400 hover:text-red-500 transition-colors"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    <div key={i} className="border border-gray-200 rounded-lg p-3 space-y-2">
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={opt.label}
+                          onChange={(e) => updateOption(i, e.target.value)}
+                          placeholder={`선택지 ${i + 1}`}
+                          className="flex-1 px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition-colors"
+                        />
+                        {options.length > 2 && (
+                          <button
+                            type="button"
+                            onClick={() => removeOption(i)}
+                            className="px-2 text-gray-400 hover:text-red-500 transition-colors"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        )}
+                      </div>
+                      {/* Media upload */}
+                      {opt.mediaData ? (
+                        <div className="flex items-center gap-3">
+                          {opt.mediaType === 'image' ? (
+                            <img src={opt.mediaData} alt="" className="w-16 h-16 object-cover rounded-lg border border-gray-200" />
+                          ) : (
+                            <audio src={opt.mediaData} controls className="h-8 flex-1" />
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => removeMedia(i)}
+                            className="text-xs text-red-500 hover:text-red-600 font-medium shrink-0"
+                          >
+                            삭제
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs text-gray-500 hover:bg-gray-100 transition-colors cursor-pointer">
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
                           </svg>
-                        </button>
+                          이미지/음악 첨부
+                          <input
+                            type="file"
+                            accept="image/*,audio/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0]
+                              if (file) handleMediaUpload(i, file)
+                              e.target.value = ''
+                            }}
+                          />
+                        </label>
                       )}
                     </div>
                   ))}

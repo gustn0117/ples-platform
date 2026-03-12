@@ -9,11 +9,19 @@ export interface Artist {
   sns?: { instagram?: string; youtube?: string; twitter?: string };
 }
 
+export interface VoteOption {
+  id: number;
+  label: string;
+  votes: number;
+  mediaType?: 'image' | 'audio';
+  mediaData?: string; // base64 data URL
+}
+
 export interface Vote {
   id: number;
   title: string;
   description?: string;
-  options: { id: number; label: string; votes: number }[];
+  options: VoteOption[];
   endDate: string;
   isActive: boolean;
   pointReward: number;
