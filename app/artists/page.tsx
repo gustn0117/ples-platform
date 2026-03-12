@@ -31,12 +31,12 @@ export default function ArtistsPage() {
     setLikedIds(new Set(getUserLiked()));
   }
 
-  function handleToggleLike(artistId: number) {
+  async function handleToggleLike(artistId: number) {
     if (!user) {
       alert('로그인이 필요합니다.');
       return;
     }
-    toggleLike(artistId);
+    await toggleLike(artistId);
     refreshData();
   }
 

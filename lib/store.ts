@@ -164,18 +164,26 @@ export function getUserLiked(): number[] {
   return getItem(KEYS.USER_LIKED, []);
 }
 
-export function toggleLike(artistId: number): boolean {
+export async function toggleLike(artistId: number): Promise<boolean> {
   const liked = getUserLiked();
   const artists = getArtists();
   const isLiked = liked.includes(artistId);
 
+  let updatedArtists: Artist[];
   if (isLiked) {
     setItem(KEYS.USER_LIKED, liked.filter((id) => id !== artistId));
-    setArtists(artists.map((a) => (a.id === artistId ? { ...a, likes: Math.max(0, a.likes - 1) } : a)));
-    return false;
+    updatedArtists = artists.map((a) => (a.id === artistId ? { ...a, likes: Math.max(0, a.likes - 1) } : a));
   } else {
     setItem(KEYS.USER_LIKED, [...liked, artistId]);
-    setArtists(artists.map((a) => (a.id === artistId ? { ...a, likes: a.likes + 1 } : a)));
+    updatedArtists = artists.map((a) => (a.id === artistId ? { ...a, likes: a.likes + 1 } : a));
+  }
+
+  setItem(KEYS.ARTISTS, updatedArtists);
+  await syncToServer(KEYS.ARTISTS, updatedArtists);
+
+  if (isLiked) {
+    return false;
+  } else {
     return true;
   }
 }
