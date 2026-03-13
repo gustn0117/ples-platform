@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
-import { initStore, getArtist, toggleLike, getUserLiked } from '@/lib/store';
+import { initStore, getArtist, giveStar, hasStarredToday } from '@/lib/store';
 import type { Artist } from '@/lib/mock-data';
 import { ArtistIcon } from '@/lib/icons';
 import { IconStar, IconStarFilled, IconArrowRight } from '@/components/icons';
@@ -14,7 +14,7 @@ export default function ArtistDetailPage() {
   const router = useRouter();
   const { user } = useAuth();
   const [artist, setArtist] = useState<Artist | null>(null);
-  const [isLiked, setIsLiked] = useState(false);
+  const [starredToday, setStarredToday] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const artistId = Number(params.id);
@@ -27,18 +27,22 @@ export default function ArtistDetailPage() {
       return;
     }
     setArtist(a);
-    setIsLiked(getUserLiked().includes(artistId));
+    setStarredToday(hasStarredToday(artistId));
     setLoading(false);
   }, [artistId]);
 
-  function handleToggleLike() {
+  function handleGiveStar() {
     if (!user) {
       alert('로그인이 필요합니다.');
       return;
     }
-    toggleLike(artistId);
+    const result = giveStar(artistId);
+    if (!result.success) {
+      alert(result.error);
+      return;
+    }
     setArtist(getArtist(artistId) ?? null);
-    setIsLiked(getUserLiked().includes(artistId));
+    setStarredToday(true);
   }
 
   if (loading) {
@@ -166,22 +170,23 @@ export default function ArtistDetailPage() {
 
         {/* Star Button */}
         <button
-          onClick={handleToggleLike}
+          onClick={handleGiveStar}
+          disabled={starredToday}
           className={`w-full py-4 rounded-xl text-base font-semibold transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98] ${
-            isLiked
-              ? 'bg-yellow-50 text-yellow-700 border border-yellow-200 hover:bg-yellow-100'
+            starredToday
+              ? 'bg-yellow-50 text-yellow-600 border border-yellow-200 cursor-default'
               : 'bg-gray-900 text-white hover:bg-gray-800'
           }`}
         >
-          {isLiked ? (
+          {starredToday ? (
             <>
               <IconStarFilled className="w-4 h-4 text-yellow-500" />
-              스타 취소
+              오늘 스타 완료
             </>
           ) : (
             <>
               <IconStar className="w-4 h-4" />
-              스타
+              오늘의 스타 보내기
             </>
           )}
         </button>

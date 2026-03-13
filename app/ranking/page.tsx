@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
-import { initStore, getArtists, getUserLiked, toggleLike } from '@/lib/store';
+import { initStore, getArtists, hasStarredToday, giveStar } from '@/lib/store';
 import { type Artist } from '@/lib/mock-data';
 import { ArtistIcon, CrownIcon } from '@/lib/icons';
 import { IconStar, IconStarFilled } from '@/components/icons';
@@ -10,7 +10,7 @@ import { IconStar, IconStarFilled } from '@/components/icons';
 export default function RankingPage() {
   const { user } = useAuth();
   const [artists, setArtists] = useState<Artist[]>([]);
-  const [likedIds, setLikedIds] = useState<Set<number>>(new Set());
+  const [starredTodayIds, setStarredTodayIds] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,15 +23,19 @@ export default function RankingPage() {
     const all = getArtists();
     const sorted = [...all].sort((a, b) => b.likes - a.likes);
     setArtists(sorted);
-    setLikedIds(new Set(getUserLiked()));
+    setStarredTodayIds(new Set(all.map(a => a.id).filter(id => hasStarredToday(id))));
   }
 
-  function handleToggleLike(artistId: number) {
+  function handleGiveStar(artistId: number) {
     if (!user) {
       alert('로그인이 필요합니다.');
       return;
     }
-    toggleLike(artistId);
+    const result = giveStar(artistId);
+    if (!result.success) {
+      alert(result.error);
+      return;
+    }
     refreshData();
   }
 
@@ -138,7 +142,7 @@ export default function RankingPage() {
         {artists.map((artist, index) => {
           const rank = index + 1;
           const barWidth = maxLikes > 0 ? (artist.likes / maxLikes) * 100 : 0;
-          const isLiked = likedIds.has(artist.id);
+          const doneToday = starredTodayIds.has(artist.id);
 
           return (
             <div
@@ -201,14 +205,15 @@ export default function RankingPage() {
               {/* Star Button */}
               <div className="col-span-2 sm:col-span-2 flex justify-center">
                 <button
-                  onClick={() => handleToggleLike(artist.id)}
-                  className={`p-2 rounded-lg transition-all duration-200 active:scale-90 ${
-                    isLiked
-                      ? 'bg-yellow-50 hover:bg-yellow-100'
-                      : 'bg-gray-100 hover:bg-gray-200'
+                  onClick={() => handleGiveStar(artist.id)}
+                  disabled={doneToday}
+                  className={`p-2 rounded-lg transition-all duration-200 ${
+                    doneToday
+                      ? 'bg-yellow-50 cursor-default'
+                      : 'bg-gray-100 hover:bg-gray-200 active:scale-90'
                   }`}
                 >
-                  {isLiked ? (
+                  {doneToday ? (
                     <IconStarFilled className="w-5 h-5 text-yellow-500" />
                   ) : (
                     <IconStar className="w-5 h-5 text-gray-400" />

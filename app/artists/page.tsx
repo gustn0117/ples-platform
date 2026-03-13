@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
-import { initStore, getArtists, getUserLiked, toggleLike } from '@/lib/store';
+import { initStore, getArtists, hasStarredToday, giveStar } from '@/lib/store';
 import type { Artist } from '@/lib/mock-data';
 import { IconMicrophone, IconSearch, IconStar, IconStarFilled, IconCheck, IconTrendingUp } from '@/components/icons';
 import { ArtistIcon } from '@/lib/icons';
@@ -13,7 +13,7 @@ type SortKey = 'popular' | 'latest' | 'investments';
 export default function ArtistsPage() {
   const { user } = useAuth();
   const [artists, setArtists] = useState<Artist[]>([]);
-  const [likedIds, setLikedIds] = useState<Set<number>>(new Set());
+  const [starredTodayIds, setStarredTodayIds] = useState<Set<number>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortKey>('popular');
   const [mounted, setMounted] = useState(false);
@@ -21,22 +21,28 @@ export default function ArtistsPage() {
   // Initialize store and load data
   useEffect(() => {
     initStore();
-    setArtists(getArtists());
-    setLikedIds(new Set(getUserLiked()));
+    const allArtists = getArtists();
+    setArtists(allArtists);
+    setStarredTodayIds(new Set(allArtists.map(a => a.id).filter(id => hasStarredToday(id))));
     setMounted(true);
   }, []);
 
   function refreshData() {
-    setArtists(getArtists());
-    setLikedIds(new Set(getUserLiked()));
+    const allArtists = getArtists();
+    setArtists(allArtists);
+    setStarredTodayIds(new Set(allArtists.map(a => a.id).filter(id => hasStarredToday(id))));
   }
 
-  function handleToggleLike(artistId: number) {
+  function handleGiveStar(artistId: number) {
     if (!user) {
       alert('로그인이 필요합니다.');
       return;
     }
-    toggleLike(artistId);
+    const result = giveStar(artistId);
+    if (!result.success) {
+      alert(result.error);
+      return;
+    }
     refreshData();
   }
 
@@ -153,7 +159,7 @@ export default function ArtistsPage() {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {filteredArtists.map((artist) => {
-              const isLiked = likedIds.has(artist.id);
+              const doneToday = starredTodayIds.has(artist.id);
 
               return (
                 <div
@@ -193,15 +199,16 @@ export default function ArtistsPage() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleToggleLike(artist.id);
+                          handleGiveStar(artist.id);
                         }}
+                        disabled={doneToday}
                         className={`p-2 rounded-lg transition-all duration-200 ${
-                          isLiked
-                            ? 'bg-yellow-50 hover:bg-yellow-100 active:scale-90'
+                          doneToday
+                            ? 'bg-yellow-50 cursor-default'
                             : 'bg-gray-100 hover:bg-gray-200 active:scale-90'
                         }`}
                       >
-                        {isLiked ? (
+                        {doneToday ? (
                           <IconStarFilled className="w-4 h-4 text-yellow-500" />
                         ) : (
                           <IconStar className="w-4 h-4 text-gray-400" />

@@ -97,7 +97,7 @@ const KEYS = {
   POINT_HISTORY: 'ples_point_history',
   USER_POINTS: 'ples_user_points',
   USER_VOTED: 'ples_user_voted',        // { [voteId]: optionId }
-  USER_LIKED: 'ples_user_liked',        // number[] (artist ids)
+  USER_STARRED: 'ples_user_starred',    // { [artistId]: lastStarDate (ISO) }
   USER_WATCHED: 'ples_user_watched',    // number[] (video ids)
   USER_PURCHASED: 'ples_user_purchased', // { artworkId, date, method, amount }[]
   USER_WATCH_TODAY: 'ples_user_watch_today', // { date: string, count: number }
@@ -108,7 +108,7 @@ const KEYS = {
 
 // ============ Initialize ============
 
-const DATA_VERSION = '7';
+const DATA_VERSION = '8';
 
 export function initStore() {
   if (typeof window === 'undefined') return;
@@ -123,7 +123,7 @@ export function initStore() {
   setItem(KEYS.POINT_HISTORY, []);
   setItem(KEYS.USER_POINTS, 0);
   setItem(KEYS.USER_VOTED, {});
-  setItem(KEYS.USER_LIKED, []);
+  setItem(KEYS.USER_STARRED, {});
   setItem(KEYS.USER_WATCHED, []);
   setItem(KEYS.USER_PURCHASED, []);
   setItem(KEYS.USER_WATCH_TODAY, { date: '', count: 0 });
@@ -145,40 +145,62 @@ export function getArtist(id: number): Artist | undefined {
   return getArtists().find((a) => a.id === id);
 }
 
-// ============ Likes ============
+// ============ Stars (daily cumulative) ============
 
-export function getUserLiked(): number[] {
-  return getItem(KEYS.USER_LIKED, []);
+// Returns { [artistId]: lastStarDate }
+function getUserStarData(): Record<number, string> {
+  return getItem(KEYS.USER_STARRED, {});
 }
 
-// Lightweight server sync for likes — only sends { artistId, delta }
-function syncLikeToServer(artistId: number, delta: 1 | -1) {
+// Get all artist IDs the user has ever starred
+export function getStarredArtistIds(): number[] {
+  return Object.keys(getUserStarData()).map(Number);
+}
+
+// Check if user already starred this artist today
+export function hasStarredToday(artistId: number): boolean {
+  const data = getUserStarData();
+  const lastDate = data[artistId];
+  if (!lastDate) return false;
+  const today = new Date().toISOString().slice(0, 10);
+  return lastDate === today;
+}
+
+// Check if user has ever starred this artist
+export function hasEverStarred(artistId: number): boolean {
+  const data = getUserStarData();
+  return artistId in data;
+}
+
+// Sync star to server (always +1, no undo)
+function syncStarToServer(artistId: number) {
   fetch('/api/store/like', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ artistId, delta }),
+    body: JSON.stringify({ artistId, delta: 1 }),
     keepalive: true,
-  }).catch((e) => console.error('[syncLike] error:', e));
+  }).catch((e) => console.error('[syncStar] error:', e));
 }
 
-export function toggleLike(artistId: number): boolean {
-  const liked = getUserLiked();
-  const artists = getArtists();
-  const isLiked = liked.includes(artistId);
-
-  let updatedArtists: Artist[];
-  if (isLiked) {
-    setItem(KEYS.USER_LIKED, liked.filter((id) => id !== artistId));
-    updatedArtists = artists.map((a) => (a.id === artistId ? { ...a, likes: Math.max(0, a.likes - 1) } : a));
-    syncLikeToServer(artistId, -1);
-  } else {
-    setItem(KEYS.USER_LIKED, [...liked, artistId]);
-    updatedArtists = artists.map((a) => (a.id === artistId ? { ...a, likes: a.likes + 1 } : a));
-    syncLikeToServer(artistId, 1);
+// Give a star to an artist (once per day per artist, accumulates)
+export function giveStar(artistId: number): { success: boolean; error?: string } {
+  if (hasStarredToday(artistId)) {
+    return { success: false, error: '오늘 이미 이 아티스트에게 스타를 보냈습니다.' };
   }
 
+  const today = new Date().toISOString().slice(0, 10);
+  const data = getUserStarData();
+  data[artistId] = today;
+  setItem(KEYS.USER_STARRED, data);
+
+  const artists = getArtists();
+  const updatedArtists = artists.map((a) =>
+    a.id === artistId ? { ...a, likes: a.likes + 1 } : a
+  );
   setArtists(updatedArtists);
-  return !isLiked;
+  syncStarToServer(artistId);
+
+  return { success: true };
 }
 
 // ============ Votes ============

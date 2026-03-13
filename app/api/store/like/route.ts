@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: Request) {
   try {
     const { artistId, delta } = await request.json();
-    if (typeof artistId !== 'number' || (delta !== 1 && delta !== -1)) {
+    if (typeof artistId !== 'number' || delta !== 1) {
       return NextResponse.json({ error: 'invalid params' }, { status: 400 });
     }
 

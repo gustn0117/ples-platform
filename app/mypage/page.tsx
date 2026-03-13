@@ -6,7 +6,7 @@ import {
   initStore,
   getUserPoints,
   getUserVoted,
-  getUserLiked,
+  getStarredArtistIds,
   getUserPurchases,
   getUserWatched,
   getVotes,
@@ -65,7 +65,7 @@ export default function MyPage() {
     initStore();
     setPoints(getUserPoints());
     setVotedMap(getUserVoted());
-    setLikedIds(getUserLiked());
+    setLikedIds(getStarredArtistIds());
     setPurchases(getUserPurchases());
     setWatchedIds(getUserWatched());
     setReady(true);
