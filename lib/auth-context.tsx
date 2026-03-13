@@ -27,7 +27,39 @@ interface MockUser {
   realName?: string
   residentNumber?: string
   phone?: string
+  created_at?: string
+  status?: 'active' | 'suspended'
 }
+
+// ── Admin helpers (exported for admin pages) ──
+
+export function getAllUsers(): MockUser[] {
+  return getStoredUsers()
+}
+
+export function updateUser(userId: string, updates: Partial<Omit<MockUser, 'id'>>) {
+  const users = getStoredUsers()
+  const idx = users.findIndex((u) => u.id === userId)
+  if (idx === -1) return false
+  users[idx] = { ...users[idx], ...updates }
+  saveUsers(users)
+  return true
+}
+
+export function deleteUser(userId: string) {
+  const users = getStoredUsers()
+  const filtered = users.filter((u) => u.id !== userId)
+  if (filtered.length === users.length) return false
+  saveUsers(filtered)
+  // Also clear session if deleted user is logged in
+  const session = getStoredSession()
+  if (session?.id === userId) {
+    localStorage.removeItem(SESSION_KEY)
+  }
+  return true
+}
+
+export type { MockUser }
 
 interface AuthContextType {
   user: { id: string; email: string } | null
@@ -90,7 +122,7 @@ function userToProfile(u: MockUser): Profile {
     avatar_url: null,
     points: 0,
     is_admin: false,
-    created_at: new Date().toISOString(),
+    created_at: u.created_at || new Date().toISOString(),
   }
 }
 
@@ -160,6 +192,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       realName: extra?.realName,
       residentNumber: extra?.residentNumber,
       phone: extra?.phone,
+      created_at: new Date().toISOString(),
+      status: 'active',
     }
 
     users.push(newUser)
