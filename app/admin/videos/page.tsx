@@ -333,7 +333,7 @@ export default function AdminVideosPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1.5">보상 포인트</label>
+                  <label className="block text-xs font-medium text-gray-500 mb-1.5">보상 스타</label>
                   <input
                     type="number"
                     value={form.pointReward}

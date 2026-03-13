@@ -102,7 +102,7 @@ export default function Home() {
     {
       icon: IconVote,
       title: '투표',
-      desc: '매일 투표에 참여하고 포인트를 적립하세요',
+      desc: '매일 투표에 참여하고 스타를 적립하세요',
       href: '/vote',
       accent: 'from-gray-900 to-gray-700',
     },
@@ -123,7 +123,7 @@ export default function Home() {
     {
       icon: IconPlay,
       title: '미디어 리워드',
-      desc: '미디어를 시청하고 포인트를 받으세요',
+      desc: '미디어를 시청하고 스타를 받으세요',
       href: '/videos',
       accent: 'from-gray-900 to-gray-700',
     },
@@ -136,8 +136,8 @@ export default function Home() {
     },
     {
       icon: IconCoin,
-      title: '포인트',
-      desc: '포인트를 충전하고 다양한 혜택을 누리세요',
+      title: '스타',
+      desc: '스타를 충전하고 다양한 혜택을 누리세요',
       href: '/points',
       accent: 'from-gray-700 to-gray-500',
     },
@@ -273,7 +273,7 @@ export default function Home() {
               <p className="mt-10 text-base sm:text-lg lg:text-xl text-gray-400 leading-relaxed max-w-lg">
                 투표하고, 응원하고, 시청하면서
                 <br className="hidden sm:block" />
-                포인트를 쌓는 새로운 참여형 플랫폼
+                스타를 쌓는 새로운 참여형 플랫폼
               </p>
 
               <div className="mt-12 flex flex-wrap items-center gap-3">
@@ -352,7 +352,7 @@ export default function Home() {
                     <IconCoin className="w-4 h-4 text-gray-700" />
                   </div>
                   <div>
-                    <span className="text-[10px] text-gray-400 block">적립 포인트</span>
+                    <span className="text-[10px] text-gray-400 block">적립 스타</span>
                     <span className="text-sm font-bold text-gray-900">2,500P</span>
                   </div>
                 </div>
@@ -461,7 +461,7 @@ export default function Home() {
               <span className="gradient-text-elegant">다양한 기능</span>
             </h2>
             <p className="mt-5 text-gray-400 max-w-md mx-auto text-lg">
-              투표, 응원, 시청 등 다양한 활동으로 포인트를 적립하세요
+              투표, 응원, 시청 등 다양한 활동으로 스타를 적립하세요
             </p>
           </div>
 
@@ -824,7 +824,7 @@ export default function Home() {
                   transition: 'opacity 0.6s ease 0.35s, transform 0.6s ease 0.35s',
                 }}
               >
-                가입하고 첫 투표에 참여하면 바로 포인트를 받을 수 있어요
+                가입하고 첫 투표에 참여하면 바로 스타를 받을 수 있어요
               </p>
               <div
                 className="mt-14 flex flex-wrap items-center justify-center gap-4"

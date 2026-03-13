@@ -57,7 +57,7 @@ export interface Video {
   link?: string;            // external link URL
 }
 
-export interface PointHistory {
+export interface StarHistory {
   id: number;
   date: string;
   type: 'earn' | 'use';
@@ -65,6 +65,9 @@ export interface PointHistory {
   amount: number;
   balance: number;
 }
+
+/** @deprecated Use StarHistory instead */
+export type PointHistory = StarHistory;
 
 // 1 Artist
 export const artists: Artist[] = [
@@ -114,7 +117,7 @@ export const banners: Banner[] = [
   {
     id: 1,
     title: "PLES 시즌2 투표 오픈",
-    subtitle: "지금 바로 참여하고 포인트를 받으세요!",
+    subtitle: "지금 바로 참여하고 스타를 받으세요!",
     bgColor: '#1a1a1a',
     textColor: 'light',
     link: '/vote',
@@ -144,7 +147,7 @@ export const banners: Banner[] = [
   {
     id: 4,
     title: "미디어 리워드 이벤트",
-    subtitle: "영상 시청하고 2배 포인트 적립!",
+    subtitle: "영상 시청하고 2배 스타 적립!",
     bgColor: '#e8e0d4',
     textColor: 'dark',
     link: '/videos',
@@ -153,4 +156,4 @@ export const banners: Banner[] = [
   },
 ];
 
-export const pointHistory: PointHistory[] = [];
+export const starHistory: StarHistory[] = [];

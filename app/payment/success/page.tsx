@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { chargePoints, addPoints, getUserPurchases, getUserPoints } from '@/lib/store'
+import { chargeStars, addStars, getUserPurchases, getUserStars } from '@/lib/store'
 import { useAuth } from '@/lib/auth-context'
 import { IconCheck, IconShoppingBag, IconCoin } from '@/components/icons'
 
@@ -64,7 +64,7 @@ function PaymentSuccessContent() {
         // Fulfill client-side actions
         if (data.orderType === 'points' && data.pointsAmount) {
           // Add points to user's local store
-          addPoints(data.pointsAmount, '포인트 충전', `${data.amount.toLocaleString()}원`)
+          addStars(data.pointsAmount, '스타 충전', `${data.amount.toLocaleString()}원`)
         } else if (data.orderType === 'artwork') {
           // Record purchase in localStorage
           const purchases = getUserPurchases()
@@ -138,11 +138,11 @@ function PaymentSuccessContent() {
           </div>
 
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            {isPoints ? '포인트 충전 완료!' : '결제가 완료되었어요!'}
+            {isPoints ? '스타 충전 완료!' : '결제가 완료되었어요!'}
           </h1>
           <p className="text-gray-400 text-sm mb-8">
             {isPoints
-              ? `${result?.pointsAmount?.toLocaleString()}P가 충전되었습니다.`
+              ? `${result?.pointsAmount?.toLocaleString()}★가 충전되었습니다.`
               : `${result?.itemName} 구매가 완료되었습니다.`}
           </p>
 
@@ -166,8 +166,8 @@ function PaymentSuccessContent() {
             </div>
             {isPoints && result?.pointsAmount && (
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-500 font-medium">충전 포인트</span>
-                <span className="text-lg font-bold text-emerald-600">+{result.pointsAmount.toLocaleString()}P</span>
+                <span className="text-gray-500 font-medium">충전 스타</span>
+                <span className="text-lg font-bold text-emerald-600">+{result.pointsAmount.toLocaleString()}★</span>
               </div>
             )}
           </div>
@@ -196,7 +196,7 @@ function PaymentSuccessContent() {
                 href="/points"
                 className="flex-1 py-3.5 bg-white border border-gray-200 text-gray-700 text-sm font-semibold rounded-xl text-center hover:bg-gray-50 transition-colors"
               >
-                포인트 내역
+                스타 내역
               </Link>
               <Link
                 href="/artworks"

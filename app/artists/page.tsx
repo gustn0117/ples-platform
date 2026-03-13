@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
-import { initStore, getArtists, hasStarredToday, giveStar } from '@/lib/store';
+import { initStore, getArtists, getUserStars, sendStarToArtist } from '@/lib/store';
 import type { Artist } from '@/lib/mock-data';
-import { IconMicrophone, IconSearch, IconStar, IconStarFilled, IconCheck, IconTrendingUp } from '@/components/icons';
+import { IconMicrophone, IconSearch, IconStar, IconStarFilled } from '@/components/icons';
 import { ArtistIcon } from '@/lib/icons';
 
 type SortKey = 'popular' | 'latest' | 'investments';
@@ -13,36 +13,34 @@ type SortKey = 'popular' | 'latest' | 'investments';
 export default function ArtistsPage() {
   const { user } = useAuth();
   const [artists, setArtists] = useState<Artist[]>([]);
-  const [starredTodayIds, setStarredTodayIds] = useState<Set<number>>(new Set());
+  const [userStars, setUserStars] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortKey>('popular');
   const [mounted, setMounted] = useState(false);
+  const [openPicker, setOpenPicker] = useState<number | null>(null);
 
-  // Initialize store and load data
   useEffect(() => {
     initStore();
-    const allArtists = getArtists();
-    setArtists(allArtists);
-    setStarredTodayIds(new Set(allArtists.map(a => a.id).filter(id => hasStarredToday(id))));
+    refreshData();
     setMounted(true);
   }, []);
 
   function refreshData() {
-    const allArtists = getArtists();
-    setArtists(allArtists);
-    setStarredTodayIds(new Set(allArtists.map(a => a.id).filter(id => hasStarredToday(id))));
+    setArtists(getArtists());
+    setUserStars(getUserStars());
   }
 
-  function handleGiveStar(artistId: number) {
+  function handleSendStar(artistId: number, amount: 1 | 2 | 3) {
     if (!user) {
       alert('로그인이 필요합니다.');
       return;
     }
-    const result = giveStar(artistId);
+    const result = sendStarToArtist(artistId, amount);
     if (!result.success) {
       alert(result.error);
       return;
     }
+    setOpenPicker(null);
     refreshData();
   }
 
@@ -54,8 +52,8 @@ export default function ArtistsPage() {
     )
     .sort((a, b) => {
       if (sortBy === 'popular') return b.likes - a.likes;
-      if (sortBy === 'investments') return b.likes - a.likes; // fallback: use likes
-      return b.id - a.id; // latest = higher id first
+      if (sortBy === 'investments') return b.likes - a.likes;
+      return b.id - a.id;
     });
 
   const sortTabs: { key: SortKey; label: string }[] = [
@@ -97,9 +95,17 @@ export default function ArtistsPage() {
             </div>
             <h1 className="text-2xl font-bold text-gray-900">아티스트</h1>
           </div>
-          <p className="text-gray-400 text-sm ml-[52px]">
-            좋아하는 아티스트를 응원하세요 · {artists.length}명
-          </p>
+          <div className="flex items-center gap-4 ml-[52px]">
+            <p className="text-gray-400 text-sm">
+              좋아하는 아티스트를 응원하세요 · {artists.length}명
+            </p>
+            {user && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-yellow-50 border border-yellow-100 rounded-lg text-xs font-semibold text-gray-700">
+                <svg className="w-3.5 h-3.5 text-yellow-500" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" /></svg>
+                {userStars.toLocaleString()}
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Search */}
@@ -158,71 +164,76 @@ export default function ArtistsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {filteredArtists.map((artist) => {
-              const doneToday = starredTodayIds.has(artist.id);
-
-              return (
-                <div
-                  key={artist.id}
-                  className="bg-white rounded-2xl border border-gray-100 hover:shadow-md hover:border-gray-200 hover:-translate-y-0.5 transition-all duration-300 overflow-hidden group"
+            {filteredArtists.map((artist) => (
+              <div
+                key={artist.id}
+                className="bg-white rounded-2xl border border-gray-100 hover:shadow-md hover:border-gray-200 hover:-translate-y-0.5 transition-all duration-300 overflow-hidden group"
+              >
+                {/* Avatar Area */}
+                <Link
+                  href={`/artists/${artist.id}`}
+                  className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center cursor-pointer relative overflow-hidden"
                 >
-                  {/* Avatar Area */}
+                  {artist.imageData ? (
+                    <img src={artist.imageData} alt={artist.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  ) : (
+                    <span className="group-hover:scale-110 transition-transform duration-300 text-gray-400">
+                      <ArtistIcon genre={artist.genre} className="w-12 h-12" />
+                    </span>
+                  )}
+                </Link>
+
+                {/* Info */}
+                <div className="p-4">
                   <Link
                     href={`/artists/${artist.id}`}
-                    className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center cursor-pointer relative overflow-hidden"
+                    className="font-semibold text-gray-900 text-sm truncate block cursor-pointer hover:text-gray-600 transition-colors"
                   >
-                    {artist.imageData ? (
-                      <img src={artist.imageData} alt={artist.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                    ) : (
-                      <span className="group-hover:scale-110 transition-transform duration-300 text-gray-400">
-                        <ArtistIcon genre={artist.genre} className="w-12 h-12" />
-                      </span>
-                    )}
+                    {artist.name}
                   </Link>
+                  <p className="text-xs text-gray-400 mt-0.5 mb-3">{artist.genre}</p>
 
-                  {/* Info */}
-                  <div className="p-4">
-                    <Link
-                      href={`/artists/${artist.id}`}
-                      className="font-semibold text-gray-900 text-sm truncate block cursor-pointer hover:text-gray-600 transition-colors"
-                    >
-                      {artist.name}
-                    </Link>
-                    <p className="text-xs text-gray-400 mt-0.5 mb-3">{artist.genre}</p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1 text-gray-400">
+                      <IconStar className="w-3.5 h-3.5" />
+                      <span className="text-xs tabular-nums">{artist.likes.toLocaleString()}</span>
+                    </div>
 
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1 text-gray-400">
-                        <IconStar className="w-3.5 h-3.5" />
-                        <span className="text-xs tabular-nums">{artist.likes.toLocaleString()}</span>
-                      </div>
-
+                    <div className="relative">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleGiveStar(artist.id);
+                          if (!user) { alert('로그인이 필요합니다.'); return; }
+                          setOpenPicker(openPicker === artist.id ? null : artist.id);
                         }}
-                        disabled={doneToday}
-                        className={`p-2 rounded-lg transition-all duration-200 ${
-                          doneToday
-                            ? 'bg-yellow-50 cursor-default'
-                            : 'bg-gray-100 hover:bg-gray-200 active:scale-90'
-                        }`}
+                        className="p-2 rounded-lg bg-gray-100 hover:bg-yellow-50 active:scale-90 transition-all duration-200"
                       >
-                        {doneToday ? (
-                          <IconStarFilled className="w-4 h-4 text-yellow-500" />
-                        ) : (
-                          <IconStar className="w-4 h-4 text-gray-400" />
-                        )}
+                        <IconStar className="w-4 h-4 text-yellow-500" />
                       </button>
+
+                      {/* Star amount picker */}
+                      {openPicker === artist.id && (
+                        <div className="absolute bottom-full right-0 mb-2 flex gap-1 bg-white border border-gray-200 rounded-xl p-1.5 shadow-lg z-10">
+                          {([1, 2, 3] as const).map((n) => (
+                            <button
+                              key={n}
+                              onClick={(e) => { e.stopPropagation(); handleSendStar(artist.id, n); }}
+                              className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg hover:bg-yellow-50 transition-colors whitespace-nowrap"
+                            >
+                              <IconStarFilled className="w-3 h-3 text-yellow-500" />
+                              {n}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         )}
       </div>
-
     </div>
   );
 }

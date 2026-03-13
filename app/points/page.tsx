@@ -3,8 +3,8 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
-import { initStore, getUserPoints, getPointHistory, chargePoints, getChargeRate } from '@/lib/store';
-import type { PointHistory } from '@/lib/mock-data';
+import { initStore, getUserStars, getStarHistory, chargeStars, getChargeRate } from '@/lib/store';
+import type { StarHistory } from '@/lib/mock-data';
 import { generateOrderId } from '@/lib/toss';
 import {
   IconWallet,
@@ -34,7 +34,7 @@ function getCategoryIcon(category: string) {
 function getCategoryLabel(category: string): string {
   if (category.includes('투표')) return '투표참여';
   if (category.includes('영상') || category.includes('미디어') || category.includes('시청')) return '미디어시청';
-  if (category.includes('충전')) return '포인트충전';
+  if (category.includes('충전')) return '스타충전';
   if (category.includes('구매') || category.includes('작품')) return '작품구매';
   return category.split(' - ')[0] || category;
 }
@@ -72,8 +72,8 @@ export default function PointsPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
 
-  const [points, setPoints] = useState(0);
-  const [history, setHistory] = useState<PointHistory[]>([]);
+  const [stars, setStars] = useState(0);
+  const [history, setHistory] = useState<StarHistory[]>([]);
   const [filter, setFilter] = useState<FilterType>('전체');
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [isCharging, setIsCharging] = useState(false);
@@ -83,8 +83,8 @@ export default function PointsPage() {
   // Init store and load data
   useEffect(() => {
     initStore();
-    setPoints(getUserPoints());
-    setHistory(getPointHistory());
+    setStars(getUserStars());
+    setHistory(getStarHistory());
     setReady(true);
   }, []);
 
@@ -123,7 +123,7 @@ export default function PointsPage() {
     setIsCharging(true);
 
     try {
-      const pointsToAdd = calcPoints(selectedAmount);
+      const starsToAdd = calcPoints(selectedAmount);
       const orderId = generateOrderId('PTS');
 
       // Create pending order in DB
@@ -135,9 +135,9 @@ export default function PointsPage() {
           userEmail: user.email,
           userId: user.id,
           orderType: 'points',
-          itemName: `포인트 충전 (${selectedAmount.toLocaleString()}원)`,
+          itemName: `스타 충전 (${selectedAmount.toLocaleString()}원)`,
           amount: selectedAmount,
-          pointsAmount: pointsToAdd,
+          pointsAmount: starsToAdd,
         }),
       });
 
@@ -150,7 +150,7 @@ export default function PointsPage() {
       // Redirect to checkout page
       const params = new URLSearchParams({
         orderId,
-        orderName: `포인트 충전 ${pointsToAdd.toLocaleString()}P`,
+        orderName: `스타 충전 ${starsToAdd.toLocaleString()}★`,
         amount: selectedAmount.toString(),
         orderType: 'points',
         email: user.email,
@@ -189,15 +189,15 @@ export default function PointsPage() {
             <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center">
               <IconWallet className="w-5 h-5 text-white/80" />
             </div>
-            <p className="text-sm text-white/50 font-medium tracking-wide">보유 포인트</p>
+            <p className="text-sm text-white/50 font-medium tracking-wide">보유 스타</p>
           </div>
 
           <p className="text-5xl sm:text-6xl font-bold text-white tracking-tight mb-1 tabular-nums">
-            <AnimatedCounter value={points} />
-            <span className="text-xl text-white/30 ml-1.5 font-medium">P</span>
+            <AnimatedCounter value={stars} />
+            <span className="text-xl text-white/30 ml-1.5 font-medium">★</span>
           </p>
           <p className="text-sm text-white/30 mt-1">
-            약 {Math.floor(points / chargeRate).toLocaleString()}원 상당
+            약 {Math.floor(stars / chargeRate).toLocaleString()}원 상당
           </p>
         </div>
       </div>
@@ -206,7 +206,7 @@ export default function PointsPage() {
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8 mb-8">
         <div className="flex items-center gap-2 mb-1">
           <IconGift className="w-5 h-5 text-gray-700" />
-          <h2 className="text-lg font-bold text-gray-900">포인트 충전</h2>
+          <h2 className="text-lg font-bold text-gray-900">스타 충전</h2>
         </div>
         <p className="text-sm text-gray-400 mb-6">충전할 금액을 선택하세요</p>
 
@@ -250,7 +250,7 @@ export default function PointsPage() {
                 }`}>
                   {amount.toLocaleString()}원
                   <span className={isSelected ? 'text-gray-400' : 'text-gray-300'}> → </span>
-                  {bonusPoints.toLocaleString()}P
+                  {bonusPoints.toLocaleString()}★
                 </p>
 
                 {hasBonus && (
@@ -274,7 +274,7 @@ export default function PointsPage() {
             <span className="text-gray-900 font-bold">
               {selectedAmount.toLocaleString()}원
               <span className="text-gray-300 mx-2">→</span>
-              {calcPoints(selectedAmount).toLocaleString()}P
+              {calcPoints(selectedAmount).toLocaleString()}★
             </span>
           </div>
         )}
@@ -316,7 +316,7 @@ export default function PointsPage() {
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 animate-bounce">
           <div className="px-6 py-3 bg-gray-900 text-white rounded-xl font-semibold text-sm shadow-2xl flex items-center gap-2">
             <IconCheck className="w-4 h-4 text-emerald-400" />
-            포인트가 충전되었습니다!
+            스타가 충전되었습니다!
           </div>
         </div>
       )}
@@ -325,7 +325,7 @@ export default function PointsPage() {
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-4">
           <IconClock className="w-5 h-5 text-gray-700" />
-          <h2 className="text-lg font-bold text-gray-900">포인트 내역</h2>
+          <h2 className="text-lg font-bold text-gray-900">스타 내역</h2>
         </div>
 
         {/* Filter tabs */}
@@ -375,14 +375,14 @@ export default function PointsPage() {
               )}
             </div>
             <p className="text-gray-900 font-semibold text-base mb-1">
-              {filter === '전체' ? '아직 포인트 내역이 없어요' : filter === '적립' ? '적립 내역이 없어요' : '사용 내역이 없어요'}
+              {filter === '전체' ? '아직 스타 내역이 없어요' : filter === '적립' ? '적립 내역이 없어요' : '사용 내역이 없어요'}
             </p>
             <p className="text-gray-400 text-sm">
               {filter === '전체'
-                ? '투표, 미디어 시청 등 활동으로 포인트를 모아보세요'
+                ? '투표, 미디어 시청 등 활동으로 스타를 모아보세요'
                 : filter === '적립'
-                ? '활동에 참여하면 포인트가 적립됩니다'
-                : '갤러리에서 포인트를 사용해보세요'}
+                ? '활동에 참여하면 스타가 적립됩니다'
+                : '갤러리에서 스타를 사용해보세요'}
             </p>
           </div>
         ) : (
@@ -427,14 +427,14 @@ export default function PointsPage() {
                   <p className={`text-sm font-bold tabular-nums ${
                     item.type === 'earn' ? 'text-emerald-600' : 'text-red-500'
                   }`}>
-                    {item.amount > 0 ? '+' : ''}{item.amount.toLocaleString()}P
+                    {item.amount > 0 ? '+' : ''}{item.amount.toLocaleString()}★
                   </p>
                 </div>
 
                 {/* Balance */}
                 <div className="shrink-0 w-[90px] text-right hidden sm:block">
                   <p className="text-sm text-gray-400 font-medium tabular-nums">
-                    {item.balance.toLocaleString()}P
+                    {item.balance.toLocaleString()}★
                   </p>
                 </div>
               </div>

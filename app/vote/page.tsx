@@ -5,8 +5,9 @@ import { useAuth } from '@/lib/auth-context';
 import {
   getVotes,
   getUserVoted,
+  hasVotedToday,
   castVote,
-  getUserPoints,
+  getUserStars,
   initStore,
 } from '@/lib/store';
 import Link from 'next/link';
@@ -15,8 +16,8 @@ import type { Vote } from '@/lib/mock-data';
 export default function VotePage() {
   const { user } = useAuth();
   const [votes, setVotesData] = useState<Vote[]>([]);
-  const [userVoted, setUserVoted] = useState<Record<number, number>>({});
-  const [userPoints, setUserPointsState] = useState(0);
+  const [userVoted, setUserVoted] = useState<Record<number, { optionId: number; date: string }>>({});
+  const [userStars, setUserStars] = useState(0);
   const [loading, setLoading] = useState(true);
   const [selectedOptions, setSelectedOptions] = useState<Record<number, number>>({});
   const [votingInProgress, setVotingInProgress] = useState<number | null>(null);
@@ -30,13 +31,13 @@ export default function VotePage() {
   function refreshData() {
     setVotesData(getVotes());
     setUserVoted(getUserVoted());
-    setUserPointsState(getUserPoints());
+    setUserStars(getUserStars());
     setLoading(false);
   }
 
   function handleVote(voteId: number) {
     const optionId = selectedOptions[voteId];
-    if (!user || optionId === undefined || userVoted[voteId] !== undefined) return;
+    if (!user || optionId === undefined) return;
 
     setVotingInProgress(voteId);
 
@@ -94,13 +95,14 @@ export default function VotePage() {
             세계시민 프로듀서 투표
           </h1>
           <p className="text-sm text-gray-500">
-            투표에 참여하고 포인트를 적립하세요
+            매일 투표에 참여하고 스타를 적립하세요
           </p>
           {user && (
-            <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-100 rounded-xl text-sm">
-              <span className="text-gray-400">보유 포인트</span>
+            <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-yellow-50 border border-yellow-100 rounded-xl text-sm">
+              <svg className="w-4 h-4 text-yellow-500" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" /></svg>
+              <span className="text-gray-400">보유 스타</span>
               <span className="font-bold text-gray-900 tabular-nums">
-                {userPoints.toLocaleString()}P
+                {userStars.toLocaleString()}
               </span>
             </div>
           )}
@@ -115,10 +117,11 @@ export default function VotePage() {
           <div className="space-y-6">
             {votes.map((vote) => {
               const total = getTotalVotes(vote.options);
-              const hasVoted = userVoted[vote.id] !== undefined;
+              const votedToday = hasVotedToday(vote.id);
               const isVoting = votingInProgress === vote.id;
               const justVoted = voteSuccess === vote.id;
-              const showResults = hasVoted || !vote.isActive;
+              const showResults = votedToday || !vote.isActive;
+              const canVote = !votedToday && vote.isActive && !isVoting && !!user;
 
               return (
                 <div
@@ -132,11 +135,17 @@ export default function VotePage() {
                         {vote.title}
                       </h2>
                       <div className="flex items-center gap-2 shrink-0">
-                        {/* Point reward badge */}
-                        <span className="inline-flex items-center gap-1 bg-gray-900 text-white rounded-lg px-2.5 py-1 text-xs font-semibold">
-                          +{vote.pointReward}P
+                        {/* Star reward badge */}
+                        <span className="inline-flex items-center gap-1 bg-yellow-500 text-white rounded-lg px-2.5 py-1 text-xs font-semibold">
+                          <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" /></svg>
+                          +{vote.pointReward}
                         </span>
-                        {/* Status badge */}
+                        {/* Status badges */}
+                        {votedToday && (
+                          <span className="inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-semibold bg-green-50 text-green-600 border border-green-200">
+                            오늘 완료
+                          </span>
+                        )}
                         {!vote.isActive && (
                           <span className="inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-semibold bg-gray-100 text-gray-400">
                             종료
@@ -167,8 +176,7 @@ export default function VotePage() {
                           ? Math.round((option.votes / total) * 100)
                           : 0;
                       const isSelected = selectedOptions[vote.id] === option.id;
-                      const canSelect =
-                        !hasVoted && vote.isActive && !isVoting && !!user;
+                      const canSelect = canVote;
 
                       return (
                         <button
@@ -232,7 +240,7 @@ export default function VotePage() {
                           <div className="flex items-center justify-between mb-1">
                             <div className="flex items-center gap-3">
                               {/* Radio button */}
-                              {vote.isActive && !hasVoted && (
+                              {canVote && (
                                 <div
                                   className={`w-4.5 h-4.5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
                                     isSelected
@@ -308,25 +316,13 @@ export default function VotePage() {
                       </Link>
                     ) : justVoted ? (
                       /* Just voted success */
-                      <div className="flex items-center justify-center gap-2 py-3 bg-gray-50 rounded-xl border border-gray-200">
-                        <svg
-                          className="w-5 h-5 text-gray-900"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={2.5}
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
+                      <div className="flex items-center justify-center gap-2 py-3 bg-yellow-50 rounded-xl border border-yellow-200">
+                        <svg className="w-4 h-4 text-yellow-500" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" /></svg>
                         <span className="text-sm font-semibold text-gray-900">
-                          투표 완료! +{vote.pointReward}P 적립되었습니다
+                          투표 완료! +{vote.pointReward}★ 적립되었습니다
                         </span>
                       </div>
-                    ) : vote.isActive && !hasVoted && user ? (
+                    ) : vote.isActive && canVote && user ? (
                       /* Can vote */
                       <button
                         onClick={() => handleVote(vote.id)}
@@ -366,11 +362,11 @@ export default function VotePage() {
                           '투표하기'
                         )}
                       </button>
-                    ) : hasVoted ? (
-                      /* Already voted */
-                      <div className="text-center py-3 bg-gray-50 rounded-xl border border-gray-100">
-                        <span className="text-sm text-gray-500 font-medium">
-                          이미 참여한 투표입니다
+                    ) : votedToday ? (
+                      /* Voted today */
+                      <div className="text-center py-3 bg-green-50 rounded-xl border border-green-100">
+                        <span className="text-sm text-green-600 font-medium">
+                          오늘 이미 투표했습니다 · 내일 다시 참여하세요!
                         </span>
                       </div>
                     ) : (

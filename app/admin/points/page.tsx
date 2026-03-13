@@ -4,17 +4,17 @@
 import { useEffect, useState } from 'react'
 import {
   initStore,
-  getUserPoints,
-  getPointHistory,
-  adminAdjustPoints,
+  getUserStars,
+  getStarHistory,
+  adminAdjustStars,
   getChargeRate,
   setChargeRate,
 } from '@/lib/store'
-import type { PointHistory } from '@/lib/mock-data'
+import type { StarHistory } from '@/lib/mock-data'
 
 export default function AdminPointsPage() {
-  const [points, setPoints] = useState(0)
-  const [history, setHistory] = useState<PointHistory[]>([])
+  const [stars, setStars] = useState(0)
+  const [history, setHistory] = useState<StarHistory[]>([])
   const [amount, setAmount] = useState(0)
   const [reason, setReason] = useState('')
   const [result, setResult] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
@@ -22,8 +22,8 @@ export default function AdminPointsPage() {
   const [newRate, setNewRate] = useState('1.2')
 
   const reload = () => {
-    setPoints(getUserPoints())
-    setHistory(getPointHistory())
+    setStars(getUserStars())
+    setHistory(getStarHistory())
     setChargeRateState(getChargeRate())
     setNewRate(String(getChargeRate()))
   }
@@ -37,13 +37,13 @@ export default function AdminPointsPage() {
     if (amount === 0) return setResult({ type: 'error', message: '금액을 입력하세요.' })
     if (!reason.trim()) return setResult({ type: 'error', message: '사유를 입력하세요.' })
 
-    const before = getUserPoints()
-    adminAdjustPoints(amount, reason)
-    const after = getUserPoints()
+    const before = getUserStars()
+    adminAdjustStars(amount, reason)
+    const after = getUserStars()
 
     setResult({
       type: 'success',
-      message: `포인트가 ${before.toLocaleString()}P → ${after.toLocaleString()}P로 변경되었습니다.`,
+      message: `스타가 ${before.toLocaleString()}★ → ${after.toLocaleString()}★로 변경되었습니다.`,
     })
     setAmount(0)
     setReason('')
@@ -65,7 +65,7 @@ export default function AdminPointsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-semibold text-gray-900">포인트 관리</h1>
+      <h1 className="text-xl font-semibold text-gray-900">스타 관리</h1>
 
       {/* Current Balance */}
       <div className="bg-white rounded-xl border border-gray-100 p-6">
@@ -76,8 +76,8 @@ export default function AdminPointsPage() {
             </svg>
           </div>
           <div>
-            <p className="text-xs text-gray-400 font-medium">현재 보유 포인트</p>
-            <p className="text-2xl font-bold text-gray-900">{points.toLocaleString()}P</p>
+            <p className="text-xs text-gray-400 font-medium">현재 보유 스타</p>
+            <p className="text-2xl font-bold text-gray-900">{stars.toLocaleString()}★</p>
           </div>
         </div>
       </div>
@@ -88,12 +88,12 @@ export default function AdminPointsPage() {
           <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          포인트 지급 / 차감
+          스타 지급 / 차감
         </h2>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1.5">포인트 금액</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1.5">스타 수량</label>
             <div className="flex gap-2">
               <input
                 type="number"
@@ -121,7 +121,7 @@ export default function AdminPointsPage() {
                 <span
                   className={`ml-2 font-medium ${amount > 0 ? 'text-green-600' : 'text-red-600'}`}
                 >
-                  변경 후: {(points + amount).toLocaleString()}P
+                  변경 후: {(stars + amount).toLocaleString()}★
                 </span>
               )}
             </p>
@@ -133,7 +133,7 @@ export default function AdminPointsPage() {
               type="text"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="포인트 지급/차감 사유를 입력하세요"
+              placeholder="스타 지급/차감 사유를 입력하세요"
               className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition-colors"
             />
           </div>
@@ -143,7 +143,7 @@ export default function AdminPointsPage() {
             disabled={amount === 0 || !reason.trim()}
             className="w-full py-2.5 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {amount >= 0 ? '포인트 지급' : '포인트 차감'}
+            {amount >= 0 ? '스타 지급' : '스타 차감'}
           </button>
         </div>
 
@@ -179,7 +179,7 @@ export default function AdminPointsPage() {
         </h2>
         <p className="text-xs text-gray-400 mb-3">
           현재 비율: <span className="font-semibold text-gray-700">{chargeRate}</span> (1원 ={' '}
-          {chargeRate}P)
+          {chargeRate}★)
         </p>
         <div className="flex gap-2">
           <input
@@ -203,7 +203,7 @@ export default function AdminPointsPage() {
           <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <h2 className="text-sm font-semibold text-gray-900">포인트 내역</h2>
+          <h2 className="text-sm font-semibold text-gray-900">스타 내역</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -220,7 +220,7 @@ export default function AdminPointsPage() {
               {history.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-5 py-12 text-center text-gray-400 text-sm">
-                    포인트 내역이 없습니다.
+                    스타 내역이 없습니다.
                   </td>
                 </tr>
               ) : (
@@ -255,10 +255,10 @@ export default function AdminPointsPage() {
                         }`}
                       >
                         {h.amount > 0 ? '+' : ''}
-                        {h.amount.toLocaleString()}P
+                        {h.amount.toLocaleString()}★
                       </span>
                     </td>
-                    <td className="px-5 py-3.5 text-gray-500 font-mono text-xs">{h.balance.toLocaleString()}P</td>
+                    <td className="px-5 py-3.5 text-gray-500 font-mono text-xs">{h.balance.toLocaleString()}★</td>
                   </tr>
                 ))
               )}

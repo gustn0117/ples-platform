@@ -112,7 +112,7 @@ function CheckoutContent() {
             </div>
             <div>
               <p className="text-xs text-gray-400 font-medium">
-                {orderType === 'points' ? '포인트 충전' : '작품 구매'}
+                {orderType === 'points' ? '스타 충전' : '작품 구매'}
               </p>
               <h1 className="text-lg font-bold text-gray-900">{orderName}</h1>
             </div>

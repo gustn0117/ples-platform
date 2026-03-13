@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/lib/auth-context';
-import { initStore, getArtworks, getUserPoints } from '@/lib/store';
+import { initStore, getArtworks, getUserStars } from '@/lib/store';
 import Link from 'next/link';
 import { IconShoppingBag, IconCoin, IconPalette } from '@/components/icons';
 import type { Artwork } from '@/lib/mock-data';
@@ -16,12 +16,12 @@ export default function ArtworksPage() {
   const [artworks, setArtworks] = useState<Artwork[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<Category>('전체');
-  const [userPoints, setUserPoints] = useState(0);
+  const [userStars, setUserStars] = useState(0);
 
   useEffect(() => {
     initStore();
     setArtworks(getArtworks());
-    setUserPoints(getUserPoints());
+    setUserStars(getUserStars());
     setLoading(false);
   }, []);
 
@@ -81,9 +81,9 @@ export default function ArtworksPage() {
           {user && (
             <div className="mt-4 ml-[52px] inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl shadow-sm">
               <IconCoin className="w-4 h-4 text-yellow-500" />
-              <span className="text-xs text-gray-500">보유 포인트</span>
+              <span className="text-xs text-gray-500">보유 스타</span>
               <span className="text-sm font-bold text-gray-900 tabular-nums">
-                {userPoints.toLocaleString()}P
+                {userStars.toLocaleString()}★
               </span>
             </div>
           )}
@@ -195,7 +195,7 @@ export default function ArtworksPage() {
                       <span className="text-[11px] text-gray-300">|</span>
                       <span className="text-xs text-yellow-600 font-medium tabular-nums inline-flex items-center gap-0.5">
                         <IconCoin className="w-3 h-3" />
-                        {artwork.pointPrice.toLocaleString()}P
+                        {artwork.pointPrice.toLocaleString()}★
                       </span>
                     </div>
 

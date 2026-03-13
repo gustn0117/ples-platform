@@ -4,15 +4,15 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import {
   initStore,
-  getUserPoints,
+  getUserStars,
   getUserVoted,
-  getStarredArtistIds,
+  getSupportedArtistIds,
   getUserPurchases,
   getUserWatched,
   getVotes,
   getArtists,
   getVideos,
-  getPointHistory,
+  getStarHistory,
   type Purchase,
 } from '@/lib/store';
 
@@ -41,10 +41,10 @@ import { ArtistIcon } from '@/lib/icons';
 
 type TabKey = 'votes' | 'artists' | 'purchases' | 'videos';
 
-function getMembershipBadge(points: number) {
-  if (points >= 10000) return { label: 'VIP', color: 'bg-yellow-500 text-black' };
-  if (points >= 5000) return { label: 'PRO', color: 'bg-gray-600 text-white' };
-  if (points >= 1000) return { label: 'MEMBER', color: 'bg-gray-400 text-white' };
+function getMembershipBadge(stars: number) {
+  if (stars >= 10000) return { label: 'VIP', color: 'bg-yellow-500 text-black' };
+  if (stars >= 5000) return { label: 'PRO', color: 'bg-gray-600 text-white' };
+  if (stars >= 1000) return { label: 'MEMBER', color: 'bg-gray-400 text-white' };
   return { label: 'NEW', color: 'bg-gray-200 text-gray-600' };
 }
 
@@ -54,8 +54,8 @@ export default function MyPage() {
   const [ready, setReady] = useState(false);
 
   // Data states
-  const [points, setPoints] = useState(0);
-  const [votedMap, setVotedMap] = useState<Record<number, number>>({});
+  const [stars, setStars] = useState(0);
+  const [votedMap, setVotedMap] = useState<Record<number, any>>({});
   const [likedIds, setLikedIds] = useState<number[]>([]);
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -63,9 +63,9 @@ export default function MyPage() {
 
   useEffect(() => {
     initStore();
-    setPoints(getUserPoints());
+    setStars(getUserStars());
     setVotedMap(getUserVoted());
-    setLikedIds(getStarredArtistIds());
+    setLikedIds(getSupportedArtistIds());
     setPurchases(getUserPurchases());
     setWatchedIds(getUserWatched());
     setReady(true);
@@ -120,7 +120,7 @@ export default function MyPage() {
 
   const nickname = profile?.nickname || '회원';
   const email = profile?.email || user.email || '';
-  const membership = getMembershipBadge(points);
+  const membership = getMembershipBadge(stars);
 
   // Derived data for tabs
   const allVotes = getVotes();
@@ -134,9 +134,10 @@ export default function MyPage() {
   const watchedCount = watchedIds.length;
 
   // Build vote history with chosen option
-  const voteHistory = Object.entries(votedMap).map(([voteIdStr, optionId]) => {
+  const voteHistory = Object.entries(votedMap).map(([voteIdStr, value]) => {
     const voteId = Number(voteIdStr);
     const vote = allVotes.find((v) => v.id === voteId);
+    const optionId = typeof value === 'object' ? value.optionId : value;
     const chosenOption = vote?.options.find((o) => o.id === optionId);
     return {
       voteId,
@@ -157,15 +158,15 @@ export default function MyPage() {
     .filter(Boolean) as { id: number; title: string; duration: string; pointReward: number }[];
 
   const statCards = [
-    { label: '보유 포인트', value: points.toLocaleString(), suffix: 'P', icon: <IconCoin className="w-5 h-5" />, highlight: true },
+    { label: '보유 스타', value: stars.toLocaleString(), suffix: '★', icon: <IconCoin className="w-5 h-5" />, highlight: true },
     { label: '투표 참여', value: voteCount.toString(), suffix: '회', icon: <IconVote className="w-5 h-5" />, highlight: false },
-    { label: '스타 아티스트', value: likedCount.toString(), suffix: '명', icon: <IconStar className="w-5 h-5" />, highlight: false },
+    { label: '응원 아티스트', value: likedCount.toString(), suffix: '명', icon: <IconStar className="w-5 h-5" />, highlight: false },
     { label: '작품 구매', value: purchaseCount.toString(), suffix: '건', icon: <IconShoppingBag className="w-5 h-5" />, highlight: false },
   ];
 
   const tabs: { key: TabKey; label: string; icon: React.ReactNode }[] = [
     { key: 'votes', label: '투표내역', icon: <IconVote className="w-4 h-4" /> },
-    { key: 'artists', label: '스타 아티스트', icon: <IconStar className="w-4 h-4" /> },
+    { key: 'artists', label: '응원 아티스트', icon: <IconStar className="w-4 h-4" /> },
     { key: 'purchases', label: '구매내역', icon: <IconShoppingBag className="w-4 h-4" /> },
     { key: 'videos', label: '시청미디어', icon: <IconPlay className="w-4 h-4" /> },
   ];
@@ -194,7 +195,7 @@ export default function MyPage() {
             </div>
             <p className="text-sm text-white/50 truncate">{email}</p>
             <p className="text-sm text-white/40 mt-1">
-              보유 포인트 <span className="text-white font-bold">{points.toLocaleString()}P</span>
+              보유 스타 <span className="text-white font-bold">{stars.toLocaleString()}★</span>
             </p>
           </div>
         </div>
@@ -237,7 +238,7 @@ export default function MyPage() {
             <IconWallet className="w-5 h-5 text-white" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-gray-900">포인트 내역 및 충전</p>
+            <p className="text-sm font-semibold text-gray-900">스타 내역 및 충전</p>
             <p className="text-xs text-gray-400 mt-0.5">충전, 적립, 사용 내역을 확인하세요</p>
           </div>
         </div>
@@ -274,7 +275,7 @@ export default function MyPage() {
               <EmptyState
                 icon={<IconVote className="w-8 h-8 text-gray-300" />}
                 title="참여한 투표가 없어요"
-                desc="좋아하는 아티스트에게 투표하고 포인트도 받아보세요"
+                desc="좋아하는 아티스트에게 투표하고 스타도 받아보세요"
                 link="/vote"
                 linkLabel="투표하러 가기"
               />
@@ -294,7 +295,7 @@ export default function MyPage() {
                       </div>
                     </div>
                     <span className="text-xs text-green-600 font-medium bg-green-50 px-2 py-1 rounded-lg shrink-0 ml-3">
-                      +{record.pointReward}P
+                      +{record.pointReward}★
                     </span>
                   </div>
                 ))}
@@ -307,7 +308,7 @@ export default function MyPage() {
             likedArtistList.length === 0 ? (
               <EmptyState
                 icon={<IconStar className="w-8 h-8 text-gray-300" />}
-                title="스타한 아티스트가 없어요"
+                title="응원한 아티스트가 없어요"
                 desc="마음에 드는 아티스트를 발견하고 응원해보세요"
                 link="/ranking"
                 linkLabel="아티스트 둘러보기"
@@ -375,12 +376,12 @@ export default function MyPage() {
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">{record.title}</p>
                         <p className="text-xs text-gray-400 mt-0.5">
-                          {new Date(record.date).toLocaleDateString('ko-KR')} | {record.method === 'cash' ? '현금' : '포인트'}
+                          {new Date(record.date).toLocaleDateString('ko-KR')} | {record.method === 'cash' ? '현금' : '스타'}
                         </p>
                       </div>
                     </div>
                     <span className="text-sm font-bold text-gray-900 shrink-0 ml-3">
-                      {record.amount.toLocaleString()}{record.method === 'cash' ? '원' : 'P'}
+                      {record.amount.toLocaleString()}{record.method === 'cash' ? '원' : '★'}
                     </span>
                   </div>
                 ))}
@@ -394,7 +395,7 @@ export default function MyPage() {
               <EmptyState
                 icon={<IconPlay className="w-8 h-8 text-gray-300" />}
                 title="시청한 미디어가 없어요"
-                desc="미디어를 시청하고 포인트를 적립해보세요"
+                desc="미디어를 시청하고 스타를 적립해보세요"
                 link="/videos"
                 linkLabel="미디어 보러 가기"
               />
@@ -412,7 +413,7 @@ export default function MyPage() {
                       </div>
                     </div>
                     <span className="text-xs text-green-600 font-medium bg-green-50 px-2 py-1 rounded-lg shrink-0 ml-3">
-                      +{video.pointReward}P
+                      +{video.pointReward}★
                     </span>
                   </div>
                 ))}

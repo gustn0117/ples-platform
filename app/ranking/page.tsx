@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
-import { initStore, getArtists, hasStarredToday, giveStar } from '@/lib/store';
+import { initStore, getArtists, getUserStars, sendStarToArtist } from '@/lib/store';
 import { type Artist } from '@/lib/mock-data';
 import { ArtistIcon, CrownIcon } from '@/lib/icons';
 import { IconStar, IconStarFilled } from '@/components/icons';
@@ -10,7 +10,8 @@ import { IconStar, IconStarFilled } from '@/components/icons';
 export default function RankingPage() {
   const { user } = useAuth();
   const [artists, setArtists] = useState<Artist[]>([]);
-  const [starredTodayIds, setStarredTodayIds] = useState<Set<number>>(new Set());
+  const [userStars, setUserStars] = useState(0);
+  const [openPicker, setOpenPicker] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,19 +24,20 @@ export default function RankingPage() {
     const all = getArtists();
     const sorted = [...all].sort((a, b) => b.likes - a.likes);
     setArtists(sorted);
-    setStarredTodayIds(new Set(all.map(a => a.id).filter(id => hasStarredToday(id))));
+    setUserStars(getUserStars());
   }
 
-  function handleGiveStar(artistId: number) {
+  function handleSendStar(artistId: number, amount: 1 | 2 | 3) {
     if (!user) {
       alert('로그인이 필요합니다.');
       return;
     }
-    const result = giveStar(artistId);
+    const result = sendStarToArtist(artistId, amount);
     if (!result.success) {
       alert(result.error);
       return;
     }
+    setOpenPicker(null);
     refreshData();
   }
 
@@ -59,7 +61,15 @@ export default function RankingPage() {
       {/* Header */}
       <div className="mb-10">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">아티스트 랭킹</h1>
-        <p className="text-gray-500">스타 수 기준 인기 아티스트 순위</p>
+        <div className="flex items-center gap-4">
+          <p className="text-gray-500">스타 수 기준 인기 아티스트 순위</p>
+          {user && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-yellow-50 border border-yellow-100 rounded-lg text-xs font-semibold text-gray-700">
+              <svg className="w-3.5 h-3.5 text-yellow-500" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" /></svg>
+              {userStars.toLocaleString()}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Top 3 Podium */}
@@ -142,7 +152,6 @@ export default function RankingPage() {
         {artists.map((artist, index) => {
           const rank = index + 1;
           const barWidth = maxLikes > 0 ? (artist.likes / maxLikes) * 100 : 0;
-          const doneToday = starredTodayIds.has(artist.id);
 
           return (
             <div
@@ -202,23 +211,35 @@ export default function RankingPage() {
                 </div>
               </div>
 
-              {/* Star Button */}
+              {/* Star Button with Picker */}
               <div className="col-span-2 sm:col-span-2 flex justify-center">
-                <button
-                  onClick={() => handleGiveStar(artist.id)}
-                  disabled={doneToday}
-                  className={`p-2 rounded-lg transition-all duration-200 ${
-                    doneToday
-                      ? 'bg-yellow-50 cursor-default'
-                      : 'bg-gray-100 hover:bg-gray-200 active:scale-90'
-                  }`}
-                >
-                  {doneToday ? (
-                    <IconStarFilled className="w-5 h-5 text-yellow-500" />
-                  ) : (
-                    <IconStar className="w-5 h-5 text-gray-400" />
+                <div className="relative">
+                  <button
+                    onClick={() => {
+                      if (!user) { alert('로그인이 필요합니다.'); return; }
+                      setOpenPicker(openPicker === artist.id ? null : artist.id);
+                    }}
+                    className="p-2 rounded-lg bg-gray-100 hover:bg-yellow-50 active:scale-90 transition-all duration-200"
+                  >
+                    <IconStar className="w-5 h-5 text-yellow-500" />
+                  </button>
+
+                  {/* Star amount picker */}
+                  {openPicker === artist.id && (
+                    <div className="absolute bottom-full right-0 mb-2 flex gap-1 bg-white border border-gray-200 rounded-xl p-1.5 shadow-lg z-10">
+                      {([1, 2, 3] as const).map((n) => (
+                        <button
+                          key={n}
+                          onClick={() => handleSendStar(artist.id, n)}
+                          className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg hover:bg-yellow-50 transition-colors whitespace-nowrap"
+                        >
+                          <IconStarFilled className="w-3 h-3 text-yellow-500" />
+                          {n}
+                        </button>
+                      ))}
+                    </div>
                   )}
-                </button>
+                </div>
               </div>
             </div>
           );

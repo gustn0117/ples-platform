@@ -4,11 +4,11 @@ import { artists as defaultArtists, type Artist } from '@/lib/mock-data';
 
 export const dynamic = 'force-dynamic';
 
-// Lightweight endpoint for like/unlike — only sends { artistId, delta: +1 | -1 }
+// Lightweight endpoint for star sending — { artistId, delta: 1 | 2 | 3 }
 export async function POST(request: Request) {
   try {
     const { artistId, delta } = await request.json();
-    if (typeof artistId !== 'number' || delta !== 1) {
+    if (typeof artistId !== 'number' || ![1, 2, 3].includes(delta)) {
       return NextResponse.json({ error: 'invalid params' }, { status: 400 });
     }
 

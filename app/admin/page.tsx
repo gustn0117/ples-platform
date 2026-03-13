@@ -8,8 +8,8 @@ import {
   getVotes,
   getArtworks,
   getVideos,
-  getPointHistory,
-  getUserPoints,
+  getStarHistory,
+  getUserStars,
 } from '@/lib/store'
 
 export default function AdminDashboard() {
@@ -29,8 +29,8 @@ export default function AdminDashboard() {
       votes: getVotes().length,
       artworks: getArtworks().length,
       videos: getVideos().length,
-      pointHistory: getPointHistory().length,
-      userPoints: getUserPoints(),
+      pointHistory: getStarHistory().length,
+      userPoints: getUserStars(),
     })
   }, [])
 
@@ -85,7 +85,7 @@ export default function AdminDashboard() {
       ),
     },
     {
-      label: '포인트 내역',
+      label: '스타 내역',
       value: stats.pointHistory,
       unit: '건',
       color: 'text-amber-600',
@@ -97,9 +97,9 @@ export default function AdminDashboard() {
       ),
     },
     {
-      label: '현재 포인트',
+      label: '현재 스타',
       value: stats.userPoints.toLocaleString(),
-      unit: 'P',
+      unit: '★',
       color: 'text-indigo-600',
       bg: 'bg-indigo-50',
       icon: (

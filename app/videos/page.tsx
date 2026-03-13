@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/lib/auth-context';
-import { initStore, getVideos, getUserWatched, watchVideo, getTodayWatchCount, getUserPoints } from '@/lib/store';
+import { initStore, getVideos, getUserWatched, watchVideo, getTodayWatchCount, getUserStars } from '@/lib/store';
 import type { Video } from '@/lib/mock-data';
 import Link from 'next/link';
 import { VideoIcon, CoinIcon, ChartIcon, PartyIcon } from '@/lib/icons';
 
 const MAX_DAILY = 5;
-const REWARD_POINTS = 20;
+const REWARD_STARS = 20;
 const WATCH_SECONDS = 15; // 최소 시청 시간 (초)
 
 function extractYouTubeId(url: string): string | null {
@@ -27,7 +27,7 @@ export default function VideosPage() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [watched, setWatched] = useState<number[]>([]);
   const [todayCount, setTodayCount] = useState(0);
-  const [points, setPoints] = useState(0);
+  const [stars, setStars] = useState(0);
   const [loading, setLoading] = useState(true);
 
   // Modal state
@@ -35,7 +35,7 @@ export default function VideosPage() {
   const [watchTimer, setWatchTimer] = useState(WATCH_SECONDS);
   const [canClaim, setCanClaim] = useState(false);
   const [completed, setCompleted] = useState(false);
-  const [earnedPoints, setEarnedPoints] = useState(0);
+  const [earnedStars, setEarnedStars] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Toast
@@ -45,7 +45,7 @@ export default function VideosPage() {
     setVideos(getVideos());
     setWatched(getUserWatched());
     setTodayCount(getTodayWatchCount());
-    setPoints(getUserPoints());
+    setStars(getUserStars());
   }, []);
 
   useEffect(() => {
@@ -89,19 +89,19 @@ export default function VideosPage() {
     setWatchTimer(WATCH_SECONDS);
     setCanClaim(false);
     setCompleted(false);
-    setEarnedPoints(0);
+    setEarnedStars(0);
   };
 
   const claimReward = () => {
     if (!activeVideo || !canClaim) return;
     const result = watchVideo(activeVideo.id);
-    if (result.success && result.points && result.points > 0) {
-      setEarnedPoints(result.points);
+    if (result.success && result.stars && result.stars > 0) {
+      setEarnedStars(result.stars);
       setCompleted(true);
       refreshData();
-      setToast(`+${result.points}P 적립 완료!`);
+      setToast(`+${result.stars}★ 적립 완료!`);
       setTimeout(() => setToast(null), 2500);
-    } else if (result.success && (result.points === 0 || !result.points)) {
+    } else if (result.success && (result.stars === 0 || !result.stars)) {
       setCompleted(true);
     } else {
       setToast(result.error || '오류가 발생했습니다.');
@@ -115,7 +115,7 @@ export default function VideosPage() {
     setActiveVideo(null);
     setCanClaim(false);
     setCompleted(false);
-    setEarnedPoints(0);
+    setEarnedStars(0);
   };
 
   const limitReached = todayCount >= MAX_DAILY;
@@ -134,7 +134,7 @@ export default function VideosPage() {
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">미디어 리워드</h1>
           </div>
           <p className="text-gray-500 ml-[52px] text-sm">
-            미디어를 시청하고 매 미디어당 <span className="text-gray-900 font-semibold">{REWARD_POINTS}P</span>를 적립하세요
+            미디어를 시청하고 매 미디어당 <span className="text-gray-900 font-semibold">{REWARD_STARS}★</span>를 적립하세요
           </p>
 
           {/* Daily Progress Card */}
@@ -151,9 +151,9 @@ export default function VideosPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-500">보유 포인트</span>
-                  <span className="text-sm font-bold text-gray-900 bg-gray-100 px-3 py-1 rounded-lg">
-                    {points.toLocaleString()}P
+                  <span className="text-xs text-gray-500">보유 스타</span>
+                  <span className="text-sm font-bold text-gray-900 bg-yellow-50 px-3 py-1 rounded-lg">
+                    {stars.toLocaleString()}★
                   </span>
                 </div>
               </div>
@@ -208,7 +208,7 @@ export default function VideosPage() {
           {!user && (
             <div className="mt-8 bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 text-center shadow-sm">
               <p className="text-gray-500 text-sm mb-3">
-                로그인하면 미디어 시청 시 포인트를 적립할 수 있어요
+                로그인하면 미디어 시청 시 스타를 적립할 수 있어요
               </p>
               <Link
                 href="/login"
@@ -294,7 +294,7 @@ export default function VideosPage() {
 
                     {/* Point reward badge */}
                     <span className="absolute top-2 right-2 text-[11px] text-yellow-700 bg-yellow-50/90 backdrop-blur-sm px-2 py-0.5 rounded-md font-bold border border-yellow-200">
-                      +{video.pointReward}P
+                      +{video.pointReward}★
                     </span>
                   </div>
 
@@ -306,7 +306,7 @@ export default function VideosPage() {
 
                     <div className="flex items-center justify-between mb-3">
                       <span className="flex items-center gap-1 text-xs font-bold text-yellow-600 bg-yellow-50 px-2.5 py-1 rounded-lg border border-yellow-200">
-                        <CoinIcon className="w-3.5 h-3.5" /> +{video.pointReward}P
+                        <CoinIcon className="w-3.5 h-3.5" /> +{video.pointReward}★
                       </span>
                       {isWatched ? (
                         <span className="flex items-center gap-1 text-xs text-green-600 font-medium">
@@ -355,7 +355,7 @@ export default function VideosPage() {
                         onClick={() => openWatch(video)}
                         className="w-full py-3 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-500 transition-all duration-200 flex items-center justify-center gap-1.5"
                       >
-                        시청하고 포인트 받기 →
+                        시청하고 스타 받기 →
                       </button>
                     )}
                   </div>
@@ -413,10 +413,10 @@ export default function VideosPage() {
                 {/* Timer / Claim / Completed */}
                 {completed ? (
                   <div className="flex items-center justify-between">
-                    {earnedPoints > 0 ? (
-                      <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl border border-indigo-200">
+                    {earnedStars > 0 ? (
+                      <div className="flex items-center gap-2 px-4 py-2 bg-yellow-50 text-yellow-700 rounded-xl border border-yellow-200">
                         <CoinIcon className="w-4 h-4" />
-                        <span className="text-sm font-bold">+{earnedPoints}P 적립 완료!</span>
+                        <span className="text-sm font-bold">+{earnedStars}★ 적립 완료!</span>
                       </div>
                     ) : (
                       <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-600 rounded-xl border border-gray-200">
@@ -441,7 +441,7 @@ export default function VideosPage() {
                       className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-500 transition-all flex items-center gap-2 animate-pulse"
                     >
                       <CoinIcon className="w-4 h-4" />
-                      +{activeVideo.pointReward}P 받기
+                      +{activeVideo.pointReward}★ 받기
                     </button>
                   </div>
                 ) : (
@@ -466,7 +466,7 @@ export default function VideosPage() {
                       </div>
                     </div>
                     <span className="flex items-center gap-1.5 text-xs font-bold text-yellow-600 bg-yellow-50 px-3 py-1.5 rounded-xl border border-yellow-200">
-                      <CoinIcon className="w-3.5 h-3.5" /> +{activeVideo.pointReward}P
+                      <CoinIcon className="w-3.5 h-3.5" /> +{activeVideo.pointReward}★
                     </span>
                   </div>
                 )}

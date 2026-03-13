@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
-import { initStore, getArtworks, getUserPoints, purchaseArtwork } from '@/lib/store';
+import { initStore, getArtworks, getUserStars, purchaseArtwork } from '@/lib/store';
 import type { Artwork } from '@/lib/mock-data';
 import { ArtworkIcon } from '@/lib/icons';
 import { IconShoppingBag, IconCoin, IconWallet, IconCheck } from '@/components/icons';
@@ -16,10 +16,10 @@ export default function ArtworkDetailPage() {
   const { user } = useAuth();
   const [artwork, setArtwork] = useState<Artwork | null>(null);
   const [loading, setLoading] = useState(true);
-  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'points'>('cash');
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'stars'>('cash');
   const [purchasing, setPurchasing] = useState(false);
   const [purchaseSuccess, setPurchaseSuccess] = useState(false);
-  const [userPoints, setUserPoints] = useState(0);
+  const [userStars, setUserStars] = useState(0);
 
   const artworkId = Number(params.id);
 
@@ -27,14 +27,14 @@ export default function ArtworkDetailPage() {
     initStore();
     const found = getArtworks().find((a) => a.id === artworkId);
     setArtwork(found ?? null);
-    setUserPoints(getUserPoints());
+    setUserStars(getUserStars());
     setLoading(false);
   }, [artworkId]);
 
   function refreshData() {
     const found = getArtworks().find((a) => a.id === artworkId);
     setArtwork(found ?? null);
-    setUserPoints(getUserPoints());
+    setUserStars(getUserStars());
   }
 
   async function handlePurchase() {
@@ -87,8 +87,8 @@ export default function ArtworkDetailPage() {
       return;
     }
 
-    // Points payment (existing local flow)
-    const result = purchaseArtwork(artwork.id, paymentMethod);
+    // Stars payment (existing local flow)
+    const result = purchaseArtwork(artwork.id, 'stars');
     if (!result.success) {
       alert(result.error || '구매에 실패했습니다.');
       setPurchasing(false);
@@ -135,7 +135,7 @@ export default function ArtworkDetailPage() {
   const isSoldOut = artwork.soldOut || artwork.stock <= 0;
   const lowStock = !isSoldOut && artwork.stock > 0 && artwork.stock < 10;
   const discount = artwork.price - artwork.pointPrice;
-  const insufficientPoints = userPoints < artwork.pointPrice;
+  const insufficientStars = userStars < artwork.pointPrice;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -230,16 +230,16 @@ export default function ArtworkDetailPage() {
             <span className="text-gray-300">|</span>
             <span className="text-base text-yellow-600 font-medium tabular-nums inline-flex items-center gap-1">
               <IconCoin className="w-4 h-4" />
-              {artwork.pointPrice.toLocaleString()}P
+              {artwork.pointPrice.toLocaleString()}★
             </span>
           </div>
 
           {user && (
             <div className="flex items-center gap-2 mt-4 mb-2">
               <IconCoin className="w-4 h-4 text-yellow-500" />
-              <span className="text-sm text-gray-500">보유 포인트</span>
+              <span className="text-sm text-gray-500">보유 스타</span>
               <span className="text-sm font-bold text-gray-900 tabular-nums">
-                {userPoints.toLocaleString()}P
+                {userStars.toLocaleString()}★
               </span>
             </div>
           )}
@@ -287,11 +287,11 @@ export default function ArtworkDetailPage() {
                 </div>
               </button>
 
-              {/* Points */}
+              {/* Stars */}
               <button
-                onClick={() => setPaymentMethod('points')}
+                onClick={() => setPaymentMethod('stars')}
                 className={`relative p-4 rounded-xl border-2 text-left transition-all duration-200 ${
-                  paymentMethod === 'points'
+                  paymentMethod === 'stars'
                     ? 'border-yellow-500 bg-yellow-50'
                     : 'border-gray-200 bg-white hover:border-gray-300'
                 }`}
@@ -305,30 +305,30 @@ export default function ArtworkDetailPage() {
                 )}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${paymentMethod === 'points' ? 'bg-yellow-500' : 'bg-gray-100'}`}>
-                      <IconCoin className={`w-5 h-5 ${paymentMethod === 'points' ? 'text-white' : 'text-gray-400'}`} />
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${paymentMethod === 'stars' ? 'bg-yellow-500' : 'bg-gray-100'}`}>
+                      <IconCoin className={`w-5 h-5 ${paymentMethod === 'stars' ? 'text-white' : 'text-gray-400'}`} />
                     </div>
                     <div>
-                      <p className={`font-semibold text-sm ${paymentMethod === 'points' ? 'text-gray-900' : 'text-gray-500'}`}>포인트결제</p>
+                      <p className={`font-semibold text-sm ${paymentMethod === 'stars' ? 'text-gray-900' : 'text-gray-500'}`}>스타결제</p>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-sm text-yellow-600 tabular-nums font-medium">{artwork.pointPrice.toLocaleString()}P</span>
+                        <span className="text-sm text-yellow-600 tabular-nums font-medium">{artwork.pointPrice.toLocaleString()}★</span>
                         {discount > 0 && (
                           <span className="text-xs text-gray-400 line-through tabular-nums">{artwork.price.toLocaleString()}원</span>
                         )}
                       </div>
-                      {user && insufficientPoints && (
+                      {user && insufficientStars && (
                         <p className="text-xs text-red-500 mt-1.5 flex items-center gap-1">
                           <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          포인트가 부족합니다.{' '}
+                          스타가 부족합니다.{' '}
                           <Link href="/points" className="underline hover:text-red-400 font-medium">충전하기</Link>
                         </p>
                       )}
                     </div>
                   </div>
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${paymentMethod === 'points' ? 'border-yellow-500 bg-yellow-500' : 'border-gray-300'}`}>
-                    {paymentMethod === 'points' && <IconCheck className="w-3 h-3 text-white" />}
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${paymentMethod === 'stars' ? 'border-yellow-500 bg-yellow-500' : 'border-gray-300'}`}>
+                    {paymentMethod === 'stars' && <IconCheck className="w-3 h-3 text-white" />}
                   </div>
                 </div>
               </button>
@@ -336,7 +336,7 @@ export default function ArtworkDetailPage() {
 
             <button
               onClick={handlePurchase}
-              disabled={purchasing || (paymentMethod === 'points' && insufficientPoints)}
+              disabled={purchasing || (paymentMethod === 'stars' && insufficientStars)}
               className="w-full py-4 rounded-xl bg-gray-900 text-white text-base font-bold hover:bg-gray-800 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-[0.98]"
             >
               {purchasing ? (

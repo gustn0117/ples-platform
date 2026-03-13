@@ -141,8 +141,8 @@ export default function LoginPage() {
     },
     {
       icon: IconCoin,
-      title: '포인트 리워드',
-      desc: '활동할수록 쌓이는 포인트로 혜택을 누리세요',
+      title: '스타 리워드',
+      desc: '활동할수록 쌓이는 스타로 혜택을 누리세요',
     },
   ];
 
@@ -219,7 +219,7 @@ export default function LoginPage() {
             </span>
           </h2>
           <p className="mt-5 text-gray-500 text-sm leading-relaxed max-w-sm">
-            투표하고, 응원하고, 시청하면서 포인트를 쌓는 새로운 참여형 플랫폼
+            투표하고, 응원하고, 시청하면서 스타를 쌓는 새로운 참여형 플랫폼
           </p>
 
           {/* Divider */}

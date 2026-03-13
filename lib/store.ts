@@ -13,7 +13,7 @@ import {
   type Vote,
   type Artwork,
   type Video,
-  type PointHistory,
+  type StarHistory,
   type Banner,
 } from './mock-data';
 
@@ -94,10 +94,10 @@ const KEYS = {
   VOTES: 'ples_votes',
   ARTWORKS: 'ples_artworks',
   VIDEOS: 'ples_videos',
-  POINT_HISTORY: 'ples_point_history',
-  USER_POINTS: 'ples_user_points',
-  USER_VOTED: 'ples_user_voted',        // { [voteId]: optionId }
-  USER_STARRED: 'ples_user_starred',    // { [artistId]: lastStarDate (ISO) }
+  STAR_HISTORY: 'ples_star_history',
+  USER_STARS: 'ples_user_stars',
+  USER_VOTED: 'ples_user_voted',        // { [voteId]: { optionId, date } }
+  USER_STAR_SENT: 'ples_user_star_sent', // { [artistId]: totalSent }
   USER_WATCHED: 'ples_user_watched',    // number[] (video ids)
   USER_PURCHASED: 'ples_user_purchased', // { artworkId, date, method, amount }[]
   USER_WATCH_TODAY: 'ples_user_watch_today', // { date: string, count: number }
@@ -108,7 +108,7 @@ const KEYS = {
 
 // ============ Initialize ============
 
-const DATA_VERSION = '8';
+const DATA_VERSION = '9';
 
 export function initStore() {
   if (typeof window === 'undefined') return;
@@ -120,10 +120,10 @@ export function initStore() {
   // Only initialize user-specific data locally
   // Shared data (artists, votes, artworks, videos, banners, chargeRate)
   // will be loaded from server via syncFromServer()
-  setItem(KEYS.POINT_HISTORY, []);
-  setItem(KEYS.USER_POINTS, 0);
+  setItem(KEYS.STAR_HISTORY, []);
+  setItem(KEYS.USER_STARS, 0);
   setItem(KEYS.USER_VOTED, {});
-  setItem(KEYS.USER_STARRED, {});
+  setItem(KEYS.USER_STAR_SENT, {});
   setItem(KEYS.USER_WATCHED, []);
   setItem(KEYS.USER_PURCHASED, []);
   setItem(KEYS.USER_WATCH_TODAY, { date: '', count: 0 });
@@ -145,65 +145,65 @@ export function getArtist(id: number): Artist | undefined {
   return getArtists().find((a) => a.id === id);
 }
 
-// ============ Stars (daily cumulative) ============
+// ============ Star Sending (costs user stars) ============
 
-// Returns { [artistId]: lastStarDate }
-function getUserStarData(): Record<number, string> {
-  return getItem(KEYS.USER_STARRED, {});
+// Get total stars sent per artist: { [artistId]: number }
+function getUserStarSent(): Record<number, number> {
+  return getItem(KEYS.USER_STAR_SENT, {});
 }
 
-// Get all artist IDs the user has ever starred
-export function getStarredArtistIds(): number[] {
-  return Object.keys(getUserStarData()).map(Number);
+// Get all artist IDs the user has ever sent stars to
+export function getSupportedArtistIds(): number[] {
+  const data = getUserStarSent();
+  return Object.keys(data).map(Number);
 }
 
-// Check if user already starred this artist today
-export function hasStarredToday(artistId: number): boolean {
-  const data = getUserStarData();
-  const lastDate = data[artistId];
-  if (!lastDate) return false;
-  const today = new Date().toISOString().slice(0, 10);
-  return lastDate === today;
+// Get total stars sent to a specific artist
+export function getStarsSentToArtist(artistId: number): number {
+  const data = getUserStarSent();
+  return data[artistId] || 0;
 }
 
-// Check if user has ever starred this artist
-export function hasEverStarred(artistId: number): boolean {
-  const data = getUserStarData();
-  return artistId in data;
-}
-
-// Sync star to server (always +1, no undo)
-function syncStarToServer(artistId: number) {
+// Sync star to server (variable amount)
+function syncStarToServer(artistId: number, amount: number) {
   fetch('/api/store/like', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ artistId, delta: 1 }),
+    body: JSON.stringify({ artistId, delta: amount }),
     keepalive: true,
   }).catch((e) => console.error('[syncStar] error:', e));
 }
 
-// Give a star to an artist (once per day per artist, accumulates)
-export function giveStar(artistId: number): { success: boolean; error?: string } {
-  if (hasStarredToday(artistId)) {
-    return { success: false, error: '오늘 이미 이 아티스트에게 스타를 보냈습니다.' };
+// Send stars to an artist (1, 2, or 3 — costs from user balance)
+export function sendStarToArtist(artistId: number, amount: 1 | 2 | 3): { success: boolean; error?: string } {
+  const stars = getUserStars();
+  if (stars < amount) {
+    return { success: false, error: '스타가 부족합니다.' };
   }
 
-  const today = new Date().toISOString().slice(0, 10);
-  const data = getUserStarData();
-  data[artistId] = today;
-  setItem(KEYS.USER_STARRED, data);
+  const artist = getArtist(artistId);
+  // Deduct from user balance
+  useStars(amount, '아티스트 응원', artist?.name || '');
 
+  // Track sent stars per artist
+  const sent = getUserStarSent();
+  sent[artistId] = (sent[artistId] || 0) + amount;
+  setItem(KEYS.USER_STAR_SENT, sent);
+
+  // Add to artist's total likes
   const artists = getArtists();
-  const updatedArtists = artists.map((a) =>
-    a.id === artistId ? { ...a, likes: a.likes + 1 } : a
+  const updated = artists.map((a) =>
+    a.id === artistId ? { ...a, likes: a.likes + amount } : a
   );
-  setArtists(updatedArtists);
-  syncStarToServer(artistId);
+  setArtists(updated);
+
+  // Sync to server
+  syncStarToServer(artistId, amount);
 
   return { success: true };
 }
 
-// ============ Votes ============
+// ============ Votes (daily repeatable) ============
 
 export function getVotes(): Vote[] {
   return getShared('votes', KEYS.VOTES, defaultVotes);
@@ -214,14 +214,24 @@ export function setVotes(votes: Vote[]) {
   setItem(KEYS.VOTES, votes);
 }
 
-export function getUserVoted(): Record<number, number> {
+// Returns { [voteId]: { optionId, date } }
+export function getUserVoted(): Record<number, { optionId: number; date: string }> {
   return getItem(KEYS.USER_VOTED, {});
 }
 
-export function castVote(voteId: number, optionId: number): { success: boolean; error?: string } {
+export function hasVotedToday(voteId: number): boolean {
   const voted = getUserVoted();
-  if (voted[voteId] !== undefined) {
-    return { success: false, error: '이미 참여한 투표입니다.' };
+  if (!voted[voteId]) return false;
+  const today = new Date().toISOString().slice(0, 10);
+  return voted[voteId].date === today;
+}
+
+export function castVote(voteId: number, optionId: number): { success: boolean; error?: string } {
+  const today = new Date().toISOString().slice(0, 10);
+  const voted = getUserVoted();
+
+  if (voted[voteId]?.date === today) {
+    return { success: false, error: '오늘 이미 참여한 투표입니다. 내일 다시 투표해주세요!' };
   }
 
   const votes = getVotes();
@@ -244,12 +254,12 @@ export function castVote(voteId: number, optionId: number): { success: boolean; 
   // Sync vote counts to server so other users see the result
   syncKeyToServer('votes', updated);
 
-  // Record user vote
-  voted[voteId] = optionId;
+  // Record user vote with today's date
+  voted[voteId] = { optionId, date: today };
   setItem(KEYS.USER_VOTED, voted);
 
-  // Reward points
-  addPoints(vote.pointReward, '투표 참여', `${vote.title}`);
+  // Reward stars
+  addStars(vote.pointReward, '투표 참여', `${vote.title}`);
 
   return { success: true };
 }
@@ -267,20 +277,20 @@ export function setArtworks(artworks: Artwork[]) {
 
 export function purchaseArtwork(
   artworkId: number,
-  method: 'cash' | 'points'
+  method: 'cash' | 'stars'
 ): { success: boolean; error?: string } {
   const artworks = getArtworks();
   const artwork = artworks.find((a) => a.id === artworkId);
   if (!artwork) return { success: false, error: '존재하지 않는 작품입니다.' };
   if (artwork.soldOut) return { success: false, error: '품절된 작품입니다.' };
 
-  if (method === 'points') {
-    const points = getUserPoints();
-    if (points < artwork.pointPrice) {
-      return { success: false, error: '포인트가 부족합니다.' };
+  if (method === 'stars') {
+    const stars = getUserStars();
+    if (stars < artwork.pointPrice) {
+      return { success: false, error: '스타가 부족합니다.' };
     }
-    // Deduct points
-    usePoints(artwork.pointPrice, '작품 구매', artwork.title);
+    // Deduct stars
+    useStars(artwork.pointPrice, '작품 구매', artwork.title);
   }
 
   // Record purchase
@@ -303,7 +313,7 @@ export interface Purchase {
   title: string;
   artist: string;
   date: string;
-  method: 'cash' | 'points';
+  method: 'cash' | 'stars' | 'points';
   amount: number;
 }
 
@@ -335,7 +345,7 @@ export function getTodayWatchCount(): number {
   return data.count;
 }
 
-export function watchVideo(videoId: number): { success: boolean; error?: string; points?: number } {
+export function watchVideo(videoId: number): { success: boolean; error?: string; stars?: number } {
   const watched = getUserWatched();
   const alreadyWatched = watched.includes(videoId);
 
@@ -349,7 +359,7 @@ export function watchVideo(videoId: number): { success: boolean; error?: string;
   }
 
   if (alreadyWatched) {
-    return { success: true, points: 0 }; // Can rewatch but no additional points
+    return { success: true, stars: 0 }; // Can rewatch but no additional stars
   }
 
   const videos = getVideos();
@@ -362,33 +372,33 @@ export function watchVideo(videoId: number): { success: boolean; error?: string;
   // Update daily count
   setItem(KEYS.USER_WATCH_TODAY, { date: today, count: todayCount + 1 });
 
-  // Reward points
-  addPoints(video.pointReward, '영상 시청', video.title);
+  // Reward stars
+  addStars(video.pointReward, '영상 시청', video.title);
 
-  return { success: true, points: video.pointReward };
+  return { success: true, stars: video.pointReward };
 }
 
-// ============ Points ============
+// ============ Stars (was Points) ============
 
-export function getUserPoints(): number {
-  return getItem(KEYS.USER_POINTS, 0);
+export function getUserStars(): number {
+  return getItem(KEYS.USER_STARS, 0);
 }
 
-export function setUserPoints(points: number) {
-  setItem(KEYS.USER_POINTS, points);
+export function setUserStars(stars: number) {
+  setItem(KEYS.USER_STARS, stars);
 }
 
-export function getPointHistory(): PointHistory[] {
-  return getItem(KEYS.POINT_HISTORY, []);
+export function getStarHistory(): StarHistory[] {
+  return getItem(KEYS.STAR_HISTORY, []);
 }
 
-export function addPoints(amount: number, category: string, detail?: string) {
-  const points = getUserPoints();
-  const newBalance = points + amount;
-  setUserPoints(newBalance);
+export function addStars(amount: number, category: string, detail?: string) {
+  const stars = getUserStars();
+  const newBalance = stars + amount;
+  setUserStars(newBalance);
 
-  const history = getPointHistory();
-  const newEntry: PointHistory = {
+  const history = getStarHistory();
+  const newEntry: StarHistory = {
     id: history.length > 0 ? Math.max(...history.map((h) => h.id)) + 1 : 1,
     date: new Date().toISOString().slice(0, 10),
     type: 'earn',
@@ -396,16 +406,16 @@ export function addPoints(amount: number, category: string, detail?: string) {
     amount,
     balance: newBalance,
   };
-  setItem(KEYS.POINT_HISTORY, [newEntry, ...history]);
+  setItem(KEYS.STAR_HISTORY, [newEntry, ...history]);
 }
 
-export function usePoints(amount: number, category: string, detail?: string) {
-  const points = getUserPoints();
-  const newBalance = points - amount;
-  setUserPoints(newBalance);
+export function useStars(amount: number, category: string, detail?: string) {
+  const stars = getUserStars();
+  const newBalance = stars - amount;
+  setUserStars(newBalance);
 
-  const history = getPointHistory();
-  const newEntry: PointHistory = {
+  const history = getStarHistory();
+  const newEntry: StarHistory = {
     id: history.length > 0 ? Math.max(...history.map((h) => h.id)) + 1 : 1,
     date: new Date().toISOString().slice(0, 10),
     type: 'use',
@@ -413,14 +423,14 @@ export function usePoints(amount: number, category: string, detail?: string) {
     amount: -amount,
     balance: newBalance,
   };
-  setItem(KEYS.POINT_HISTORY, [newEntry, ...history]);
+  setItem(KEYS.STAR_HISTORY, [newEntry, ...history]);
 }
 
-export function chargePoints(cashAmount: number): number {
+export function chargeStars(cashAmount: number): number {
   const rate = getChargeRate();
-  const pointsToAdd = Math.floor(cashAmount * rate);
-  addPoints(pointsToAdd, '포인트 충전', `${cashAmount.toLocaleString()}원`);
-  return pointsToAdd;
+  const starsToAdd = Math.floor(cashAmount * rate);
+  addStars(starsToAdd, '스타 충전', `${cashAmount.toLocaleString()}원`);
+  return starsToAdd;
 }
 
 export function getChargeRate(): number {
@@ -434,13 +444,19 @@ export function setChargeRate(rate: number) {
 
 // ============ Admin helpers ============
 
-export function adminAdjustPoints(amount: number, reason: string) {
+export function adminAdjustStars(amount: number, reason: string) {
   if (amount > 0) {
-    addPoints(amount, '관리자 지급', reason);
+    addStars(amount, '관리자 지급', reason);
   } else {
-    usePoints(Math.abs(amount), '관리자 차감', reason);
+    useStars(Math.abs(amount), '관리자 차감', reason);
   }
 }
+
+// ============ Backwards compatibility aliases ============
+export const getUserPoints = getUserStars;
+export const getPointHistory = getStarHistory;
+export const addPoints = addStars;
+export const chargePoints = chargeStars;
 
 // ============ Banners ============
 
