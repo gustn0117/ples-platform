@@ -3,7 +3,8 @@
 
 import { useEffect, useState } from 'react'
 import { getAllUsers, updateUser, deleteUser, type MockUser } from '@/lib/auth-context'
-import { initStore } from '@/lib/store'
+import { initStore, getUserStars, adminAdjustStars, getStarHistory } from '@/lib/store'
+import type { StarHistory } from '@/lib/mock-data'
 
 type Tab = 'list' | 'detail'
 
@@ -18,6 +19,12 @@ export default function AdminUsersPage() {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [sortKey, setSortKey] = useState<'created_at' | 'nickname' | 'email'>('created_at')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
+  // Star management
+  const [userStars, setUserStars] = useState(0)
+  const [starHistory, setStarHistory] = useState<StarHistory[]>([])
+  const [starAmount, setStarAmount] = useState(0)
+  const [starReason, setStarReason] = useState('')
+  const [starResult, setStarResult] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
 
   const reload = () => {
     setUsers(getAllUsers())
@@ -70,7 +77,28 @@ export default function AdminUsersPage() {
     })
     setEditMode(false)
     setConfirmDelete(false)
+    setUserStars(getUserStars())
+    setStarHistory(getStarHistory())
+    setStarAmount(0)
+    setStarReason('')
+    setStarResult(null)
     setTab('detail')
+  }
+
+  function handleStarAdjust() {
+    if (starAmount === 0) return setStarResult({ type: 'error', message: '수량을 입력하세요.' })
+    if (!starReason.trim()) return setStarResult({ type: 'error', message: '사유를 입력하세요.' })
+    const before = getUserStars()
+    adminAdjustStars(starAmount, starReason)
+    const after = getUserStars()
+    setStarResult({
+      type: 'success',
+      message: `스타: ${before.toLocaleString()}★ → ${after.toLocaleString()}★`,
+    })
+    setUserStars(after)
+    setStarHistory(getStarHistory())
+    setStarAmount(0)
+    setStarReason('')
   }
 
   function handleSave() {
@@ -429,6 +457,122 @@ export default function AdminUsersPage() {
                 </p>
               </div>
             </div>
+          </div>
+
+          {/* Star Management */}
+          <div className="bg-white rounded-xl border border-gray-100 p-6">
+            <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <svg className="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>
+              스타 관리
+            </h3>
+
+            {/* Current Balance */}
+            <div className="flex items-center gap-3 mb-5 p-4 bg-amber-50 rounded-xl border border-amber-100">
+              <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
+                <span className="text-lg">★</span>
+              </div>
+              <div>
+                <p className="text-xs text-amber-600 font-medium">보유 스타</p>
+                <p className="text-2xl font-bold text-gray-900">{userStars.toLocaleString()}★</p>
+              </div>
+            </div>
+
+            {/* Adjust Form */}
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1.5">스타 수량</label>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    value={starAmount}
+                    onChange={(e) => setStarAmount(parseInt(e.target.value) || 0)}
+                    placeholder="양수: 지급, 음수: 차감"
+                    className="flex-1 px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition-colors"
+                  />
+                  <div className="flex gap-1">
+                    {[100, 500, 1000, 5000].map((val) => (
+                      <button
+                        key={val}
+                        type="button"
+                        onClick={() => setStarAmount((prev) => prev + val)}
+                        className="px-2.5 py-2 text-xs bg-gray-50 text-gray-500 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200 font-medium"
+                      >
+                        +{val >= 1000 ? `${val / 1000}k` : val}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {starAmount !== 0 && (
+                  <p className="mt-1.5 text-xs text-gray-400">
+                    변경 후:{' '}
+                    <span className={`font-medium ${starAmount > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                      {(userStars + starAmount).toLocaleString()}★
+                    </span>
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1.5">사유</label>
+                <input
+                  type="text"
+                  value={starReason}
+                  onChange={(e) => setStarReason(e.target.value)}
+                  placeholder="지급/차감 사유를 입력하세요"
+                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition-colors"
+                />
+              </div>
+              <button
+                onClick={handleStarAdjust}
+                disabled={starAmount === 0 || !starReason.trim()}
+                className="w-full py-2.5 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {starAmount >= 0 ? '스타 지급' : '스타 차감'}
+              </button>
+            </div>
+
+            {starResult && (
+              <div
+                className={`mt-3 p-3 rounded-lg text-sm flex items-center gap-2 ${
+                  starResult.type === 'success'
+                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                    : 'bg-red-50 text-red-700 border border-red-200'
+                }`}
+              >
+                {starResult.message}
+              </div>
+            )}
+
+            {/* Star History */}
+            {starHistory.length > 0 && (
+              <div className="mt-5 border-t border-gray-100 pt-4">
+                <h4 className="text-xs font-medium text-gray-500 mb-3">최근 스타 내역</h4>
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {starHistory.slice(0, 10).map((h) => (
+                    <div key={h.id} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            h.type === 'earn' ? 'bg-emerald-500' : 'bg-red-500'
+                          }`}
+                        />
+                        <span className="text-xs text-gray-600">{h.category}</span>
+                        <span className="text-xs text-gray-400">{h.date}</span>
+                      </div>
+                      <span
+                        className={`text-xs font-medium ${
+                          h.amount > 0 ? 'text-emerald-600' : 'text-red-600'
+                        }`}
+                      >
+                        {h.amount > 0 ? '+' : ''}
+                        {h.amount.toLocaleString()}★
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Danger Zone */}
