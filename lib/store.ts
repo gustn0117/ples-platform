@@ -145,11 +145,23 @@ export function getArtist(id: number): Artist | undefined {
   return getArtists().find((a) => a.id === id);
 }
 
-// ============ Star Sending (costs user stars) ============
+// ============ Star Sending (costs user stars, once per artist per day) ============
 
 // Get total stars sent per artist: { [artistId]: number }
 function getUserStarSent(): Record<number, number> {
   return getItem(KEYS.USER_STAR_SENT, {});
+}
+
+// Daily send tracking: { [artistId]: dateString }
+function getStarSentDates(): Record<string, string> {
+  return getItem('ples_star_sent_dates', {});
+}
+
+// Check if user already sent stars to this artist today
+export function hasSentStarToday(artistId: number): boolean {
+  const dates = getStarSentDates();
+  const today = new Date().toISOString().slice(0, 10);
+  return dates[artistId] === today;
 }
 
 // Get all artist IDs the user has ever sent stars to
@@ -174,8 +186,13 @@ function syncStarToServer(artistId: number, amount: number) {
   }).catch((e) => console.error('[syncStar] error:', e));
 }
 
-// Send stars to an artist (1, 2, or 3 — costs from user balance)
+// Send stars to an artist (1, 2, or 3 — costs from user balance, once per day per artist)
 export function sendStarToArtist(artistId: number, amount: 1 | 2 | 3): { success: boolean; error?: string } {
+  // Check daily limit
+  if (hasSentStarToday(artistId)) {
+    return { success: false, error: '오늘 이미 이 아티스트에게 스타를 보냈습니다.' };
+  }
+
   const stars = getUserStars();
   if (stars < amount) {
     return { success: false, error: '스타가 부족합니다.' };
@@ -185,10 +202,15 @@ export function sendStarToArtist(artistId: number, amount: 1 | 2 | 3): { success
   // Deduct from user balance
   useStars(amount, '아티스트 응원', artist?.name || '');
 
-  // Track sent stars per artist
+  // Track sent stars per artist (cumulative)
   const sent = getUserStarSent();
   sent[artistId] = (sent[artistId] || 0) + amount;
   setItem(KEYS.USER_STAR_SENT, sent);
+
+  // Track daily send date
+  const dates = getStarSentDates();
+  dates[artistId] = new Date().toISOString().slice(0, 10);
+  setItem('ples_star_sent_dates', dates);
 
   // Add to artist's total likes
   const artists = getArtists();
