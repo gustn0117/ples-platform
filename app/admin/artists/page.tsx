@@ -57,7 +57,7 @@ export default function AdminArtistsPage() {
     const file = e.target.files?.[0]
     if (!file) return
     if (!file.type.startsWith('image/')) return alert('이미지 파일만 업로드 가능합니다.')
-    if (file.size > 2 * 1024 * 1024) return alert('이미지 크기는 2MB 이하만 가능합니다.')
+    if (file.size > 50 * 1024 * 1024) return alert('이미지 크기는 50MB 이하만 가능합니다.')
     const reader = new FileReader()
     reader.onload = () => {
       setForm({ ...form, imageData: reader.result as string })

@@ -96,7 +96,7 @@ export default function AdminVotesPage() {
     const isImage = file.type.startsWith('image/')
     const isAudio = file.type.startsWith('audio/')
     if (!isImage && !isAudio) return alert('이미지 또는 오디오 파일만 업로드 가능합니다.')
-    if (file.size > 5 * 1024 * 1024) return alert('파일 크기는 5MB 이하로 제한됩니다.')
+    if (file.size > 50 * 1024 * 1024) return alert('파일 크기는 50MB 이하로 제한됩니다.')
 
     const reader = new FileReader()
     reader.onload = () => {

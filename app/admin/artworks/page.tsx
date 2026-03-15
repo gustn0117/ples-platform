@@ -99,7 +99,7 @@ export default function AdminArtworksPage() {
     const isImage = file.type.startsWith('image/')
     const isAudio = file.type.startsWith('audio/')
     if (!isImage && !isAudio) return alert('이미지 또는 오디오 파일만 업로드 가능합니다.')
-    if (file.size > 5 * 1024 * 1024) return alert('파일 크기는 5MB 이하로 제한됩니다.')
+    if (file.size > 50 * 1024 * 1024) return alert('파일 크기는 50MB 이하로 제한됩니다.')
     const reader = new FileReader()
     reader.onload = () => {
       setForm((f) => ({
@@ -441,7 +441,7 @@ export default function AdminArtworksPage() {
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
-                    이미지 또는 음원 파일 첨부 (5MB 이하)
+                    이미지 또는 음원 파일 첨부 (50MB 이하)
                   </button>
                 )}
               </div>
