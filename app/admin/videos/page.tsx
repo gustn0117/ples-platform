@@ -71,7 +71,7 @@ export default function AdminVideosPage() {
     const file = e.target.files?.[0]
     if (!file) return
     if (!file.type.startsWith('image/')) return alert('이미지 파일만 업로드 가능합니다.')
-    if (file.size > 2 * 1024 * 1024) return alert('이미지 크기는 2MB 이하만 가능합니다.')
+    if (file.size > 50 * 1024 * 1024) return alert('이미지 크기는 50MB 이하만 가능합니다.')
     const reader = new FileReader()
     reader.onload = () => {
       setForm({ ...form, thumbnailData: reader.result as string })
@@ -292,7 +292,7 @@ export default function AdminVideosPage() {
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.41a2.25 2.25 0 013.182 0l2.909 2.91m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                     </svg>
-                    <span className="text-xs">클릭하여 썸네일 업로드 (2MB 이하)</span>
+                    <span className="text-xs">클릭하여 썸네일 업로드 (50MB 이하)</span>
                   </button>
                 )}
               </div>

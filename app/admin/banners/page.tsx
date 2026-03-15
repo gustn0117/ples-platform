@@ -29,8 +29,8 @@ export default function AdminBannersPage() {
       alert('이미지 파일만 업로드 가능합니다.')
       return
     }
-    if (file.size > 2 * 1024 * 1024) {
-      alert('이미지 크기는 2MB 이하만 가능합니다.')
+    if (file.size > 50 * 1024 * 1024) {
+      alert('이미지 크기는 50MB 이하만 가능합니다.')
       return
     }
     const reader = new FileReader()
@@ -369,7 +369,7 @@ export default function AdminBannersPage() {
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                     </svg>
-                    클릭하여 이미지 업로드 (최대 2MB)
+                    클릭하여 이미지 업로드 (50MB 이하)
                   </button>
                 )}
               </div>
