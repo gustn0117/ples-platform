@@ -61,7 +61,6 @@ export default function ArtistsPage() {
   const sortTabs: { key: SortKey; label: string }[] = [
     { key: 'popular', label: '인기순' },
     { key: 'latest', label: '최신순' },
-    { key: 'investments', label: '투자순' },
   ];
 
   if (!mounted) {
