@@ -425,7 +425,7 @@ export default function Home() {
           <div className="animate-marquee whitespace-nowrap flex items-center gap-16">
             {[...Array(2)].map((_, setIndex) => (
               <div key={setIndex} className="flex items-center gap-16 shrink-0">
-                {['BRAND A', 'BRAND B', 'BRAND C', 'BRAND D', 'BRAND E', 'BRAND F', 'BRAND G', 'BRAND H'].map((brand) => (
+                {['슈퍼파워', '서울옥션블루', '시온미디어', '가나아뜰리에', 'Dancetruct', '브랜드아키텍츠'].map((brand) => (
                   <span
                     key={`${setIndex}-${brand}`}
                     className="text-xl sm:text-2xl font-black tracking-tight text-gray-200 hover:text-gray-400 transition-colors duration-300 select-none"

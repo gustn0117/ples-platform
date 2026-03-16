@@ -246,7 +246,7 @@ export default function AboutPage() {
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Partners</p>
           </div>
           <div className="flex flex-wrap items-center gap-6">
-            {['대한민국축구협회', '서울옥션블루'].map((partner) => (
+            {['슈퍼파워', '서울옥션블루', '시온미디어', '가나아뜰리에', 'Dancetruct', '브랜드아키텍츠'].map((partner) => (
               <div key={partner} className="px-8 py-5 rounded-2xl border border-gray-100 bg-white hover:shadow-sm transition-shadow">
                 <p className="text-sm font-semibold text-gray-800">{partner}</p>
               </div>
