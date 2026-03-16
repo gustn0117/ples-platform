@@ -371,8 +371,9 @@ export function watchVideo(videoId: number): { success: boolean; error?: string;
   const todayData = getItem(KEYS.USER_WATCH_TODAY, { date: '', count: 0 });
   const todayCount = todayData.date === today ? todayData.count : 0;
 
-  if (todayCount >= 30) {
-    return { success: false, error: '오늘 일일 시청 한도(30개)를 초과했습니다.' };
+  const videoTotal = getVideos().length;
+  if (todayCount >= videoTotal) {
+    return { success: false, error: '오늘 모든 미디어를 시청했습니다.' };
   }
 
   if (alreadyWatched) {

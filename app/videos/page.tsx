@@ -7,8 +7,6 @@ import type { Video } from '@/lib/mock-data';
 import Link from 'next/link';
 import { VideoIcon, CoinIcon, ChartIcon, PartyIcon } from '@/lib/icons';
 
-const MAX_DAILY = 30;
-
 function parseDuration(dur: string): number {
   const parts = dur.split(':').map(Number);
   if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
@@ -126,8 +124,9 @@ export default function VideosPage() {
     setEarnedStars(0);
   };
 
-  const limitReached = todayCount >= MAX_DAILY;
-  const progressPercent = (todayCount / MAX_DAILY) * 100;
+  const totalVideos = videos.length || 1;
+  const limitReached = todayCount >= totalVideos;
+  const progressPercent = (todayCount / totalVideos) * 100;
 
   // Non-logged-in users can view but not earn
   return (
@@ -154,7 +153,7 @@ export default function VideosPage() {
                   <div>
                     <span className="text-sm font-bold text-gray-900">오늘의 시청</span>
                     <span className="text-sm text-gray-500 ml-2">
-                      {todayCount}/{MAX_DAILY}
+                      {todayCount}/{totalVideos}
                     </span>
                   </div>
                 </div>
@@ -181,7 +180,7 @@ export default function VideosPage() {
 
               {/* Step Dots */}
               <div className="flex justify-between">
-                {Array.from({ length: MAX_DAILY }).map((_, i) => {
+                {Array.from({ length: totalVideos }).map((_, i) => {
                   const done = i < todayCount;
                   const isNext = i === todayCount && !limitReached;
                   return (
