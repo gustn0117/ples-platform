@@ -202,11 +202,10 @@ export default function AdminArtistsPage() {
       {modalOpen && (
         <div
           className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          onClick={() => setModalOpen(false)}
+          onMouseDown={(e) => { if (e.target === e.currentTarget) setModalOpen(false); }}
         >
           <div
             className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6"
-            onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-lg font-semibold text-gray-900 mb-5">
               {editingId !== null ? '아티스트 수정' : '아티스트 추가'}

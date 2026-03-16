@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/lib/auth-context';
+import { useAuth, findPasswordByEmail } from '@/lib/auth-context';
 import { IconVote, IconTrophy, IconCoin, IconCheck, IconSparkle, IconArrowRight } from '@/components/icons';
 
 // Password strength helper
@@ -36,6 +36,9 @@ export default function LoginPage() {
   const [success, setSuccess] = useState('');
   const [errorKey, setErrorKey] = useState(0); // for shake re-trigger
   const [mounted, setMounted] = useState(false);
+  const [showForgot, setShowForgot] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotResult, setForgotResult] = useState<{ found: boolean; password?: string } | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -74,7 +77,7 @@ export default function LoginPage() {
     setError('');
     setSuccess('');
 
-    if (!realName || !residentNumber || !phone || !nickname || !email || !password || !passwordConfirm) {
+    if (!realName || !phone || !nickname || !email || !password || !passwordConfirm) {
       setError('모든 항목을 입력해주세요.');
       setErrorKey((k) => k + 1);
       return;
@@ -470,6 +473,13 @@ export default function LoginPage() {
                     </>
                   )}
                 </button>
+                <button
+                  type="button"
+                  onClick={() => { setShowForgot(true); setForgotEmail(''); setForgotResult(null); }}
+                  className="w-full mt-3 text-center text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  비밀번호를 잊으셨나요?
+                </button>
               </form>
             )}
 
@@ -485,23 +495,6 @@ export default function LoginPage() {
                     value={realName}
                     onChange={(e) => setRealName(e.target.value)}
                     placeholder="이름을 입력하세요"
-                    className={inputGlowClass}
-                    onFocus={(e) => { e.target.style.animation = 'input-glow-pulse 2s ease-in-out infinite'; }}
-                    onBlur={(e) => { e.target.style.animation = 'none'; }}
-                  />
-                </div>
-                <div className="border-t border-gray-100 pt-5 pb-5">
-                  <label className="block text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">
-                    주민등록번호
-                  </label>
-                  <input
-                    type="text"
-                    value={residentNumber}
-                    onChange={(e) => {
-                      const v = e.target.value.replace(/[^0-9-]/g, '');
-                      if (v.length <= 14) setResidentNumber(v);
-                    }}
-                    placeholder="000000-0000000"
                     className={inputGlowClass}
                     onFocus={(e) => { e.target.style.animation = 'input-glow-pulse 2s ease-in-out infinite'; }}
                     onBlur={(e) => { e.target.style.animation = 'none'; }}
@@ -700,6 +693,53 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
+      {/* Forgot Password Modal */}
+      {showForgot && (
+        <div
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onMouseDown={(e) => { if (e.target === e.currentTarget) setShowForgot(false); }}
+        >
+          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">비밀번호 찾기</h2>
+            <p className="text-sm text-gray-400 mb-5">가입할 때 사용한 이메일을 입력하세요.</p>
+            <input
+              type="email"
+              value={forgotEmail}
+              onChange={(e) => { setForgotEmail(e.target.value); setForgotResult(null); }}
+              placeholder="example@email.com"
+              className="w-full px-4 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 transition-all mb-4"
+            />
+            {forgotResult && (
+              <div className={`mb-4 p-3 rounded-xl text-sm ${
+                forgotResult.found
+                  ? 'bg-emerald-50 border border-emerald-200 text-emerald-700'
+                  : 'bg-red-50 border border-red-200 text-red-600'
+              }`}>
+                {forgotResult.found
+                  ? <>비밀번호: <strong className="font-mono">{forgotResult.password}</strong></>
+                  : '해당 이메일로 가입된 계정이 없습니다.'}
+              </div>
+            )}
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowForgot(false)}
+                className="flex-1 py-3 text-sm font-medium text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"
+              >
+                닫기
+              </button>
+              <button
+                onClick={() => {
+                  if (!forgotEmail.trim()) return;
+                  setForgotResult(findPasswordByEmail(forgotEmail));
+                }}
+                className="flex-1 py-3 text-sm font-medium text-white bg-gray-900 rounded-xl hover:bg-gray-800 transition-colors"
+              >
+                찾기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -22,6 +22,7 @@ export default function VotePage() {
   const [selectedOptions, setSelectedOptions] = useState<Record<number, number>>({});
   const [votingInProgress, setVotingInProgress] = useState<number | null>(null);
   const [voteSuccess, setVoteSuccess] = useState<number | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   useEffect(() => {
     initStore();
@@ -121,7 +122,8 @@ export default function VotePage() {
               const isVoting = votingInProgress === vote.id;
               const justVoted = voteSuccess === vote.id;
               const showResults = votedToday || !vote.isActive;
-              const canVote = !votedToday && vote.isActive && !isVoting && !!user;
+              const canVote = !votedToday && vote.isActive && !isVoting;
+              const canSubmit = canVote && !!user;
 
               return (
                 <div
@@ -306,15 +308,7 @@ export default function VotePage() {
 
                   {/* Footer / Action */}
                   <div className="px-6 pb-6 pt-2">
-                    {/* Not logged in */}
-                    {!user && vote.isActive ? (
-                      <Link
-                        href="/login"
-                        className="block w-full text-center py-4 rounded-xl bg-gray-100 text-gray-500 text-base font-medium hover:bg-gray-200 transition-colors"
-                      >
-                        로그인 후 투표에 참여하세요
-                      </Link>
-                    ) : justVoted ? (
+                    {justVoted ? (
                       /* Just voted success */
                       <div className="flex items-center justify-center gap-2 py-3 bg-yellow-50 rounded-xl border border-yellow-200">
                         <svg className="w-4 h-4 text-yellow-500" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" /></svg>
@@ -322,10 +316,13 @@ export default function VotePage() {
                           투표 완료! +{vote.pointReward}★ 적립되었습니다
                         </span>
                       </div>
-                    ) : vote.isActive && canVote && user ? (
+                    ) : vote.isActive && canVote ? (
                       /* Can vote */
                       <button
-                        onClick={() => handleVote(vote.id)}
+                        onClick={() => {
+                          if (!user) { setShowAuthModal(true); return; }
+                          handleVote(vote.id);
+                        }}
                         disabled={
                           selectedOptions[vote.id] === undefined || isVoting
                         }
@@ -384,6 +381,43 @@ export default function VotePage() {
           </div>
         )}
       </div>
+
+      {/* Auth Modal for non-logged-in users */}
+      {showAuthModal && (
+        <div
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onMouseDown={(e) => { if (e.target === e.currentTarget) setShowAuthModal(false); }}
+        >
+          <div className="bg-white rounded-2xl shadow-2xl max-w-xs w-full p-6 text-center">
+            <div className="w-14 h-14 rounded-2xl bg-gray-900 text-white flex items-center justify-center mx-auto mb-4">
+              <svg className="w-7 h-7" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" /></svg>
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">투표에 참여하세요!</h3>
+            <p className="text-sm text-gray-400 mb-6">로그인하거나 회원가입하여<br />투표하고 스타를 적립하세요</p>
+            <div className="flex flex-col gap-2">
+              <Link
+                href="/login"
+                className="w-full py-3.5 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-800 transition-colors"
+              >
+                로그인
+              </Link>
+              <Link
+                href="/login"
+                onClick={() => {/* Will open register tab */}}
+                className="w-full py-3.5 bg-gray-100 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-200 transition-colors"
+              >
+                회원가입
+              </Link>
+            </div>
+            <button
+              onClick={() => setShowAuthModal(false)}
+              className="mt-3 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

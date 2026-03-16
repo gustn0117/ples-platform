@@ -441,14 +441,6 @@ export default function AdminUsersPage() {
                 )}
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1.5">주민등록번호</label>
-                <p className="px-3.5 py-2.5 bg-gray-50 rounded-lg text-sm text-gray-700 font-mono">
-                  {selectedUser.residentNumber
-                    ? selectedUser.residentNumber.slice(0, 8) + '******'
-                    : '-'}
-                </p>
-              </div>
-              <div>
                 <label className="block text-xs font-medium text-gray-400 mb-1.5">가입일</label>
                 <p className="px-3.5 py-2.5 bg-gray-50 rounded-lg text-sm text-gray-700">
                   {selectedUser.created_at

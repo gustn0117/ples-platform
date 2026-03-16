@@ -267,10 +267,9 @@ export default function AdminBannersPage() {
 
       {/* Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setModalOpen(false)}>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) setModalOpen(false); }}>
           <div
             className="bg-white rounded-2xl w-full max-w-lg shadow-xl animate-fade-in-up"
-            onClick={(e) => e.stopPropagation()}
           >
             <div className="px-6 py-5 border-b border-gray-100">
               <h2 className="text-base font-semibold text-gray-900">

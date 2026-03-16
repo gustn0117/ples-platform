@@ -2,13 +2,15 @@ export default function AboutPage() {
   const teamMembers = [
     { name: 'Lee', role: 'Art Director', desc: '전시 및 비주얼 아트, 문화 콘텐츠 기획 리더', color: 'bg-rose-100 text-rose-600' },
     { name: 'June', role: 'K-pop Music Producer', desc: '글로벌 음악 프로젝트 및 사운드 디렉팅 총괄', color: 'bg-violet-100 text-violet-600' },
-    { name: 'Jung', role: 'IT Specialist', desc: '플랫폼 고도화 및 기술 시스템 구축 전문가', color: 'bg-blue-100 text-blue-600' },
+    { name: 'Chae', role: 'IT Specialist', desc: '플랫폼 고도화 및 기술 시스템 구축 전문가', color: 'bg-blue-100 text-blue-600' },
     { name: 'Hong', role: 'Film PD', desc: '고감도 영상 콘텐츠 프로덕션 디렉터', color: 'bg-amber-100 text-amber-600' },
     { name: 'Hyo', role: 'Influencer Leader', desc: '미스코리아 & 인플루언서 관리', color: 'bg-pink-100 text-pink-600' },
     { name: 'Seung', role: 'Shooting PD', desc: '촬영 기술 리더', color: 'bg-indigo-100 text-indigo-600' },
     { name: 'Aitonia', role: 'AI PD', desc: 'AI 기반 콘텐츠 및 디지털 휴먼 프로젝트 총괄', color: 'bg-emerald-100 text-emerald-600' },
     { name: 'Grimdal', role: 'AI Creator', desc: '생성형 AI 영상 및 디지털 비주얼 크리에이터', color: 'bg-cyan-100 text-cyan-600' },
     { name: 'Um', role: 'Writer', desc: '문학도 출신의 시나리오 작가', color: 'bg-orange-100 text-orange-600' },
+    { name: 'Yun', role: 'Writer', desc: '문학도 출신의 시나리오 작가', color: 'bg-lime-100 text-lime-600' },
+    { name: 'Ron', role: 'Film Director', desc: '영화감독', color: 'bg-teal-100 text-teal-600' },
   ];
 
   const domesticAwards = [
@@ -222,7 +224,9 @@ export default function AboutPage() {
           </p>
           <div className="mt-10">
             <a
-              href="mailto:leahyu827@naver.com"
+              href="https://www.instagram.com/ples.lab/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-8 py-4 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-800 transition-colors"
             >
               협업 문의하기

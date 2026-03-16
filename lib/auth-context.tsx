@@ -59,6 +59,13 @@ export function deleteUser(userId: string) {
   return true
 }
 
+export function findPasswordByEmail(email: string): { found: boolean; password?: string } {
+  const users = getStoredUsers()
+  const user = users.find((u) => u.email.toLowerCase() === email.toLowerCase())
+  if (!user) return { found: false }
+  return { found: true, password: user.password }
+}
+
 export type { MockUser }
 
 interface AuthContextType {

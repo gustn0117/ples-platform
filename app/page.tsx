@@ -456,9 +456,9 @@ export default function Home() {
               Features
             </div>
             <h2 className="text-3xl sm:text-5xl font-bold text-gray-900 tracking-tight">
-              팬과 아티스트를 연결하는
+              우리가 참여하여
               <br className="hidden sm:block" />
-              <span className="gradient-text-elegant">다양한 기능</span>
+              <span className="gradient-text-elegant">가치를 높입니다</span>
             </h2>
             <p className="mt-5 text-gray-400 max-w-md mx-auto text-lg">
               투표, 응원, 시청 등 다양한 활동으로 스타를 적립하세요
