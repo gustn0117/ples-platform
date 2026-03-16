@@ -11,6 +11,7 @@ export default function AboutPage() {
     { name: 'Um', role: 'Writer', desc: '문학도 출신의 시나리오 작가', color: 'bg-orange-100 text-orange-600' },
     { name: 'Yun', role: 'Writer', desc: '문학도 출신의 시나리오 작가', color: 'bg-lime-100 text-lime-600' },
     { name: 'Ron', role: 'Film Director', desc: '영화감독', color: 'bg-teal-100 text-teal-600' },
+    { name: 'Yeon', role: 'Song Writer', desc: '음원작곡가', color: 'bg-purple-100 text-purple-600' },
   ];
 
   const domesticAwards = [
