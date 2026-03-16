@@ -186,13 +186,8 @@ function syncStarToServer(artistId: number, amount: number) {
   }).catch((e) => console.error('[syncStar] error:', e));
 }
 
-// Send stars to an artist (1, 2, or 3 — costs from user balance, once per day per artist)
+// Send stars to an artist (1, 2, or 3 — costs from user balance)
 export function sendStarToArtist(artistId: number, amount: 1 | 2 | 3): { success: boolean; error?: string } {
-  // Check daily limit
-  if (hasSentStarToday(artistId)) {
-    return { success: false, error: '오늘 이미 이 아티스트에게 스타를 보냈습니다.' };
-  }
-
   const stars = getUserStars();
   if (stars < amount) {
     return { success: false, error: '스타가 부족합니다.' };

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
-import { initStore, getArtist, getUserStars, sendStarToArtist, getStarsSentToArtist, hasSentStarToday } from '@/lib/store';
+import { initStore, getArtist, getUserStars, sendStarToArtist, getStarsSentToArtist } from '@/lib/store';
 import type { Artist } from '@/lib/mock-data';
 import { ArtistIcon } from '@/lib/icons';
 import { IconStar, IconStarFilled } from '@/components/icons';
@@ -184,30 +184,23 @@ export default function ArtistDetailPage() {
             </div>
           )}
 
-          {user && hasSentStarToday(artistId) ? (
-            <div className="flex items-center justify-center gap-2 py-4 bg-yellow-50 rounded-xl border border-yellow-200">
-              <IconStarFilled className="w-4 h-4 text-yellow-500" />
-              <span className="text-sm font-semibold text-gray-600">오늘 이미 스타를 보냈습니다</span>
-            </div>
-          ) : (
-            <div className="grid grid-cols-3 gap-3">
-              {([1, 2, 3] as const).map((n) => (
-                <button
-                  key={n}
-                  onClick={() => handleSendStar(n)}
-                  disabled={user ? userStars < n : false}
-                  className={`py-4 rounded-xl text-base font-semibold transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98] ${
-                    !user || userStars >= n
-                      ? 'bg-gray-900 text-white hover:bg-gray-800'
-                      : 'bg-gray-100 text-gray-300 cursor-not-allowed'
-                  }`}
-                >
-                  <IconStarFilled className="w-4 h-4 text-yellow-400" />
-                  {n}★ 보내기
-                </button>
-              ))}
-            </div>
-          )}
+          <div className="grid grid-cols-3 gap-3">
+            {([1, 2, 3] as const).map((n) => (
+              <button
+                key={n}
+                onClick={() => handleSendStar(n)}
+                disabled={user ? userStars < n : false}
+                className={`py-4 rounded-xl text-base font-semibold transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98] ${
+                  !user || userStars >= n
+                    ? 'bg-gray-900 text-white hover:bg-gray-800'
+                    : 'bg-gray-100 text-gray-300 cursor-not-allowed'
+                }`}
+              >
+                <IconStarFilled className="w-4 h-4 text-yellow-400" />
+                {n}★ 보내기
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>

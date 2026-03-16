@@ -1,13 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
-import { initStore, getArtists, getUserStars, sendStarToArtist, hasSentStarToday } from '@/lib/store';
+import { initStore, getArtists, getUserStars, sendStarToArtist } from '@/lib/store';
 import { type Artist } from '@/lib/mock-data';
 import { ArtistIcon, CrownIcon } from '@/lib/icons';
 import { IconStar, IconStarFilled } from '@/components/icons';
 
 export default function RankingPage() {
+  const router = useRouter();
   const { user } = useAuth();
   const [artists, setArtists] = useState<Artist[]>([]);
   const [userStars, setUserStars] = useState(0);
@@ -214,15 +216,9 @@ export default function RankingPage() {
               {/* Star Button with Picker */}
               <div className="col-span-2 sm:col-span-2 flex justify-center">
                 <div className="relative">
-                  {hasSentStarToday(artist.id) ? (
-                    <div className="p-2 rounded-lg bg-yellow-50">
-                      <IconStarFilled className="w-5 h-5 text-yellow-400" />
-                    </div>
-                  ) : (
-                    <>
                       <button
                         onClick={() => {
-                          if (!user) { alert('로그인이 필요합니다.'); return; }
+                          if (!user) { router.push('/login'); return; }
                           setOpenPicker(openPicker === artist.id ? null : artist.id);
                         }}
                         className="p-2 rounded-lg bg-gray-100 hover:bg-yellow-50 active:scale-90 transition-all duration-200"
@@ -245,8 +241,6 @@ export default function RankingPage() {
                           ))}
                         </div>
                       )}
-                    </>
-                  )}
                 </div>
               </div>
             </div>

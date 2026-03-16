@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
-import { initStore, getArtists, getUserStars, sendStarToArtist, hasSentStarToday } from '@/lib/store';
+import { initStore, getArtists, getUserStars, sendStarToArtist } from '@/lib/store';
 import type { Artist } from '@/lib/mock-data';
 import { IconMicrophone, IconSearch, IconStar, IconStarFilled } from '@/components/icons';
 import { ArtistIcon } from '@/lib/icons';
@@ -202,13 +202,7 @@ export default function ArtistsPage() {
                     </div>
 
                     <div className="relative">
-                      {user && hasSentStarToday(artist.id) ? (
-                        <div className="p-2 rounded-lg bg-yellow-50">
-                          <IconStarFilled className="w-4 h-4 text-yellow-400" />
-                        </div>
-                      ) : (
-                        <>
-                          <button
+                        <button
                             onClick={(e) => {
                               e.stopPropagation();
                               if (!user) { router.push('/login'); return; }
@@ -234,8 +228,6 @@ export default function ArtistsPage() {
                               ))}
                             </div>
                           )}
-                        </>
-                      )}
                     </div>
                   </div>
                 </div>
