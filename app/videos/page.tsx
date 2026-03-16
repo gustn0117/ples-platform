@@ -7,9 +7,14 @@ import type { Video } from '@/lib/mock-data';
 import Link from 'next/link';
 import { VideoIcon, CoinIcon, ChartIcon, PartyIcon } from '@/lib/icons';
 
-const MAX_DAILY = 5;
-const REWARD_STARS = 20;
-const WATCH_SECONDS = 15; // 최소 시청 시간 (초)
+const MAX_DAILY = 30;
+
+function parseDuration(dur: string): number {
+  const parts = dur.split(':').map(Number);
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  return parts[0] || 60;
+}
 
 function extractYouTubeId(url: string): string | null {
   const patterns = [
@@ -32,7 +37,8 @@ export default function VideosPage() {
 
   // Modal state
   const [activeVideo, setActiveVideo] = useState<Video | null>(null);
-  const [watchTimer, setWatchTimer] = useState(WATCH_SECONDS);
+  const [watchDuration, setWatchDuration] = useState(60);
+  const [watchTimer, setWatchTimer] = useState(60);
   const [canClaim, setCanClaim] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [earnedStars, setEarnedStars] = useState(0);
@@ -85,8 +91,10 @@ export default function VideosPage() {
 
   const openWatch = (video: Video) => {
     if (!user) return;
+    const dur = parseDuration(video.duration);
     setActiveVideo(video);
-    setWatchTimer(WATCH_SECONDS);
+    setWatchDuration(dur);
+    setWatchTimer(dur);
     setCanClaim(false);
     setCompleted(false);
     setEarnedStars(0);
@@ -134,7 +142,7 @@ export default function VideosPage() {
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">미디어 리워드</h1>
           </div>
           <p className="text-gray-500 ml-[52px] text-sm">
-            미디어를 시청하고 매 미디어당 <span className="text-gray-900 font-semibold">{REWARD_STARS}★</span>를 적립하세요
+            미디어를 시청하고 매 미디어당 <span className="text-gray-900 font-semibold">스타</span>를 적립하세요
           </p>
 
           {/* Daily Progress Card */}
@@ -454,15 +462,15 @@ export default function VideosPage() {
                             <circle
                               cx="18" cy="18" r="15" fill="none"
                               stroke="#818cf8" strokeWidth="2.5" strokeLinecap="round"
-                              strokeDasharray={`${(watchTimer / WATCH_SECONDS) * 94.2} 94.2`}
+                              strokeDasharray={`${(watchTimer / watchDuration) * 94.2} 94.2`}
                               className="transition-all duration-1000"
                             />
                           </svg>
-                          <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-gray-700">
-                            {watchTimer}
+                          <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-gray-700">
+                            {Math.floor(watchTimer / 60)}:{String(watchTimer % 60).padStart(2, '0')}
                           </span>
                         </div>
-                        <span className="text-xs text-gray-500">{watchTimer}초 후 리워드 수령 가능</span>
+                        <span className="text-xs text-gray-500">{Math.floor(watchTimer / 60)}분 {watchTimer % 60}초 후 리워드 수령 가능</span>
                       </div>
                     </div>
                     <span className="flex items-center gap-1.5 text-xs font-bold text-yellow-600 bg-yellow-50 px-3 py-1.5 rounded-xl border border-yellow-200">
