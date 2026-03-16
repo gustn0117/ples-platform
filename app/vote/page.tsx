@@ -118,7 +118,7 @@ export default function VotePage() {
           <div className="space-y-6">
             {votes.map((vote) => {
               const total = getTotalVotes(vote.options);
-              const votedToday = hasVotedToday(vote.id);
+              const votedToday = user ? hasVotedToday(vote.id) : false;
               const isVoting = votingInProgress === vote.id;
               const justVoted = voteSuccess === vote.id;
               const showResults = votedToday || !vote.isActive;
