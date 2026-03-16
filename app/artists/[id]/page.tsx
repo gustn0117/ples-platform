@@ -36,7 +36,7 @@ export default function ArtistDetailPage() {
 
   function handleSendStar(amount: 1 | 2 | 3) {
     if (!user) {
-      alert('로그인이 필요합니다.');
+      router.push('/login');
       return;
     }
     const result = sendStarToArtist(artistId, amount);
@@ -184,7 +184,7 @@ export default function ArtistDetailPage() {
             </div>
           )}
 
-          {hasSentStarToday(artistId) ? (
+          {user && hasSentStarToday(artistId) ? (
             <div className="flex items-center justify-center gap-2 py-4 bg-yellow-50 rounded-xl border border-yellow-200">
               <IconStarFilled className="w-4 h-4 text-yellow-500" />
               <span className="text-sm font-semibold text-gray-600">오늘 이미 스타를 보냈습니다</span>
@@ -195,9 +195,9 @@ export default function ArtistDetailPage() {
                 <button
                   key={n}
                   onClick={() => handleSendStar(n)}
-                  disabled={!user || userStars < n}
+                  disabled={user ? userStars < n : false}
                   className={`py-4 rounded-xl text-base font-semibold transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98] ${
-                    user && userStars >= n
+                    !user || userStars >= n
                       ? 'bg-gray-900 text-white hover:bg-gray-800'
                       : 'bg-gray-100 text-gray-300 cursor-not-allowed'
                   }`}
@@ -207,15 +207,6 @@ export default function ArtistDetailPage() {
                 </button>
               ))}
             </div>
-          )}
-
-          {!user && (
-            <Link
-              href="/login"
-              className="block text-center py-3 text-sm text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              로그인 후 스타를 보낼 수 있습니다
-            </Link>
           )}
         </div>
       </div>

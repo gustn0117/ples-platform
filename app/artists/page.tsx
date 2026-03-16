@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { initStore, getArtists, getUserStars, sendStarToArtist, hasSentStarToday } from '@/lib/store';
 import type { Artist } from '@/lib/mock-data';
@@ -12,6 +13,7 @@ type SortKey = 'popular' | 'latest' | 'investments';
 
 export default function ArtistsPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const [artists, setArtists] = useState<Artist[]>([]);
   const [userStars, setUserStars] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
@@ -200,7 +202,7 @@ export default function ArtistsPage() {
                     </div>
 
                     <div className="relative">
-                      {hasSentStarToday(artist.id) ? (
+                      {user && hasSentStarToday(artist.id) ? (
                         <div className="p-2 rounded-lg bg-yellow-50">
                           <IconStarFilled className="w-4 h-4 text-yellow-400" />
                         </div>
@@ -209,7 +211,7 @@ export default function ArtistsPage() {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              if (!user) { alert('로그인이 필요합니다.'); return; }
+                              if (!user) { router.push('/login'); return; }
                               setOpenPicker(openPicker === artist.id ? null : artist.id);
                             }}
                             className="p-2 rounded-lg bg-gray-100 hover:bg-yellow-50 active:scale-90 transition-all duration-200"

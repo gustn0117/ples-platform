@@ -70,7 +70,10 @@ export default function Home() {
     setHotArtists(top5);
     setArtistsLoading(false);
 
-    // Fetch banners directly from server to avoid localStorage size limits
+    // Show cached banners immediately, then update from server
+    const cached = getActiveBanners();
+    if (cached.length > 0) setBanners(cached);
+
     fetch('/api/store')
       .then((res) => res.json())
       .then((data) => {
@@ -78,11 +81,10 @@ export default function Home() {
         const active = allBanners
           .filter((b) => b.isActive)
           .sort((a, b) => a.order - b.order);
-        setBanners(active);
+        if (active.length > 0) setBanners(active);
       })
       .catch(() => {
-        // Fallback to localStorage
-        setBanners(getActiveBanners());
+        if (cached.length === 0) setBanners(getActiveBanners());
       });
   }, []);
 
