@@ -71,7 +71,19 @@ export default function Home() {
     setHotArtists(top5);
     setArtistsLoading(false);
 
-    // Load banners from server first, fallback to cache
+    // Show cached server banners immediately, then refresh from server
+    const BANNER_CACHE_KEY = 'ples_server_banners';
+    try {
+      const cached = localStorage.getItem(BANNER_CACHE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed.length > 0) {
+          setBanners(parsed);
+          setBannersLoading(false);
+        }
+      }
+    } catch {}
+
     fetch('/api/store')
       .then((res) => res.json())
       .then((data) => {
@@ -79,12 +91,12 @@ export default function Home() {
         const active = allBanners
           .filter((b) => b.isActive)
           .sort((a, b) => a.order - b.order);
-        if (active.length > 0) setBanners(active);
-        else setBanners(getActiveBanners());
+        if (active.length > 0) {
+          setBanners(active);
+          localStorage.setItem(BANNER_CACHE_KEY, JSON.stringify(active));
+        }
       })
-      .catch(() => {
-        setBanners(getActiveBanners());
-      })
+      .catch(() => {})
       .finally(() => setBannersLoading(false));
   }, []);
 
