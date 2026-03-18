@@ -251,7 +251,7 @@ export default function VideosPage() {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {videos.map((video) => {
-              const isWatched = watched.includes(video.id);
+              const isWatched = user ? watched.includes(video.id) : false;
               const canEarn = user && !isWatched && !limitReached;
 
               return (
