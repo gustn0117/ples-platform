@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth, findPasswordByEmail, findEmailByPhone } from '@/lib/auth-context';
+import { useAuth, findPasswordByEmailAsync, findEmailByPhoneAsync } from '@/lib/auth-context';
 import { IconVote, IconTrophy, IconCoin, IconCheck, IconSparkle, IconArrowRight } from '@/components/icons';
 
 // Password strength helper
@@ -743,7 +743,7 @@ export default function LoginPage() {
               <button
                 onClick={() => {
                   if (!forgotEmail.trim()) return;
-                  setForgotResult(findPasswordByEmail(forgotEmail));
+                  findPasswordByEmailAsync(forgotEmail).then(setForgotResult);
                 }}
                 className="flex-1 py-3 text-sm font-medium text-white bg-gray-900 rounded-xl hover:bg-gray-800 transition-colors"
               >
@@ -790,7 +790,7 @@ export default function LoginPage() {
               <button
                 onClick={() => {
                   if (!findPhone.trim()) return;
-                  setFindEmailResult(findEmailByPhone(findPhone));
+                  findEmailByPhoneAsync(findPhone).then(setFindEmailResult);
                 }}
                 className="flex-1 py-3 text-sm font-medium text-white bg-gray-900 rounded-xl hover:bg-gray-800 transition-colors"
               >

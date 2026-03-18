@@ -8,6 +8,7 @@ import {
   useCallback,
   type ReactNode,
 } from 'react'
+import { setCurrentUserId } from './store'
 
 export interface Profile {
   id: string
@@ -19,62 +20,144 @@ export interface Profile {
   created_at: string
 }
 
-interface MockUser {
+export interface MockUser {
   id: string
   email: string
   nickname: string
   password: string
+  real_name?: string
   realName?: string
+  resident_number?: string
   residentNumber?: string
   phone?: string
+  points?: number
   created_at?: string
   status?: 'active' | 'suspended'
+  is_admin?: boolean
 }
+
+const SESSION_KEY = 'ples_mock_session'
 
 // ── Admin helpers (exported for admin pages) ──
 
-export function getAllUsers(): MockUser[] {
-  return getStoredUsers()
-}
-
-export function updateUser(userId: string, updates: Partial<Omit<MockUser, 'id'>>) {
-  const users = getStoredUsers()
-  const idx = users.findIndex((u) => u.id === userId)
-  if (idx === -1) return false
-  users[idx] = { ...users[idx], ...updates }
-  saveUsers(users)
-  return true
-}
-
-export function deleteUser(userId: string) {
-  const users = getStoredUsers()
-  const filtered = users.filter((u) => u.id !== userId)
-  if (filtered.length === users.length) return false
-  saveUsers(filtered)
-  // Also clear session if deleted user is logged in
-  const session = getStoredSession()
-  if (session?.id === userId) {
-    localStorage.removeItem(SESSION_KEY)
+export async function getAllUsersAsync(): Promise<MockUser[]> {
+  try {
+    const res = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'get-all-users' }),
+    })
+    const data = await res.json()
+    return (data.users || []).map((u: any) => ({
+      ...u,
+      realName: u.real_name,
+      residentNumber: u.resident_number,
+    }))
+  } catch {
+    return []
   }
+}
+
+// Synchronous version for backwards compatibility - returns cached users
+let _cachedUsers: MockUser[] = []
+export function getAllUsers(): MockUser[] {
+  // Trigger async fetch to update cache
+  getAllUsersAsync().then(users => { _cachedUsers = users })
+  return _cachedUsers
+}
+
+export async function updateUserAsync(userId: string, updates: Partial<Omit<MockUser, 'id'>>): Promise<boolean> {
+  // Map frontend field names to DB column names
+  const dbUpdates: Record<string, any> = {}
+  if (updates.nickname !== undefined) dbUpdates.nickname = updates.nickname
+  if (updates.email !== undefined) dbUpdates.email = updates.email
+  if (updates.password !== undefined) dbUpdates.password = updates.password
+  if (updates.realName !== undefined) dbUpdates.real_name = updates.realName
+  if (updates.real_name !== undefined) dbUpdates.real_name = updates.real_name
+  if (updates.residentNumber !== undefined) dbUpdates.resident_number = updates.residentNumber
+  if (updates.resident_number !== undefined) dbUpdates.resident_number = updates.resident_number
+  if (updates.phone !== undefined) dbUpdates.phone = updates.phone
+  if (updates.status !== undefined) dbUpdates.status = updates.status
+  if (updates.points !== undefined) dbUpdates.points = updates.points
+
+  try {
+    const res = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'update-user', userId, updates: dbUpdates }),
+    })
+    const data = await res.json()
+    return data.success === true
+  } catch {
+    return false
+  }
+}
+
+export function updateUser(userId: string, updates: Partial<Omit<MockUser, 'id'>>): boolean {
+  updateUserAsync(userId, updates)
   return true
+}
+
+export async function deleteUserAsync(userId: string): Promise<boolean> {
+  try {
+    const res = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'delete-user', userId }),
+    })
+    const data = await res.json()
+    // Clear session if deleted user is logged in
+    const session = getStoredSession()
+    if (session?.id === userId) {
+      localStorage.removeItem(SESSION_KEY)
+    }
+    return data.success === true
+  } catch {
+    return false
+  }
+}
+
+export function deleteUser(userId: string): boolean {
+  deleteUserAsync(userId)
+  return true
+}
+
+export async function findPasswordByEmailAsync(email: string): Promise<{ found: boolean; password?: string }> {
+  try {
+    const res = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'find-password', email }),
+    })
+    return await res.json()
+  } catch {
+    return { found: false }
+  }
 }
 
 export function findPasswordByEmail(email: string): { found: boolean; password?: string } {
-  const users = getStoredUsers()
-  const user = users.find((u) => u.email.toLowerCase() === email.trim().toLowerCase())
-  if (!user) return { found: false }
-  return { found: true, password: user.password }
+  // For backwards compat - caller should use async version
+  return { found: false }
+}
+
+export async function findEmailByPhoneAsync(phone: string): Promise<{ found: boolean; email?: string }> {
+  try {
+    const res = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'find-email', phone }),
+    })
+    return await res.json()
+  } catch {
+    return { found: false }
+  }
 }
 
 export function findEmailByPhone(phone: string): { found: boolean; email?: string } {
-  const users = getStoredUsers()
-  const cleaned = phone.replace(/[^0-9]/g, '')
-  const user = users.find((u) => u.phone?.replace(/[^0-9]/g, '') === cleaned)
-  if (!user) return { found: false }
-  return { found: true, email: user.email }
+  return { found: false }
 }
 
-export type { MockUser }
+// ── Auth Context ──
 
 interface AuthContextType {
   user: { id: string; email: string } | null
@@ -94,23 +177,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-const USERS_KEY = 'ples_mock_users'
-const SESSION_KEY = 'ples_mock_session'
-
-function getStoredUsers(): MockUser[] {
-  if (typeof window === 'undefined') return []
-  try {
-    const raw = localStorage.getItem(USERS_KEY)
-    return raw ? JSON.parse(raw) : []
-  } catch {
-    return []
-  }
-}
-
-function saveUsers(users: MockUser[]) {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users))
-}
-
 function getStoredSession(): MockUser | null {
   if (typeof window === 'undefined') return null
   try {
@@ -129,14 +195,14 @@ function saveSession(user: MockUser | null) {
   }
 }
 
-function userToProfile(u: MockUser): Profile {
+function userToProfile(u: any): Profile {
   return {
     id: u.id,
     nickname: u.nickname,
     email: u.email,
     avatar_url: null,
-    points: 0,
-    is_admin: false,
+    points: u.points || 0,
+    is_admin: u.is_admin || false,
     created_at: u.created_at || new Date().toISOString(),
   }
 }
@@ -150,7 +216,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const refreshProfile = useCallback(async () => {
     const stored = getStoredSession()
     if (stored) {
-      setProfile(userToProfile(stored))
+      // Fetch latest user data from DB
+      try {
+        const res = await fetch('/api/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'get-user', userId: stored.id }),
+        })
+        const data = await res.json()
+        if (data.user) {
+          setProfile(userToProfile(data.user))
+          saveSession({ ...stored, points: data.user.points })
+        }
+      } catch {
+        setProfile(userToProfile(stored))
+      }
     }
   }, [])
 
@@ -161,32 +241,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(u)
       setSession({ user: u, access_token: 'mock-token' })
       setProfile(userToProfile(stored))
+      setCurrentUserId(stored.id)
+      // Also refresh from DB
+      refreshProfile()
     }
     setLoading(false)
-  }, [])
+  }, [refreshProfile])
 
   const login = async (
     email: string,
     password: string
   ): Promise<{ error: string | null }> => {
-    const trimmedEmail = email.trim().toLowerCase()
-    const trimmedPassword = password.trim()
-    const users = getStoredUsers()
-    const found = users.find(
-      (u) => u.email.toLowerCase() === trimmedEmail && u.password === trimmedPassword
-    )
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'login', email, password }),
+      })
+      const data = await res.json()
 
-    if (!found) {
-      return { error: '이메일 또는 비밀번호가 올바르지 않습니다.' }
+      if (data.error) return { error: data.error }
+
+      const found = data.user
+      const u = { id: found.id, email: found.email }
+      setUser(u)
+      setSession({ user: u, access_token: 'mock-token' })
+      setProfile(userToProfile(found))
+      saveSession(found)
+      setCurrentUserId(found.id)
+
+      return { error: null }
+    } catch {
+      return { error: '서버 연결에 실패했습니다.' }
     }
-
-    const u = { id: found.id, email: found.email }
-    setUser(u)
-    setSession({ user: u, access_token: 'mock-token' })
-    setProfile(userToProfile(found))
-    saveSession(found)
-
-    return { error: null }
   }
 
   const signup = async (
@@ -195,30 +282,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     nickname: string,
     extra?: { realName?: string; residentNumber?: string; phone?: string }
   ): Promise<{ error: string | null }> => {
-    const users = getStoredUsers()
-    const trimmedEmail = email.trim().toLowerCase()
-    const trimmedPassword = password.trim()
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'signup',
+          email,
+          password,
+          nickname,
+          realName: extra?.realName,
+          residentNumber: extra?.residentNumber,
+          phone: extra?.phone,
+        }),
+      })
+      const data = await res.json()
 
-    if (users.find((u) => u.email.toLowerCase() === trimmedEmail)) {
-      return { error: '이미 가입된 이메일입니다.' }
+      if (data.error) return { error: data.error }
+
+      return { error: null }
+    } catch {
+      return { error: '서버 연결에 실패했습니다.' }
     }
-
-    const newUser: MockUser = {
-      id: crypto.randomUUID(),
-      email: trimmedEmail,
-      nickname: nickname.trim(),
-      password: trimmedPassword,
-      realName: extra?.realName,
-      residentNumber: extra?.residentNumber,
-      phone: extra?.phone,
-      created_at: new Date().toISOString(),
-      status: 'active',
-    }
-
-    users.push(newUser)
-    saveUsers(users)
-
-    return { error: null }
   }
 
   const logout = async () => {
@@ -226,6 +311,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfile(null)
     setSession(null)
     saveSession(null)
+    setCurrentUserId(null)
   }
 
   return (

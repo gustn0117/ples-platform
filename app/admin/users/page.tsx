@@ -2,7 +2,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { getAllUsers, updateUser, deleteUser, type MockUser } from '@/lib/auth-context'
+import { getAllUsersAsync, updateUserAsync, deleteUserAsync, type MockUser } from '@/lib/auth-context'
 import { initStore, getUserStars, adminAdjustStars, getStarHistory } from '@/lib/store'
 import type { StarHistory } from '@/lib/mock-data'
 
@@ -26,8 +26,9 @@ export default function AdminUsersPage() {
   const [starReason, setStarReason] = useState('')
   const [starResult, setStarResult] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
 
-  const reload = () => {
-    setUsers(getAllUsers())
+  const reload = async () => {
+    const users = await getAllUsersAsync()
+    setUsers(users)
   }
 
   useEffect(() => {
@@ -101,13 +102,13 @@ export default function AdminUsersPage() {
     setStarReason('')
   }
 
-  function handleSave() {
+  async function handleSave() {
     if (!selectedUser) return
     if (!editForm.nickname.trim() || !editForm.email.trim()) {
       setToast({ type: 'error', message: '닉네임과 이메일은 필수입니다.' })
       return
     }
-    const ok = updateUser(selectedUser.id, {
+    const ok = await updateUserAsync(selectedUser.id, {
       nickname: editForm.nickname.trim(),
       email: editForm.email.trim(),
       phone: editForm.phone.trim() || undefined,
@@ -116,8 +117,9 @@ export default function AdminUsersPage() {
     })
     if (ok) {
       setToast({ type: 'success', message: '회원 정보가 수정되었습니다.' })
-      reload()
-      const updated = getAllUsers().find((u) => u.id === selectedUser.id)
+      await reload()
+      const allUsers = await getAllUsersAsync()
+      const updated = allUsers.find((u) => u.id === selectedUser.id)
       if (updated) setSelectedUser(updated)
       setEditMode(false)
     } else {
@@ -125,12 +127,12 @@ export default function AdminUsersPage() {
     }
   }
 
-  function handleDelete() {
+  async function handleDelete() {
     if (!selectedUser) return
-    const ok = deleteUser(selectedUser.id)
+    const ok = await deleteUserAsync(selectedUser.id)
     if (ok) {
       setToast({ type: 'success', message: '회원이 삭제되었습니다.' })
-      reload()
+      await reload()
       setTab('list')
       setSelectedUser(null)
     } else {
@@ -138,14 +140,15 @@ export default function AdminUsersPage() {
     }
   }
 
-  function handleToggleStatus() {
+  async function handleToggleStatus() {
     if (!selectedUser) return
     const newStatus = (selectedUser.status || 'active') === 'active' ? 'suspended' : 'active'
-    const ok = updateUser(selectedUser.id, { status: newStatus })
+    const ok = await updateUserAsync(selectedUser.id, { status: newStatus })
     if (ok) {
       setToast({ type: 'success', message: newStatus === 'suspended' ? '회원이 정지되었습니다.' : '정지가 해제되었습니다.' })
-      reload()
-      const updated = getAllUsers().find((u) => u.id === selectedUser.id)
+      await reload()
+      const allUsers = await getAllUsersAsync()
+      const updated = allUsers.find((u) => u.id === selectedUser.id)
       if (updated) setSelectedUser(updated)
     }
   }

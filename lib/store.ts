@@ -1,7 +1,6 @@
-// localStorage-based data store for PLES Platform
-// Shared data (admin-managed) syncs with server JSON file via /api/store
-// User-specific data stays in localStorage only
-// In-memory cache ensures data is available even when localStorage is full
+// Data store for PLES Platform
+// Shared data (admin-managed) syncs with server via /api/store
+// User-specific data syncs with DB via /api/user-data
 
 import {
   artists as defaultArtists,
@@ -18,10 +17,60 @@ import {
 } from './mock-data';
 
 // ============ In-memory cache for server data ============
-// localStorage has ~5MB limit and fails silently with large data (base64 images).
-// This cache ensures getter functions always return fresh server data.
-
 let serverCache: Record<string, any> = {};
+
+// ============ Current user tracking ============
+let _currentUserId: string | null = null;
+
+export function setCurrentUserId(userId: string | null) {
+  _currentUserId = userId;
+  if (userId) {
+    // Load user data from DB
+    loadUserDataFromDB(userId);
+  }
+}
+
+// User data cache (loaded from DB)
+let _userDataCache: Record<string, any> = {};
+let _userDataLoaded = false;
+
+async function loadUserDataFromDB(userId: string) {
+  try {
+    const res = await fetch(`/api/user-data?userId=${userId}`);
+    if (res.ok) {
+      const data = await res.json();
+      _userDataCache = data;
+      _userDataLoaded = true;
+
+      // Also sync to localStorage as fallback
+      if (data.watched) setItem(KEYS.USER_WATCHED, data.watched);
+      if (data.voted) setItem(KEYS.USER_VOTED, data.voted);
+      if (data.purchased) setItem(KEYS.USER_PURCHASED, data.purchased);
+      if (data.star_sent) setItem(KEYS.USER_STAR_SENT, data.star_sent);
+      if (data.star_sent_dates) setItem('ples_star_sent_dates', data.star_sent_dates);
+      if (data.watch_today) setItem(KEYS.USER_WATCH_TODAY, data.watch_today);
+    }
+  } catch {
+    // Fall back to localStorage
+  }
+}
+
+function saveUserData(key: string, value: any) {
+  if (!_currentUserId) return;
+  _userDataCache[key] = value;
+
+  fetch('/api/user-data', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId: _currentUserId, key, value }),
+    keepalive: true,
+  }).catch(() => {});
+}
+
+function getUserData<T>(key: string, fallback: T): T {
+  if (_userDataCache[key] !== undefined) return _userDataCache[key];
+  return getItem(key, fallback);
+}
 
 // ============ Generic helpers ============
 
@@ -39,11 +88,10 @@ function setItem<T>(key: string, value: T) {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch (e) {
-    console.warn(`[setItem] localStorage full or error for ${key}:`, e);
+    console.warn(`[setItem] localStorage error for ${key}:`, e);
   }
 }
 
-// Get shared data: check memory cache first, then localStorage
 function getShared<T>(cacheKey: string, localKey: string, fallback: T): T {
   if (serverCache[cacheKey] !== undefined) return serverCache[cacheKey];
   return getItem(localKey, fallback);
@@ -51,7 +99,6 @@ function getShared<T>(cacheKey: string, localKey: string, fallback: T): T {
 
 // ============ Server sync ============
 
-// Sync specific key to server (fire-and-forget, lightweight data only)
 function syncKeyToServer(serverKey: string, value: any) {
   fetch('/api/store', {
     method: 'PUT',
@@ -65,11 +112,7 @@ export async function syncFromServer(): Promise<void> {
     const res = await fetch('/api/store');
     if (!res.ok) return;
     const data = await res.json();
-
-    // Always update in-memory cache (never fails)
     serverCache = data;
-
-    // Also try localStorage (may fail with large data, but that's OK now)
     setItem('ples_artists', data.artists ?? defaultArtists);
     setItem('ples_votes', data.votes ?? defaultVotes);
     setItem('ples_artworks', data.artworks ?? defaultArtworks);
@@ -77,13 +120,14 @@ export async function syncFromServer(): Promise<void> {
     setItem('ples_banners', data.banners ?? defaultBanners);
     setItem('ples_charge_rate', data.chargeRate ?? 1.2);
   } catch {
-    // If server is unreachable, ensure localStorage has at least defaults
-    if (!localStorage.getItem('ples_videos')) setItem('ples_videos', defaultVideos);
-    if (!localStorage.getItem('ples_artists')) setItem('ples_artists', defaultArtists);
-    if (!localStorage.getItem('ples_votes')) setItem('ples_votes', defaultVotes);
-    if (!localStorage.getItem('ples_artworks')) setItem('ples_artworks', defaultArtworks);
-    if (!localStorage.getItem('ples_banners')) setItem('ples_banners', defaultBanners);
-    if (!localStorage.getItem('ples_charge_rate')) setItem('ples_charge_rate', 1.2);
+    if (typeof window !== 'undefined') {
+      if (!localStorage.getItem('ples_videos')) setItem('ples_videos', defaultVideos);
+      if (!localStorage.getItem('ples_artists')) setItem('ples_artists', defaultArtists);
+      if (!localStorage.getItem('ples_votes')) setItem('ples_votes', defaultVotes);
+      if (!localStorage.getItem('ples_artworks')) setItem('ples_artworks', defaultArtworks);
+      if (!localStorage.getItem('ples_banners')) setItem('ples_banners', defaultBanners);
+      if (!localStorage.getItem('ples_charge_rate')) setItem('ples_charge_rate', 1.2);
+    }
   }
 }
 
@@ -96,30 +140,25 @@ const KEYS = {
   VIDEOS: 'ples_videos',
   STAR_HISTORY: 'ples_star_history',
   USER_STARS: 'ples_user_stars',
-  USER_VOTED: 'ples_user_voted',        // { [voteId]: { optionId, date } }
-  USER_STAR_SENT: 'ples_user_star_sent', // { [artistId]: totalSent }
-  USER_WATCHED: 'ples_user_watched',    // number[] (video ids)
-  USER_PURCHASED: 'ples_user_purchased', // { artworkId, date, method, amount }[]
-  USER_WATCH_TODAY: 'ples_user_watch_today', // { date: string, count: number }
-  CHARGE_RATE: 'ples_charge_rate',      // bonus rate (e.g., 1.2 = 20% bonus)
+  USER_VOTED: 'ples_user_voted',
+  USER_STAR_SENT: 'ples_user_star_sent',
+  USER_WATCHED: 'ples_user_watched',
+  USER_PURCHASED: 'ples_user_purchased',
+  USER_WATCH_TODAY: 'ples_user_watch_today',
+  CHARGE_RATE: 'ples_charge_rate',
   BANNERS: 'ples_banners',
   INIT_DONE: 'ples_init_done',
 };
 
 // ============ Initialize ============
 
-const DATA_VERSION = '9';
+const DATA_VERSION = '10';
 
 export function initStore() {
   if (typeof window === 'undefined') return;
   if (localStorage.getItem(KEYS.INIT_DONE) === DATA_VERSION) return;
 
-  // Clear old data and re-initialize
   Object.values(KEYS).forEach((key) => localStorage.removeItem(key));
-
-  // Only initialize user-specific data locally
-  // Shared data (artists, votes, artworks, videos, banners, chargeRate)
-  // will be loaded from server via syncFromServer()
   setItem(KEYS.STAR_HISTORY, []);
   setItem(KEYS.USER_STARS, 0);
   setItem(KEYS.USER_VOTED, {});
@@ -145,38 +184,32 @@ export function getArtist(id: number): Artist | undefined {
   return getArtists().find((a) => a.id === id);
 }
 
-// ============ Star Sending (costs user stars, once per artist per day) ============
+// ============ Star Sending ============
 
-// Get total stars sent per artist: { [artistId]: number }
 function getUserStarSent(): Record<number, number> {
-  return getItem(KEYS.USER_STAR_SENT, {});
+  return getUserData(KEYS.USER_STAR_SENT, getItem(KEYS.USER_STAR_SENT, {}));
 }
 
-// Daily send tracking: { [artistId]: dateString }
 function getStarSentDates(): Record<string, string> {
-  return getItem('ples_star_sent_dates', {});
+  return getUserData('star_sent_dates', getItem('ples_star_sent_dates', {}));
 }
 
-// Check if user already sent stars to this artist today
 export function hasSentStarToday(artistId: number): boolean {
   const dates = getStarSentDates();
   const today = new Date().toISOString().slice(0, 10);
   return dates[artistId] === today;
 }
 
-// Get all artist IDs the user has ever sent stars to
 export function getSupportedArtistIds(): number[] {
   const data = getUserStarSent();
   return Object.keys(data).map(Number);
 }
 
-// Get total stars sent to a specific artist
 export function getStarsSentToArtist(artistId: number): number {
   const data = getUserStarSent();
   return data[artistId] || 0;
 }
 
-// Sync star to server (variable amount)
 function syncStarToServer(artistId: number, amount: number) {
   fetch('/api/store/like', {
     method: 'POST',
@@ -186,7 +219,6 @@ function syncStarToServer(artistId: number, amount: number) {
   }).catch((e) => console.error('[syncStar] error:', e));
 }
 
-// Send stars to an artist (1, 2, or 3 — costs from user balance)
 export function sendStarToArtist(artistId: number, amount: 1 | 2 | 3): { success: boolean; error?: string } {
   const stars = getUserStars();
   if (stars < amount) {
@@ -194,33 +226,29 @@ export function sendStarToArtist(artistId: number, amount: 1 | 2 | 3): { success
   }
 
   const artist = getArtist(artistId);
-  // Deduct from user balance
   useStars(amount, '아티스트 응원', artist?.name || '');
 
-  // Track sent stars per artist (cumulative)
   const sent = getUserStarSent();
   sent[artistId] = (sent[artistId] || 0) + amount;
   setItem(KEYS.USER_STAR_SENT, sent);
+  saveUserData('star_sent', sent);
 
-  // Track daily send date
   const dates = getStarSentDates();
   dates[artistId] = new Date().toISOString().slice(0, 10);
   setItem('ples_star_sent_dates', dates);
+  saveUserData('star_sent_dates', dates);
 
-  // Add to artist's total likes
   const artists = getArtists();
   const updated = artists.map((a) =>
     a.id === artistId ? { ...a, likes: a.likes + amount } : a
   );
   setArtists(updated);
-
-  // Sync to server
   syncStarToServer(artistId, amount);
 
   return { success: true };
 }
 
-// ============ Votes (daily repeatable) ============
+// ============ Votes ============
 
 export function getVotes(): Vote[] {
   return getShared('votes', KEYS.VOTES, defaultVotes);
@@ -231,9 +259,8 @@ export function setVotes(votes: Vote[]) {
   setItem(KEYS.VOTES, votes);
 }
 
-// Returns { [voteId]: { optionId, date } }
 export function getUserVoted(): Record<number, { optionId: number; date: string }> {
-  return getItem(KEYS.USER_VOTED, {});
+  return getUserData(KEYS.USER_VOTED, getItem(KEYS.USER_VOTED, {}));
 }
 
 export function hasVotedToday(voteId: number): boolean {
@@ -256,7 +283,6 @@ export function castVote(voteId: number, optionId: number): { success: boolean; 
   if (!vote) return { success: false, error: '존재하지 않는 투표입니다.' };
   if (!vote.isActive) return { success: false, error: '종료된 투표입니다.' };
 
-  // Update option vote count
   const updated = votes.map((v) => {
     if (v.id !== voteId) return v;
     return {
@@ -267,15 +293,12 @@ export function castVote(voteId: number, optionId: number): { success: boolean; 
     };
   });
   setVotes(updated);
-
-  // Sync vote counts to server so other users see the result
   syncKeyToServer('votes', updated);
 
-  // Record user vote with today's date
   voted[voteId] = { optionId, date: today };
   setItem(KEYS.USER_VOTED, voted);
+  saveUserData('voted', voted);
 
-  // Reward stars
   addStars(vote.pointReward, '투표 참여', `${vote.title}`);
 
   return { success: true };
@@ -306,11 +329,9 @@ export function purchaseArtwork(
     if (stars < artwork.pointPrice) {
       return { success: false, error: '스타가 부족합니다.' };
     }
-    // Deduct stars
     useStars(artwork.pointPrice, '작품 구매', artwork.title);
   }
 
-  // Record purchase
   const purchases = getUserPurchases();
   purchases.push({
     artworkId,
@@ -321,6 +342,7 @@ export function purchaseArtwork(
     amount: method === 'cash' ? artwork.price : artwork.pointPrice,
   });
   setItem(KEYS.USER_PURCHASED, purchases);
+  saveUserData('purchased', purchases);
 
   return { success: true };
 }
@@ -335,7 +357,7 @@ export interface Purchase {
 }
 
 export function getUserPurchases(): Purchase[] {
-  return getItem(KEYS.USER_PURCHASED, []);
+  return getUserData(KEYS.USER_PURCHASED, getItem(KEYS.USER_PURCHASED, []));
 }
 
 // ============ Videos ============
@@ -350,13 +372,13 @@ export function setVideos(videos: Video[]) {
 }
 
 export function getUserWatched(): number[] {
-  const watched: number[] = getItem(KEYS.USER_WATCHED, []);
+  const watched: number[] = getUserData(KEYS.USER_WATCHED, getItem(KEYS.USER_WATCHED, []));
   const videoIds = new Set(getVideos().map((v) => v.id));
   return watched.filter((id) => videoIds.has(id));
 }
 
 export function getTodayWatchCount(): number {
-  const data = getItem(KEYS.USER_WATCH_TODAY, { date: '', count: 0 });
+  const data = getUserData(KEYS.USER_WATCH_TODAY, getItem(KEYS.USER_WATCH_TODAY, { date: '', count: 0 }));
   const today = new Date().toISOString().slice(0, 10);
   if (data.date !== today) return 0;
   return data.count;
@@ -366,9 +388,8 @@ export function watchVideo(videoId: number): { success: boolean; error?: string;
   const watched = getUserWatched();
   const alreadyWatched = watched.includes(videoId);
 
-  // Check daily limit
   const today = new Date().toISOString().slice(0, 10);
-  const todayData = getItem(KEYS.USER_WATCH_TODAY, { date: '', count: 0 });
+  const todayData = getUserData(KEYS.USER_WATCH_TODAY, getItem(KEYS.USER_WATCH_TODAY, { date: '', count: 0 }));
   const todayCount = todayData.date === today ? todayData.count : 0;
 
   const videoTotal = getVideos().length;
@@ -377,37 +398,59 @@ export function watchVideo(videoId: number): { success: boolean; error?: string;
   }
 
   if (alreadyWatched) {
-    return { success: true, stars: 0 }; // Can rewatch but no additional stars
+    return { success: true, stars: 0 };
   }
 
   const videos = getVideos();
   const video = videos.find((v) => v.id === videoId);
   if (!video) return { success: false, error: '존재하지 않는 영상입니다.' };
 
-  // Mark as watched
-  setItem(KEYS.USER_WATCHED, [...watched, videoId]);
+  const newWatched = [...watched, videoId];
+  setItem(KEYS.USER_WATCHED, newWatched);
+  saveUserData('watched', newWatched);
 
-  // Update daily count
-  setItem(KEYS.USER_WATCH_TODAY, { date: today, count: todayCount + 1 });
+  const newTodayData = { date: today, count: todayCount + 1 };
+  setItem(KEYS.USER_WATCH_TODAY, newTodayData);
+  saveUserData('watch_today', newTodayData);
 
-  // Reward stars
   addStars(video.pointReward, '영상 시청', video.title);
 
   return { success: true, stars: video.pointReward };
 }
 
-// ============ Stars (was Points) ============
+// ============ Stars ============
 
 export function getUserStars(): number {
+  if (_currentUserId && _userDataLoaded) {
+    // Points are stored in users table, use session cache
+    const session = typeof window !== 'undefined' ? localStorage.getItem('ples_mock_session') : null;
+    if (session) {
+      try {
+        const parsed = JSON.parse(session);
+        if (parsed.points !== undefined) return parsed.points;
+      } catch {}
+    }
+  }
   return getItem(KEYS.USER_STARS, 0);
 }
 
 export function setUserStars(stars: number) {
   setItem(KEYS.USER_STARS, stars);
+  // Update session cache
+  if (typeof window !== 'undefined') {
+    try {
+      const session = localStorage.getItem('ples_mock_session');
+      if (session) {
+        const parsed = JSON.parse(session);
+        parsed.points = stars;
+        localStorage.setItem('ples_mock_session', JSON.stringify(parsed));
+      }
+    } catch {}
+  }
 }
 
 export function getStarHistory(): StarHistory[] {
-  return getItem(KEYS.STAR_HISTORY, []);
+  return getUserData('star_history', getItem(KEYS.STAR_HISTORY, []));
 }
 
 export function addStars(amount: number, category: string, detail?: string) {
@@ -415,16 +458,35 @@ export function addStars(amount: number, category: string, detail?: string) {
   const newBalance = stars + amount;
   setUserStars(newBalance);
 
+  const fullCategory = detail ? `${category} - ${detail}` : category;
+
   const history = getStarHistory();
   const newEntry: StarHistory = {
     id: history.length > 0 ? Math.max(...history.map((h) => h.id)) + 1 : 1,
     date: new Date().toISOString().slice(0, 10),
     type: 'earn',
-    category: detail ? `${category} - ${detail}` : category,
+    category: fullCategory,
     amount,
     balance: newBalance,
   };
-  setItem(KEYS.STAR_HISTORY, [newEntry, ...history]);
+  const newHistory = [newEntry, ...history];
+  setItem(KEYS.STAR_HISTORY, newHistory);
+  saveUserData('star_history', newHistory);
+
+  // Sync to DB
+  if (_currentUserId) {
+    fetch('/api/user-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: _currentUserId,
+        type: 'earn',
+        category: fullCategory,
+        amount,
+      }),
+      keepalive: true,
+    }).catch(() => {});
+  }
 }
 
 export function useStars(amount: number, category: string, detail?: string) {
@@ -432,16 +494,34 @@ export function useStars(amount: number, category: string, detail?: string) {
   const newBalance = stars - amount;
   setUserStars(newBalance);
 
+  const fullCategory = detail ? `${category} - ${detail}` : category;
+
   const history = getStarHistory();
   const newEntry: StarHistory = {
     id: history.length > 0 ? Math.max(...history.map((h) => h.id)) + 1 : 1,
     date: new Date().toISOString().slice(0, 10),
     type: 'use',
-    category: detail ? `${category} - ${detail}` : category,
+    category: fullCategory,
     amount: -amount,
     balance: newBalance,
   };
-  setItem(KEYS.STAR_HISTORY, [newEntry, ...history]);
+  const newHistory = [newEntry, ...history];
+  setItem(KEYS.STAR_HISTORY, newHistory);
+  saveUserData('star_history', newHistory);
+
+  if (_currentUserId) {
+    fetch('/api/user-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: _currentUserId,
+        type: 'use',
+        category: fullCategory,
+        amount: -amount,
+      }),
+      keepalive: true,
+    }).catch(() => {});
+  }
 }
 
 export function chargeStars(cashAmount: number): number {
@@ -488,7 +568,7 @@ export function getActiveBanners(): Banner[] {
     .sort((a, b) => a.order - b.order);
 }
 
-// ============ Reset (for testing) ============
+// ============ Reset ============
 
 export function resetStore() {
   serverCache = {};
