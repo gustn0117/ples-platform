@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { chargeStars, addStars, getUserPurchases, getUserStars } from '@/lib/store'
+import { chargeStars, addStars, getUserPurchases, getUserStars, purchaseArtwork } from '@/lib/store'
 import { useAuth } from '@/lib/auth-context'
 import { IconCheck, IconShoppingBag, IconCoin } from '@/components/icons'
 
@@ -66,19 +66,8 @@ function PaymentSuccessContent() {
           // Add points to user's local store
           addStars(data.pointsAmount, '스타 충전', `${data.amount.toLocaleString()}원`)
         } else if (data.orderType === 'artwork') {
-          // Record purchase in localStorage
-          const purchases = getUserPurchases()
-          purchases.push({
-            artworkId: data.itemId,
-            title: data.itemName,
-            artist: '',
-            date: new Date().toISOString(),
-            method: 'cash' as const,
-            amount: data.amount,
-          })
-          try {
-            localStorage.setItem('ples_user_purchased', JSON.stringify(purchases))
-          } catch {}
+          // Record purchase via store (syncs to DB)
+          purchaseArtwork(data.itemId, 'cash')
         }
 
         setResult(data)
