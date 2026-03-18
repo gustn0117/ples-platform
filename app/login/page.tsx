@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth, findPasswordByEmail } from '@/lib/auth-context';
+import { useAuth, findPasswordByEmail, findEmailByPhone } from '@/lib/auth-context';
 import { IconVote, IconTrophy, IconCoin, IconCheck, IconSparkle, IconArrowRight } from '@/components/icons';
 
 // Password strength helper
@@ -39,6 +39,9 @@ export default function LoginPage() {
   const [showForgot, setShowForgot] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotResult, setForgotResult] = useState<{ found: boolean; password?: string } | null>(null);
+  const [showFindEmail, setShowFindEmail] = useState(false);
+  const [findPhone, setFindPhone] = useState('');
+  const [findEmailResult, setFindEmailResult] = useState<{ found: boolean; email?: string } | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -473,13 +476,23 @@ export default function LoginPage() {
                     </>
                   )}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => { setShowForgot(true); setForgotEmail(''); setForgotResult(null); }}
-                  className="w-full mt-3 text-center text-xs text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  비밀번호를 잊으셨나요?
-                </button>
+                <div className="flex justify-center gap-3 mt-3">
+                  <button
+                    type="button"
+                    onClick={() => { setShowFindEmail(true); setFindPhone(''); setFindEmailResult(null); }}
+                    className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    아이디 찾기
+                  </button>
+                  <span className="text-xs text-gray-300">|</span>
+                  <button
+                    type="button"
+                    onClick={() => { setShowForgot(true); setForgotEmail(''); setForgotResult(null); }}
+                    className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    비밀번호 찾기
+                  </button>
+                </div>
               </form>
             )}
 
@@ -731,6 +744,53 @@ export default function LoginPage() {
                 onClick={() => {
                   if (!forgotEmail.trim()) return;
                   setForgotResult(findPasswordByEmail(forgotEmail));
+                }}
+                className="flex-1 py-3 text-sm font-medium text-white bg-gray-900 rounded-xl hover:bg-gray-800 transition-colors"
+              >
+                찾기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Find Email Modal */}
+      {showFindEmail && (
+        <div
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onMouseDown={(e) => { if (e.target === e.currentTarget) setShowFindEmail(false); }}
+        >
+          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">아이디 찾기</h2>
+            <p className="text-sm text-gray-400 mb-5">가입할 때 사용한 휴대폰 번호를 입력하세요.</p>
+            <input
+              type="tel"
+              value={findPhone}
+              onChange={(e) => { setFindPhone(e.target.value); setFindEmailResult(null); }}
+              placeholder="01012345678"
+              className="w-full px-4 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 transition-all mb-4"
+            />
+            {findEmailResult && (
+              <div className={`mb-4 p-3 rounded-xl text-sm ${
+                findEmailResult.found
+                  ? 'bg-emerald-50 border border-emerald-200 text-emerald-700'
+                  : 'bg-red-50 border border-red-200 text-red-600'
+              }`}>
+                {findEmailResult.found
+                  ? <>가입된 이메일: <strong className="font-mono">{findEmailResult.email}</strong></>
+                  : '해당 번호로 가입된 계정이 없습니다.'}
+              </div>
+            )}
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowFindEmail(false)}
+                className="flex-1 py-3 text-sm font-medium text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"
+              >
+                닫기
+              </button>
+              <button
+                onClick={() => {
+                  if (!findPhone.trim()) return;
+                  setFindEmailResult(findEmailByPhone(findPhone));
                 }}
                 className="flex-1 py-3 text-sm font-medium text-white bg-gray-900 rounded-xl hover:bg-gray-800 transition-colors"
               >

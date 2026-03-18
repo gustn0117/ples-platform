@@ -61,9 +61,17 @@ export function deleteUser(userId: string) {
 
 export function findPasswordByEmail(email: string): { found: boolean; password?: string } {
   const users = getStoredUsers()
-  const user = users.find((u) => u.email.toLowerCase() === email.toLowerCase())
+  const user = users.find((u) => u.email.toLowerCase() === email.trim().toLowerCase())
   if (!user) return { found: false }
   return { found: true, password: user.password }
+}
+
+export function findEmailByPhone(phone: string): { found: boolean; email?: string } {
+  const users = getStoredUsers()
+  const cleaned = phone.replace(/[^0-9]/g, '')
+  const user = users.find((u) => u.phone?.replace(/[^0-9]/g, '') === cleaned)
+  if (!user) return { found: false }
+  return { found: true, email: user.email }
 }
 
 export type { MockUser }
@@ -161,9 +169,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     email: string,
     password: string
   ): Promise<{ error: string | null }> => {
+    const trimmedEmail = email.trim().toLowerCase()
+    const trimmedPassword = password.trim()
     const users = getStoredUsers()
     const found = users.find(
-      (u) => u.email === email && u.password === password
+      (u) => u.email.toLowerCase() === trimmedEmail && u.password === trimmedPassword
     )
 
     if (!found) {
@@ -186,16 +196,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     extra?: { realName?: string; residentNumber?: string; phone?: string }
   ): Promise<{ error: string | null }> => {
     const users = getStoredUsers()
+    const trimmedEmail = email.trim().toLowerCase()
+    const trimmedPassword = password.trim()
 
-    if (users.find((u) => u.email === email)) {
+    if (users.find((u) => u.email.toLowerCase() === trimmedEmail)) {
       return { error: '이미 가입된 이메일입니다.' }
     }
 
     const newUser: MockUser = {
       id: crypto.randomUUID(),
-      email,
-      nickname,
-      password,
+      email: trimmedEmail,
+      nickname: nickname.trim(),
+      password: trimmedPassword,
       realName: extra?.realName,
       residentNumber: extra?.residentNumber,
       phone: extra?.phone,

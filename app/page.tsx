@@ -54,6 +54,7 @@ export default function Home() {
   const [hotArtists, setHotArtists] = useState<Artist[]>([]);
   const [artistsLoading, setArtistsLoading] = useState(true);
   const [banners, setBanners] = useState<Banner[]>([]);
+  const [bannersLoading, setBannersLoading] = useState(true);
   const [bannerPage, setBannerPage] = useState(0);
 
   const featuresSection = useFadeInOnScroll();
@@ -70,10 +71,7 @@ export default function Home() {
     setHotArtists(top5);
     setArtistsLoading(false);
 
-    // Show cached banners immediately, then update from server
-    const cached = getActiveBanners();
-    if (cached.length > 0) setBanners(cached);
-
+    // Load banners from server first, fallback to cache
     fetch('/api/store')
       .then((res) => res.json())
       .then((data) => {
@@ -82,10 +80,12 @@ export default function Home() {
           .filter((b) => b.isActive)
           .sort((a, b) => a.order - b.order);
         if (active.length > 0) setBanners(active);
+        else setBanners(getActiveBanners());
       })
       .catch(() => {
-        if (cached.length === 0) setBanners(getActiveBanners());
-      });
+        setBanners(getActiveBanners());
+      })
+      .finally(() => setBannersLoading(false));
   }, []);
 
   // Total pages (2 banners per page)
@@ -157,7 +157,16 @@ export default function Home() {
         <div className="absolute inset-0 mesh-gradient-1 pointer-events-none" />
 
         {/* ---- Banner Carousel (inside hero) ---- */}
-        {banners.length > 0 && (
+        {bannersLoading ? (
+          <div className="relative z-20 pt-6 pb-2">
+            <div className="max-w-7xl mx-auto px-6 sm:px-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="h-32 sm:h-40 rounded-2xl bg-gray-100 animate-pulse" />
+                <div className="h-32 sm:h-40 rounded-2xl bg-gray-100 animate-pulse hidden md:block" />
+              </div>
+            </div>
+          </div>
+        ) : banners.length > 0 ? (
           <div className="relative z-20 pt-6 pb-2">
             <div className="max-w-7xl mx-auto px-6 sm:px-8">
               <div className="overflow-hidden">
@@ -231,7 +240,7 @@ export default function Home() {
               )}
             </div>
           </div>
-        )}
+        ) : null}
 
         {/* Bottom fade */}
         <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-white to-transparent z-10" />
