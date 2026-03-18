@@ -729,7 +729,7 @@ export default function LoginPage() {
                   : 'bg-red-50 border border-red-200 text-red-600'
               }`}>
                 {forgotResult.found
-                  ? <>비밀번호: <strong className="font-mono">{forgotResult.password}</strong></>
+                  ? <>비밀번호: <strong className="font-mono">{forgotResult.password!.slice(0, 2)}{'*'.repeat(Math.max(forgotResult.password!.length - 3, 1))}{forgotResult.password!.slice(-1)}</strong></>
                   : '해당 이메일로 가입된 계정이 없습니다.'}
               </div>
             )}
