@@ -3,7 +3,7 @@ import Providers from '@/components/Providers'
 import LayoutShell from '@/components/LayoutShell'
 import './globals.css'
 
-const SITE_URL = process.env.SITE_URL || 'https://ples.world'
+const SITE_URL = process.env.SITE_URL || 'https://hsweb.pics'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

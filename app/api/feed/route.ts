@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { readServerStore } from '@/lib/server-store'
 import { artists as defaultArtists } from '@/lib/mock-data'
 
-const SITE_URL = process.env.SITE_URL || 'https://ples.world'
+const SITE_URL = process.env.SITE_URL || 'https://hsweb.pics'
 
 export const dynamic = 'force-dynamic'
 
