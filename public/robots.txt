@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/
+Disallow: /login
+Disallow: /mypage
+Disallow: /checkout
+Disallow: /payment
+
+Sitemap: https://hsweb.pics/sitemap.xml
