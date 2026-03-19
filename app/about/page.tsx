@@ -1,14 +1,3 @@
-import type { Metadata } from 'next'
-
-export const metadata: Metadata = {
-  title: '소개',
-  description: 'PLES는 우리가 직접 참여하여 아티스트를 응원하고 성장시키는 플랫폼입니다. 팀과 비전을 소개합니다.',
-  openGraph: {
-    title: '소개 | PLES',
-    description: 'PLES는 우리가 직접 참여하여 아티스트를 응원하고 성장시키는 플랫폼입니다.',
-  },
-}
-
 export default function AboutPage() {
   const teamMembers = [
     { name: 'Lee', role: 'Art Director', desc: '전시 및 비주얼 아트, 문화 콘텐츠 기획 리더', color: 'bg-rose-100 text-rose-600' },
