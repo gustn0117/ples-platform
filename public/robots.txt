@@ -7,4 +7,4 @@ Disallow: /mypage
 Disallow: /checkout
 Disallow: /payment
 
-Sitemap: https://hsweb.pics/sitemap.xml
+Sitemap: https://ples.world/sitemap.xml

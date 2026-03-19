@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 import { readServerStore } from '@/lib/server-store'
 
-const SITE_URL = process.env.SITE_URL || 'https://hsweb.pics'
+const SITE_URL = process.env.SITE_URL || 'https://ples.world'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
