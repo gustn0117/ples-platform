@@ -13,6 +13,7 @@ const SERVICE_LINKS = [
 const SUPPORT_LINKS = [
   { label: '이용약관', href: '/terms' },
   { label: '개인정보처리방침', href: '/privacy' },
+  { label: '환불 및 교환 정책', href: '/refund' },
   { label: '공지사항', href: '/notice' },
   { label: '문의하기', href: '/contact' },
 ]
