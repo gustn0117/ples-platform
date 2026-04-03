@@ -131,7 +131,8 @@ export default function Footer() {
                 <p className="font-medium text-gray-500">(주) 플레스</p>
                 <p>대표: 유리아</p>
                 <p>사업자등록번호: 516-86-03447</p>
-                <p>통신판매업신고번호: 2026-서울강남-01946호</p>
+                <p>통신판매업신고번호: 2026-서울강남-01946</p>
+                <p>전화: +82 10-8595-7077</p>
                 <p className="pt-1 flex items-start gap-1.5">
                   <svg className="w-3.5 h-3.5 text-gray-300 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
