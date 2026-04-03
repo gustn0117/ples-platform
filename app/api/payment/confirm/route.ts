@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase-server'
-import { TOSS_SECRET_KEY } from '@/lib/toss'
+import { getTossAuthHeader } from '@/lib/toss'
 import { readServerStore, updateServerKey } from '@/lib/server-store'
 import { artworks as defaultArtworks } from '@/lib/mock-data'
 
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
     const confirmRes = await fetch('https://api.tosspayments.com/v1/payments/confirm', {
       method: 'POST',
       headers: {
-        Authorization: `Basic ${Buffer.from(TOSS_SECRET_KEY + ':').toString('base64')}`,
+        Authorization: getTossAuthHeader(),
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ paymentKey, orderId, amount }),

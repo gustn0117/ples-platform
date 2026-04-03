@@ -20,6 +20,7 @@ function CheckoutContent() {
   const amount = Number(searchParams.get('amount'))
   const orderType = searchParams.get('orderType') // 'artwork' | 'points'
   const customerEmail = searchParams.get('email') || user?.email || ''
+  const customerName = searchParams.get('customerName') || user?.email || ''
 
   const paymentWidgetRef = useRef<any>(null)
   const paymentMethodRef = useRef<any>(null)
@@ -72,6 +73,7 @@ function CheckoutContent() {
         orderId,
         orderName,
         customerEmail,
+        customerName: customerName || undefined,
         successUrl: `${window.location.origin}/payment/success?orderType=${orderType}`,
         failUrl: `${window.location.origin}/payment/fail`,
       })

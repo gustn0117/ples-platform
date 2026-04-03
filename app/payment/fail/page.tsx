@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense } from 'react'
+import { Suspense, useEffect, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 
@@ -11,10 +11,25 @@ export default function PaymentFailPage() {
 function PaymentFailContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const updatedRef = useRef(false)
 
   const code = searchParams.get('code')
   const message = searchParams.get('message')
   const orderId = searchParams.get('orderId')
+
+  // 주문 상태를 failed로 업데이트
+  useEffect(() => {
+    if (!orderId || updatedRef.current) return
+    updatedRef.current = true
+
+    fetch('/api/payment/orders', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId, status: 'failed' }),
+    }).catch(() => {
+      // 실패해도 UI에는 영향 없음
+    })
+  }, [orderId])
 
   return (
     <div className="min-h-[60vh] flex items-center justify-center px-4">

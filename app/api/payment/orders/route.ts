@@ -38,6 +38,53 @@ export async function POST(request: Request) {
   }
 }
 
+// PATCH: Update order status (safe transitions only)
+export async function PATCH(request: Request) {
+  try {
+    const { orderId, status } = await request.json()
+
+    if (!orderId || !status) {
+      return NextResponse.json({ error: 'orderId and status required' }, { status: 400 })
+    }
+
+    // 안전한 상태 전환만 허용: pending → failed, pending → cancelled
+    const allowedTransitions: Record<string, string[]> = {
+      pending: ['failed', 'cancelled'],
+    }
+
+    const supabase = createServiceClient()
+
+    const { data: order } = await supabase
+      .from('orders')
+      .select('status')
+      .eq('id', orderId)
+      .single()
+
+    if (!order) {
+      return NextResponse.json({ error: 'order not found' }, { status: 404 })
+    }
+
+    const allowed = allowedTransitions[order.status]
+    if (!allowed || !allowed.includes(status)) {
+      return NextResponse.json({ error: 'invalid status transition' }, { status: 400 })
+    }
+
+    const { error } = await supabase
+      .from('orders')
+      .update({ status })
+      .eq('id', orderId)
+      .eq('status', order.status) // 원자적 업데이트
+
+    if (error) {
+      return NextResponse.json({ error: 'failed to update order' }, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true, orderId, status })
+  } catch {
+    return NextResponse.json({ error: 'invalid request' }, { status: 400 })
+  }
+}
+
 // GET: Fetch orders (admin or user-specific)
 export async function GET(request: Request) {
   try {

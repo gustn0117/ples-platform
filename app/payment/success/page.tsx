@@ -1,9 +1,9 @@
 'use client'
 
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { chargeStars, addStars, getUserPurchases, getUserStars, purchaseArtwork } from '@/lib/store'
+import { addStars, purchaseArtwork } from '@/lib/store'
 import { useAuth } from '@/lib/auth-context'
 import { IconCheck, IconShoppingBag, IconCoin } from '@/components/icons'
 
@@ -37,12 +37,31 @@ function PaymentSuccessContent() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
   const [result, setResult] = useState<ConfirmResult | null>(null)
   const [errorMsg, setErrorMsg] = useState('')
+  const confirmedRef = useRef(false)
 
   useEffect(() => {
     if (!paymentKey || !orderId || !amount) {
       setStatus('error')
       setErrorMsg('결제 정보가 올바르지 않습니다.')
       return
+    }
+
+    // 중복 호출 방지 (React Strict Mode + 새로고침)
+    if (confirmedRef.current) return
+    confirmedRef.current = true
+
+    // sessionStorage에 캐시된 결과가 있으면 바로 표시
+    const cacheKey = `payment_result_${orderId}`
+    const cached = sessionStorage.getItem(cacheKey)
+    if (cached) {
+      try {
+        const cachedResult = JSON.parse(cached) as ConfirmResult
+        setResult(cachedResult)
+        setStatus('success')
+        return
+      } catch {
+        sessionStorage.removeItem(cacheKey)
+      }
     }
 
     async function confirmPayment() {
@@ -63,12 +82,13 @@ function PaymentSuccessContent() {
 
         // Fulfill client-side actions
         if (data.orderType === 'points' && data.pointsAmount) {
-          // Add points to user's local store
           addStars(data.pointsAmount, '스타 충전', `${data.amount.toLocaleString()}원`)
         } else if (data.orderType === 'artwork') {
-          // Record purchase via store (syncs to DB)
           purchaseArtwork(data.itemId, 'cash')
         }
+
+        // 결과를 sessionStorage에 캐시 (새로고침 대비)
+        sessionStorage.setItem(cacheKey, JSON.stringify(data))
 
         setResult(data)
         setStatus('success')

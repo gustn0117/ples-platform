@@ -154,6 +154,7 @@ export default function PointsPage() {
         amount: selectedAmount.toString(),
         orderType: 'points',
         email: user.email,
+        customerName: user.email,
       });
       router.push(`/checkout?${params.toString()}`);
     } catch {

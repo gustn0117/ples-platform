@@ -78,6 +78,7 @@ export default function ArtworkDetailPage() {
           amount: artwork.price.toString(),
           orderType: 'artwork',
           email: user.email,
+          customerName: user.email,
         });
         router.push(`/checkout?${params.toString()}`);
       } catch {
