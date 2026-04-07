@@ -20,27 +20,53 @@ const DEFAULTS: Record<string, any> = {
   chargeRate: 1.2,
 };
 
-export async function GET() {
+// Strip base64 image data from response to reduce payload size
+function stripImages(data: Record<string, any>): Record<string, any> {
+  const result = { ...data };
+  if (Array.isArray(result.artists)) {
+    result.artists = result.artists.map((a: any) => ({ ...a, imageData: undefined, mediaData: undefined }));
+  }
+  if (Array.isArray(result.artworks)) {
+    result.artworks = result.artworks.map((a: any) => ({ ...a, imageData: undefined, mediaData: undefined }));
+  }
+  if (Array.isArray(result.videos)) {
+    result.videos = result.videos.map((v: any) => ({ ...v, thumbnailData: undefined }));
+  }
+  if (Array.isArray(result.banners)) {
+    result.banners = result.banners.map((b: any) => ({ ...b, bgImage: undefined }));
+  }
+  return result;
+}
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const lite = searchParams.get('lite') === '1';
+  const keys = searchParams.get('keys'); // e.g. "artists,banners"
+
   const result = await readServerStore();
 
+  let data: Record<string, any>;
   if (result.error) {
-    // DB connection failed — return defaults for display but NEVER overwrite DB
     console.warn('[GET /api/store] DB read failed, returning defaults (not writing to DB)');
-    return NextResponse.json({ ...DEFAULTS }, {
-      headers: { 'Cache-Control': 'no-store' },
-    });
-  }
-
-  if (!result.data) {
-    // DB is genuinely empty (first-ever run) — initialize with defaults
-    const data = { ...DEFAULTS };
+    data = { ...DEFAULTS };
+  } else if (!result.data) {
+    data = { ...DEFAULTS };
     await writeServerStore(data);
-    return NextResponse.json(data, {
-      headers: { 'Cache-Control': 'no-store' },
-    });
+  } else {
+    data = result.data;
   }
 
-  return NextResponse.json(result.data, {
+  // Return only specific keys if requested
+  if (keys) {
+    const keyList = keys.split(',');
+    const filtered: Record<string, any> = {};
+    for (const k of keyList) {
+      if (data[k] !== undefined) filtered[k] = data[k];
+    }
+    data = filtered;
+  }
+
+  return NextResponse.json(lite ? stripImages(data) : data, {
     headers: { 'Cache-Control': 'no-store' },
   });
 }

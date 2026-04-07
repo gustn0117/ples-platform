@@ -109,18 +109,59 @@ function syncKeyToServer(serverKey: string, value: any) {
 
 export async function syncFromServer(): Promise<void> {
   try {
-    const res = await fetch('/api/store');
+    // Use lite mode to skip base64 images — much faster initial load
+    const res = await fetch('/api/store?lite=1');
     if (!res.ok) return;
     const data = await res.json();
+
+    // Merge with existing cached data to preserve images already loaded
+    const prev = { ...serverCache };
     serverCache = data;
-    setItem('ples_artists', data.artists ?? defaultArtists);
-    setItem('ples_votes', data.votes ?? defaultVotes);
-    setItem('ples_artworks', data.artworks ?? defaultArtworks);
-    setItem('ples_videos', data.videos ?? defaultVideos);
-    setItem('ples_banners', data.banners ?? defaultBanners);
+
+    // Preserve image data from previous cache
+    if (Array.isArray(data.artists) && Array.isArray(prev.artists)) {
+      serverCache.artists = data.artists.map((a: any) => {
+        const old = prev.artists.find((o: any) => o.id === a.id);
+        return { ...a, imageData: a.imageData || old?.imageData, mediaData: a.mediaData || old?.mediaData };
+      });
+    }
+    if (Array.isArray(data.artworks) && Array.isArray(prev.artworks)) {
+      serverCache.artworks = data.artworks.map((a: any) => {
+        const old = prev.artworks.find((o: any) => o.id === a.id);
+        return { ...a, imageData: a.imageData || old?.imageData, mediaData: a.mediaData || old?.mediaData };
+      });
+    }
+    if (Array.isArray(data.videos) && Array.isArray(prev.videos)) {
+      serverCache.videos = data.videos.map((v: any) => {
+        const old = prev.videos.find((o: any) => o.id === v.id);
+        return { ...v, thumbnailData: v.thumbnailData || old?.thumbnailData };
+      });
+    }
+    if (Array.isArray(data.banners) && Array.isArray(prev.banners)) {
+      serverCache.banners = data.banners.map((b: any) => {
+        const old = prev.banners.find((o: any) => o.id === b.id);
+        return { ...b, bgImage: b.bgImage || old?.bgImage };
+      });
+    }
+
+    setItem('ples_artists', serverCache.artists ?? []);
+    setItem('ples_votes', data.votes ?? []);
+    setItem('ples_artworks', serverCache.artworks ?? []);
+    setItem('ples_videos', serverCache.videos ?? []);
+    setItem('ples_banners', serverCache.banners ?? []);
     setItem('ples_charge_rate', data.chargeRate ?? 1.2);
     // Notify all pages that fresh data is available
     window.dispatchEvent(new Event('ples-data-synced'));
+
+    // Load full data with images in background
+    fetch('/api/store').then(r => r.json()).then(full => {
+      serverCache = full;
+      setItem('ples_artists', full.artists ?? []);
+      setItem('ples_artworks', full.artworks ?? []);
+      setItem('ples_videos', full.videos ?? []);
+      setItem('ples_banners', full.banners ?? []);
+      window.dispatchEvent(new Event('ples-data-synced'));
+    }).catch(() => {});
   } catch {
     // Don't fall back to mock data — keep whatever is in localStorage from last successful sync
   }
