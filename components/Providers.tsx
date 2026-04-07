@@ -6,6 +6,7 @@ import { initStore, syncFromServer } from '@/lib/store'
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false)
+  const [, setSyncVersion] = useState(0)
 
   useEffect(() => {
     initStore()
@@ -15,16 +16,20 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
     if (hasCache) {
       setReady(true)
-      // Still sync in background for fresh data
       syncFromServer()
     } else {
-      // First visit: must wait for server data
       syncFromServer().finally(() => setReady(true))
     }
 
+    // Re-render all children when server data arrives
+    const handleSynced = () => setSyncVersion((v) => v + 1)
     const handleFocus = () => { syncFromServer() }
+    window.addEventListener('ples-data-synced', handleSynced)
     window.addEventListener('focus', handleFocus)
-    return () => window.removeEventListener('focus', handleFocus)
+    return () => {
+      window.removeEventListener('ples-data-synced', handleSynced)
+      window.removeEventListener('focus', handleFocus)
+    }
   }, [])
 
   if (!ready) {

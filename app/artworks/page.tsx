@@ -23,6 +23,12 @@ export default function ArtworksPage() {
     setArtworks(getArtworks());
     setUserStars(getUserStars());
     setLoading(false);
+    const onSync = () => {
+      setArtworks(getArtworks());
+      setUserStars(getUserStars());
+    };
+    window.addEventListener('ples-data-synced', onSync);
+    return () => window.removeEventListener('ples-data-synced', onSync);
   }, []);
 
   const filteredArtworks = useMemo(() => {

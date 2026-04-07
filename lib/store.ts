@@ -119,6 +119,8 @@ export async function syncFromServer(): Promise<void> {
     setItem('ples_videos', data.videos ?? defaultVideos);
     setItem('ples_banners', data.banners ?? defaultBanners);
     setItem('ples_charge_rate', data.chargeRate ?? 1.2);
+    // Notify all pages that fresh data is available
+    window.dispatchEvent(new Event('ples-data-synced'));
   } catch {
     if (typeof window !== 'undefined') {
       if (!localStorage.getItem('ples_videos')) setItem('ples_videos', defaultVideos);

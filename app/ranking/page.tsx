@@ -20,6 +20,9 @@ export default function RankingPage() {
     initStore();
     refreshData();
     setLoading(false);
+    const onSync = () => refreshData();
+    window.addEventListener('ples-data-synced', onSync);
+    return () => window.removeEventListener('ples-data-synced', onSync);
   }, []);
 
   function refreshData() {

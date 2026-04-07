@@ -61,8 +61,7 @@ export default function Home() {
   const hotSection = useFadeInOnScroll();
   const ctaSection = useFadeInOnScroll();
 
-  useEffect(() => {
-    initStore();
+  function loadData() {
     const allArtists = getArtists();
     const top5 = [...allArtists]
       .sort((a, b) => b.likes - a.likes)
@@ -71,7 +70,17 @@ export default function Home() {
     setHotArtists(top5);
     setArtistsLoading(false);
 
-    // Show cached server banners immediately, then refresh from server
+    const active = getActiveBanners();
+    if (active.length > 0) {
+      setBanners(active);
+      setBannersLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    initStore();
+
+    // Show cached server banners immediately
     const BANNER_CACHE_KEY = 'ples_server_banners';
     try {
       const cached = localStorage.getItem(BANNER_CACHE_KEY);
@@ -83,6 +92,8 @@ export default function Home() {
         }
       }
     } catch {}
+
+    loadData();
 
     fetch('/api/store')
       .then((res) => res.json())
@@ -98,6 +109,10 @@ export default function Home() {
       })
       .catch(() => {})
       .finally(() => setBannersLoading(false));
+
+    const onSync = () => loadData();
+    window.addEventListener('ples-data-synced', onSync);
+    return () => window.removeEventListener('ples-data-synced', onSync);
   }, []);
 
   // Total pages (2 banners per page)

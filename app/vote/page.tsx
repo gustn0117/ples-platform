@@ -27,6 +27,9 @@ export default function VotePage() {
   useEffect(() => {
     initStore();
     refreshData();
+    const onSync = () => refreshData();
+    window.addEventListener('ples-data-synced', onSync);
+    return () => window.removeEventListener('ples-data-synced', onSync);
   }, []);
 
   function refreshData() {

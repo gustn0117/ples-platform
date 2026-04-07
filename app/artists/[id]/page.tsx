@@ -25,6 +25,9 @@ export default function ArtistDetailPage() {
     initStore();
     refreshData();
     setLoading(false);
+    const onSync = () => refreshData();
+    window.addEventListener('ples-data-synced', onSync);
+    return () => window.removeEventListener('ples-data-synced', onSync);
   }, [artistId]);
 
   function refreshData() {

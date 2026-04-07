@@ -61,11 +61,14 @@ export default function VideosPage() {
     const handleStorage = (e: StorageEvent) => {
       if (e.key === 'ples_videos' || e.key === null) refreshData();
     };
+    const onSync = () => refreshData();
     window.addEventListener('focus', handleFocus);
     window.addEventListener('storage', handleStorage);
+    window.addEventListener('ples-data-synced', onSync);
     return () => {
       window.removeEventListener('focus', handleFocus);
       window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('ples-data-synced', onSync);
     };
   }, [refreshData]);
 
