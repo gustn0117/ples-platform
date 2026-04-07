@@ -11,15 +11,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     initStore()
 
-    // If localStorage already has cached data, render immediately
-    const hasCache = !!localStorage.getItem('ples_artists')
-
-    if (hasCache) {
-      setReady(true)
-      syncFromServer()
-    } else {
-      syncFromServer().finally(() => setReady(true))
-    }
+    // Always wait for server data before rendering
+    syncFromServer().finally(() => setReady(true))
 
     // Re-render all children when server data arrives
     const handleSynced = () => setSyncVersion((v) => v + 1)

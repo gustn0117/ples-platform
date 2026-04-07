@@ -122,14 +122,7 @@ export async function syncFromServer(): Promise<void> {
     // Notify all pages that fresh data is available
     window.dispatchEvent(new Event('ples-data-synced'));
   } catch {
-    if (typeof window !== 'undefined') {
-      if (!localStorage.getItem('ples_videos')) setItem('ples_videos', defaultVideos);
-      if (!localStorage.getItem('ples_artists')) setItem('ples_artists', defaultArtists);
-      if (!localStorage.getItem('ples_votes')) setItem('ples_votes', defaultVotes);
-      if (!localStorage.getItem('ples_artworks')) setItem('ples_artworks', defaultArtworks);
-      if (!localStorage.getItem('ples_banners')) setItem('ples_banners', defaultBanners);
-      if (!localStorage.getItem('ples_charge_rate')) setItem('ples_charge_rate', 1.2);
-    }
+    // Don't fall back to mock data — keep whatever is in localStorage from last successful sync
   }
 }
 
