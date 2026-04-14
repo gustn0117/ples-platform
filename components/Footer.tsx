@@ -133,6 +133,7 @@ export default function Footer() {
                 <p>사업자등록번호: 516-86-03447</p>
                 <p>통신판매업신고번호: 2026-서울강남-01946</p>
                 <p>전화: +82 10-8595-7077</p>
+                <p>이메일: <a href="mailto:leahyu827@naver.com" className="hover:text-gray-900">leahyu827@naver.com</a></p>
                 <p className="pt-1 flex items-start gap-1.5">
                   <svg className="w-3.5 h-3.5 text-gray-300 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />

@@ -20,6 +20,7 @@ export default function ArtworkDetailPage() {
   const [purchasing, setPurchasing] = useState(false);
   const [purchaseSuccess, setPurchaseSuccess] = useState(false);
   const [userStars, setUserStars] = useState(0);
+  const [guestEmail, setGuestEmail] = useState('');
 
   const artworkId = Number(params.id);
 
@@ -38,30 +39,43 @@ export default function ArtworkDetailPage() {
   }
 
   async function handlePurchase() {
-    if (!user) {
-      alert('로그인이 필요합니다. 로그인 후 이용해주세요.');
+    if (!artwork) return;
+
+    // Stars payment requires login (uses user's star balance)
+    if (paymentMethod === 'stars' && !user) {
+      alert('스타 결제는 로그인이 필요합니다. 현금 결제는 비회원도 가능합니다.');
       return;
     }
-    if (!artwork) return;
+
+    // For guest cash purchase, require email for order receipt
+    if (paymentMethod === 'cash' && !user) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(guestEmail.trim())) {
+        alert('비회원 결제를 위해 유효한 이메일을 입력해주세요.');
+        return;
+      }
+    }
+
     setPurchasing(true);
 
     if (paymentMethod === 'cash') {
-      // Real Toss Payments flow
+      // Real Toss Payments flow - available for guests and members
       try {
         const orderId = generateOrderId('ART');
-        // Create pending order in DB
+        const userEmail = user?.email || guestEmail.trim();
+        const userId = user?.id || `guest_${Date.now()}`;
         const res = await fetch('/api/payment/orders', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             orderId,
-            userEmail: user.email,
-            userId: user.id,
+            userEmail,
+            userId,
             orderType: 'artwork',
             itemId: artwork.id,
             itemName: artwork.title,
             amount: artwork.price,
-            metadata: { artist: artwork.artist, category: artwork.category },
+            metadata: { artist: artwork.artist, category: artwork.category, guest: !user },
           }),
         });
 
@@ -77,8 +91,8 @@ export default function ArtworkDetailPage() {
           orderName: artwork.title,
           amount: artwork.price.toString(),
           orderType: 'artwork',
-          email: user.email,
-          customerName: user.email,
+          email: userEmail,
+          customerName: user?.email || '게스트',
         });
         router.push(`/checkout?${params.toString()}`);
       } catch {
@@ -335,6 +349,24 @@ export default function ArtworkDetailPage() {
               </button>
             </div>
 
+            {!user && paymentMethod === 'cash' && (
+              <div className="mb-4">
+                <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                  비회원 결제 · 이메일 <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  value={guestEmail}
+                  onChange={(e) => setGuestEmail(e.target.value)}
+                  placeholder="주문 내역을 받을 이메일을 입력하세요"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-gray-900 transition-colors"
+                />
+                <p className="text-[11px] text-gray-400 mt-1.5">
+                  <Link href="/login" className="underline hover:text-gray-600">로그인</Link> 시 더 빠르게 결제할 수 있습니다.
+                </p>
+              </div>
+            )}
+
             <button
               onClick={handlePurchase}
               disabled={purchasing || (paymentMethod === 'stars' && insufficientStars)}
@@ -363,6 +395,26 @@ export default function ArtworkDetailPage() {
             <p className="text-gray-400 font-medium">이 작품은 품절되었습니다</p>
           </div>
         )}
+
+        {/* Shipping & Refund info */}
+        <div className="mt-6 bg-gray-50 rounded-2xl border border-gray-100 p-5">
+          <h3 className="text-sm font-bold text-gray-900 mb-3">배송 및 환불 안내</h3>
+          <ul className="text-xs text-gray-500 space-y-1.5 leading-relaxed">
+            <li>• 배송: 결제 확인 후 3~7 영업일 이내 발송</li>
+            <li>• 배송비: 단순 변심 시 고객 부담 / 상품 하자 시 회사 부담</li>
+            <li>• 환불: 상품 수령일로부터 7일 이내 요청 가능</li>
+            <li>• 디지털 콘텐츠는 이용 전 전액 환불 가능</li>
+          </ul>
+          <Link
+            href="/refund"
+            className="inline-flex items-center gap-1 mt-3 text-xs font-medium text-gray-900 hover:text-gray-700"
+          >
+            환불 및 교환 정책 전문 보기
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+        </div>
       </div>
     </div>
   );
