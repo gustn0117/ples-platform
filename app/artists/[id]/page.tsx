@@ -136,9 +136,21 @@ export default function ArtistDetailPage() {
         {/* Description */}
         <div className="mb-8">
           <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">소개</h2>
-          <p className="text-gray-600 leading-relaxed">
+          <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
             {artist.description || '아직 소개가 등록되지 않았습니다.'}
           </p>
+          {artist.descriptionImages && artist.descriptionImages.length > 0 && (
+            <div className="mt-5 space-y-3">
+              {artist.descriptionImages.map((img, i) => (
+                <img
+                  key={i}
+                  src={img}
+                  alt={`${artist.name} 소개 이미지 ${i + 1}`}
+                  className="w-full rounded-xl border border-gray-100"
+                />
+              ))}
+            </div>
+          )}
         </div>
 
         {/* SNS Links */}

@@ -4,7 +4,7 @@
 import { useEffect, useState, useRef } from 'react'
 import type { Artist } from '@/lib/mock-data'
 
-const emptyForm = { name: '', genre: '', description: '', imageData: '', instagram: '', youtube: '', twitter: '' }
+const emptyForm = { name: '', genre: '', description: '', imageData: '', instagram: '', youtube: '', twitter: '', descriptionImages: [] as string[] }
 
 export default function AdminArtistsPage() {
   const [artists, setArtistsState] = useState<Artist[]>([])
@@ -12,6 +12,7 @@ export default function AdminArtistsPage() {
   const [editingId, setEditingId] = useState<number | null>(null)
   const [form, setForm] = useState(emptyForm)
   const imageInputRef = useRef<HTMLInputElement>(null)
+  const descImageInputRef = useRef<HTMLInputElement>(null)
 
   const fetchArtists = async () => {
     try {
@@ -49,7 +50,16 @@ export default function AdminArtistsPage() {
 
   const openEdit = (a: Artist) => {
     setEditingId(a.id)
-    setForm({ name: a.name, genre: a.genre, description: a.description ?? '', imageData: a.imageData ?? '', instagram: a.sns?.instagram ?? '', youtube: a.sns?.youtube ?? '', twitter: a.sns?.twitter ?? '' })
+    setForm({
+      name: a.name,
+      genre: a.genre,
+      description: a.description ?? '',
+      imageData: a.imageData ?? '',
+      instagram: a.sns?.instagram ?? '',
+      youtube: a.sns?.youtube ?? '',
+      twitter: a.sns?.twitter ?? '',
+      descriptionImages: a.descriptionImages ?? [],
+    })
     setModalOpen(true)
   }
 
@@ -63,6 +73,25 @@ export default function AdminArtistsPage() {
       setForm({ ...form, imageData: reader.result as string })
     }
     reader.readAsDataURL(file)
+  }
+
+  const handleDescImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? [])
+    if (files.length === 0) return
+    for (const file of files) {
+      if (!file.type.startsWith('image/')) { alert('이미지 파일만 업로드 가능합니다.'); continue }
+      if (file.size > 50 * 1024 * 1024) { alert(`${file.name}: 50MB 이하만 가능합니다.`); continue }
+      const reader = new FileReader()
+      reader.onload = () => {
+        setForm((prev) => ({ ...prev, descriptionImages: [...prev.descriptionImages, reader.result as string] }))
+      }
+      reader.readAsDataURL(file)
+    }
+    if (descImageInputRef.current) descImageInputRef.current.value = ''
+  }
+
+  const removeDescImage = (index: number) => {
+    setForm((prev) => ({ ...prev, descriptionImages: prev.descriptionImages.filter((_, i) => i !== index) }))
   }
 
   const handleSave = () => {
@@ -80,6 +109,7 @@ export default function AdminArtistsPage() {
       genre: form.genre,
       description: form.description || undefined,
       imageData: form.imageData || undefined,
+      descriptionImages: form.descriptionImages.length > 0 ? form.descriptionImages : undefined,
       sns: hasSns ? snsData : undefined,
     }
 
@@ -287,6 +317,42 @@ export default function AdminArtistsPage() {
                   rows={3}
                   className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition-colors resize-none"
                 />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                  설명 이미지 <span className="text-gray-400 font-normal">(여러 장 가능)</span>
+                </label>
+                <input
+                  ref={descImageInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleDescImageUpload}
+                  className="hidden"
+                />
+                <div className="flex flex-wrap gap-2">
+                  {form.descriptionImages.map((img, i) => (
+                    <div key={i} className="relative group w-20 h-20">
+                      <img src={img} alt={`설명 ${i + 1}`} className="w-20 h-20 object-cover rounded-lg border border-gray-200" />
+                      <button
+                        type="button"
+                        onClick={() => removeDescImage(i)}
+                        className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => descImageInputRef.current?.click()}
+                    className="w-20 h-20 border-2 border-dashed border-gray-200 rounded-lg flex items-center justify-center text-gray-400 hover:border-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                  </button>
+                </div>
               </div>
               <div className="border-t border-gray-100 pt-4">
                 <label className="block text-xs font-medium text-gray-500 mb-3">SNS 링크</label>

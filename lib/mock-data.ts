@@ -7,6 +7,7 @@ export interface Artist {
   genre: string;
   description?: string;
   imageData?: string; // base64 profile image
+  descriptionImages?: string[]; // base64 images shown in description section
   sns?: { instagram?: string; youtube?: string; twitter?: string };
 }
 

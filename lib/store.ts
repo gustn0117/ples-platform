@@ -122,7 +122,12 @@ export async function syncFromServer(): Promise<void> {
     if (Array.isArray(data.artists) && Array.isArray(prev.artists)) {
       serverCache.artists = data.artists.map((a: any) => {
         const old = prev.artists.find((o: any) => o.id === a.id);
-        return { ...a, imageData: a.imageData || old?.imageData, mediaData: a.mediaData || old?.mediaData };
+        return {
+          ...a,
+          imageData: a.imageData || old?.imageData,
+          mediaData: a.mediaData || old?.mediaData,
+          descriptionImages: a.descriptionImages || old?.descriptionImages,
+        };
       });
     }
     if (Array.isArray(data.artworks) && Array.isArray(prev.artworks)) {

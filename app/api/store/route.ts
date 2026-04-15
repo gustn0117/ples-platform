@@ -24,7 +24,7 @@ const DEFAULTS: Record<string, any> = {
 function stripImages(data: Record<string, any>): Record<string, any> {
   const result = { ...data };
   if (Array.isArray(result.artists)) {
-    result.artists = result.artists.map((a: any) => ({ ...a, imageData: undefined, mediaData: undefined }));
+    result.artists = result.artists.map((a: any) => ({ ...a, imageData: undefined, mediaData: undefined, descriptionImages: undefined }));
   }
   if (Array.isArray(result.artworks)) {
     result.artworks = result.artworks.map((a: any) => ({ ...a, imageData: undefined, mediaData: undefined }));
