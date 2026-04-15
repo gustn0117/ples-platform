@@ -148,9 +148,22 @@ export async function syncFromServer(): Promise<void> {
         return { ...b, bgImage: b.bgImage || old?.bgImage };
       });
     }
+    if (Array.isArray(data.votes) && Array.isArray(prev.votes)) {
+      serverCache.votes = data.votes.map((v: any) => {
+        const oldVote = prev.votes.find((o: any) => o.id === v.id);
+        if (!oldVote || !Array.isArray(v.options)) return v;
+        return {
+          ...v,
+          options: v.options.map((opt: any) => {
+            const oldOpt = oldVote.options?.find((o: any) => o.id === opt.id);
+            return { ...opt, mediaData: opt.mediaData || oldOpt?.mediaData };
+          }),
+        };
+      });
+    }
 
     setItem('ples_artists', serverCache.artists ?? []);
-    setItem('ples_votes', data.votes ?? []);
+    setItem('ples_votes', serverCache.votes ?? data.votes ?? []);
     setItem('ples_artworks', serverCache.artworks ?? []);
     setItem('ples_videos', serverCache.videos ?? []);
     setItem('ples_banners', serverCache.banners ?? []);

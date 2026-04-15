@@ -35,6 +35,14 @@ function stripImages(data: Record<string, any>): Record<string, any> {
   if (Array.isArray(result.banners)) {
     result.banners = result.banners.map((b: any) => ({ ...b, bgImage: undefined }));
   }
+  if (Array.isArray(result.votes)) {
+    result.votes = result.votes.map((v: any) => ({
+      ...v,
+      options: Array.isArray(v.options)
+        ? v.options.map((opt: any) => ({ ...opt, mediaData: undefined }))
+        : v.options,
+    }));
+  }
   return result;
 }
 
