@@ -107,6 +107,41 @@ function syncKeyToServer(serverKey: string, value: any) {
   }).catch((e) => console.error(`[syncKey] ${serverKey} error:`, e));
 }
 
+async function fetchAndMergeImages(type: 'artists' | 'artworks' | 'videos' | 'banners', items: any[] | undefined) {
+  if (!Array.isArray(items) || items.length === 0) return;
+  try {
+    const res = await fetch(`/api/store/images?type=${type}`);
+    if (!res.ok) return;
+    const imageMap: Record<string, any> = await res.json();
+    items.forEach((item) => {
+      const img = imageMap[item.id];
+      if (!img) return;
+      Object.assign(item, img);
+    });
+  } catch {
+    // Silently ignore — keep cached images
+  }
+}
+
+async function fetchAndMergeVoteImages(votes: any[] | undefined) {
+  if (!Array.isArray(votes) || votes.length === 0) return;
+  try {
+    const res = await fetch('/api/store/images?type=votes');
+    if (!res.ok) return;
+    const voteMap: Record<string, { options: { id: number; mediaData?: string }[] }> = await res.json();
+    votes.forEach((v) => {
+      const opts = voteMap[v.id]?.options ?? [];
+      if (!Array.isArray(v.options)) return;
+      v.options.forEach((opt: any) => {
+        const found = opts.find((o) => o.id === opt.id);
+        if (found?.mediaData) opt.mediaData = found.mediaData;
+      });
+    });
+  } catch {
+    // Silently ignore
+  }
+}
+
 export async function syncFromServer(): Promise<void> {
   try {
     // Use lite mode to skip base64 images — much faster initial load
@@ -168,16 +203,22 @@ export async function syncFromServer(): Promise<void> {
     setItem('ples_videos', serverCache.videos ?? []);
     setItem('ples_banners', serverCache.banners ?? []);
     setItem('ples_charge_rate', data.chargeRate ?? 1.2);
-    // Notify all pages that fresh data is available
+    // Notify all pages that fresh data is available (text/metadata)
     window.dispatchEvent(new Event('ples-data-synced'));
 
-    // Load full data with images in background
-    fetch('/api/store').then(r => r.json()).then(full => {
-      serverCache = full;
-      setItem('ples_artists', full.artists ?? []);
-      setItem('ples_artworks', full.artworks ?? []);
-      setItem('ples_videos', full.videos ?? []);
-      setItem('ples_banners', full.banners ?? []);
+    // Load images per-entity in parallel — much faster than 64MB single request
+    Promise.all([
+      fetchAndMergeImages('artists', serverCache.artists),
+      fetchAndMergeImages('artworks', serverCache.artworks),
+      fetchAndMergeImages('videos', serverCache.videos),
+      fetchAndMergeImages('banners', serverCache.banners),
+      fetchAndMergeVoteImages(serverCache.votes),
+    ]).then(() => {
+      setItem('ples_artists', serverCache.artists ?? []);
+      setItem('ples_artworks', serverCache.artworks ?? []);
+      setItem('ples_videos', serverCache.videos ?? []);
+      setItem('ples_banners', serverCache.banners ?? []);
+      setItem('ples_votes', serverCache.votes ?? []);
       window.dispatchEvent(new Event('ples-data-synced'));
     }).catch(() => {});
   } catch {
