@@ -27,6 +27,17 @@ export default function ArtistDetailPage() {
     setLoading(false);
     const onSync = () => refreshData();
     window.addEventListener('ples-data-synced', onSync);
+
+    // Lazy-load this artist's description images on demand
+    fetch(`/api/store/images?type=artists&ids=${artistId}`)
+      .then((r) => r.json())
+      .then((map) => {
+        const img = map[artistId];
+        if (!img) return;
+        setArtist((prev) => prev ? { ...prev, ...img } : prev);
+      })
+      .catch(() => {});
+
     return () => window.removeEventListener('ples-data-synced', onSync);
   }, [artistId]);
 
