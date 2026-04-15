@@ -159,7 +159,7 @@ export default function VotePage() {
                       </div>
                     </div>
                     {vote.description && (
-                      <p className="text-sm text-gray-500 mb-3">
+                      <p className="text-sm text-gray-500 mb-3 whitespace-pre-wrap">
                         {vote.description}
                       </p>
                     )}
@@ -272,7 +272,7 @@ export default function VotePage() {
                                 </div>
                               )}
                               <span
-                                className={`text-sm ${
+                                className={`text-sm whitespace-pre-wrap ${
                                   isSelected
                                     ? 'font-semibold text-gray-900'
                                     : 'font-medium text-gray-700'
