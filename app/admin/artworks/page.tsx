@@ -3,6 +3,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import type { Artwork } from '@/lib/mock-data'
+import { uploadFile } from '@/lib/upload'
 
 const categories: Artwork['category'][] = [
   '앨범', '포스터', '포토카드', '머천다이즈', '디지털',
@@ -83,32 +84,28 @@ export default function AdminArtworksPage() {
     setModalOpen(true)
   }
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     if (!file.type.startsWith('image/')) return alert('이미지 파일만 업로드 가능합니다.')
     if (file.size > 50 * 1024 * 1024) return alert('이미지 크기는 50MB 이하만 가능합니다.')
-    const reader = new FileReader()
-    reader.onload = () => setForm((f) => ({ ...f, imageData: reader.result as string }))
-    reader.readAsDataURL(file)
+    const url = await uploadFile(file, 'artworks')
+    setForm((f) => ({ ...f, imageData: url }))
   }
 
-  const handleMediaUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     const isImage = file.type.startsWith('image/')
     const isAudio = file.type.startsWith('audio/')
     if (!isImage && !isAudio) return alert('이미지 또는 오디오 파일만 업로드 가능합니다.')
     if (file.size > 50 * 1024 * 1024) return alert('파일 크기는 50MB 이하로 제한됩니다.')
-    const reader = new FileReader()
-    reader.onload = () => {
-      setForm((f) => ({
-        ...f,
-        mediaType: isImage ? 'image' : 'audio',
-        mediaData: reader.result as string,
-      }))
-    }
-    reader.readAsDataURL(file)
+    const url = await uploadFile(file, 'artworks/media')
+    setForm((f) => ({
+      ...f,
+      mediaType: isImage ? 'image' : 'audio',
+      mediaData: url,
+    }))
   }
 
   const handleSave = () => {

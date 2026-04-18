@@ -3,6 +3,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import type { Video } from '@/lib/mock-data'
+import { uploadFile } from '@/lib/upload'
 
 const emptyForm = {
   title: '',
@@ -67,16 +68,13 @@ export default function AdminVideosPage() {
     setModalOpen(true)
   }
 
-  const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     if (!file.type.startsWith('image/')) return alert('이미지 파일만 업로드 가능합니다.')
     if (file.size > 50 * 1024 * 1024) return alert('이미지 크기는 50MB 이하만 가능합니다.')
-    const reader = new FileReader()
-    reader.onload = () => {
-      setForm({ ...form, thumbnailData: reader.result as string })
-    }
-    reader.readAsDataURL(file)
+    const url = await uploadFile(file, 'videos')
+    setForm({ ...form, thumbnailData: url })
   }
 
   const handleSave = () => {

@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from 'react'
 import type { Vote } from '@/lib/mock-data'
+import { uploadFile } from '@/lib/upload'
 
 interface OptionInput {
   label: string
@@ -92,23 +93,22 @@ export default function AdminVotesPage() {
     setOptions(updated)
   }
 
-  const handleMediaUpload = (index: number, file: File) => {
+  const handleMediaUpload = async (index: number, file: File) => {
     const isImage = file.type.startsWith('image/')
     const isAudio = file.type.startsWith('audio/')
     if (!isImage && !isAudio) return alert('이미지 또는 오디오 파일만 업로드 가능합니다.')
     if (file.size > 50 * 1024 * 1024) return alert('파일 크기는 50MB 이하로 제한됩니다.')
 
-    const reader = new FileReader()
-    reader.onload = () => {
-      const updated = [...options]
+    const url = await uploadFile(file, 'votes')
+    setOptions((prev) => {
+      const updated = [...prev]
       updated[index] = {
         ...updated[index],
         mediaType: isImage ? 'image' : 'audio',
-        mediaData: reader.result as string,
+        mediaData: url,
       }
-      setOptions(updated)
-    }
-    reader.readAsDataURL(file)
+      return updated
+    })
   }
 
   const removeMedia = (index: number) => {

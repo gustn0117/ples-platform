@@ -3,6 +3,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import type { Banner } from '@/lib/mock-data'
+import { uploadFile } from '@/lib/upload'
 
 const emptyForm = {
   title: '',
@@ -22,7 +23,7 @@ export default function AdminBannersPage() {
   const [form, setForm] = useState(emptyForm)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     if (!file.type.startsWith('image/')) {
@@ -33,13 +34,8 @@ export default function AdminBannersPage() {
       alert('이미지 크기는 50MB 이하만 가능합니다.')
       return
     }
-    const reader = new FileReader()
-    reader.onload = (ev) => {
-      const result = ev.target?.result as string
-      setForm((prev) => ({ ...prev, bgImage: result }))
-    }
-    reader.readAsDataURL(file)
-    // Reset input so the same file can be re-selected
+    const url = await uploadFile(file, 'banners')
+    setForm((prev) => ({ ...prev, bgImage: url }))
     e.target.value = ''
   }
 

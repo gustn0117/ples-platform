@@ -3,6 +3,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import type { Artist } from '@/lib/mock-data'
+import { uploadFile } from '@/lib/upload'
 
 const emptyForm = { name: '', genre: '', description: '', imageData: '', instagram: '', youtube: '', twitter: '', descriptionImages: [] as string[] }
 
@@ -63,29 +64,23 @@ export default function AdminArtistsPage() {
     setModalOpen(true)
   }
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     if (!file.type.startsWith('image/')) return alert('이미지 파일만 업로드 가능합니다.')
     if (file.size > 50 * 1024 * 1024) return alert('이미지 크기는 50MB 이하만 가능합니다.')
-    const reader = new FileReader()
-    reader.onload = () => {
-      setForm({ ...form, imageData: reader.result as string })
-    }
-    reader.readAsDataURL(file)
+    const url = await uploadFile(file, 'artists')
+    setForm({ ...form, imageData: url })
   }
 
-  const handleDescImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDescImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? [])
     if (files.length === 0) return
     for (const file of files) {
       if (!file.type.startsWith('image/')) { alert('이미지 파일만 업로드 가능합니다.'); continue }
       if (file.size > 50 * 1024 * 1024) { alert(`${file.name}: 50MB 이하만 가능합니다.`); continue }
-      const reader = new FileReader()
-      reader.onload = () => {
-        setForm((prev) => ({ ...prev, descriptionImages: [...prev.descriptionImages, reader.result as string] }))
-      }
-      reader.readAsDataURL(file)
+      const url = await uploadFile(file, 'artists/desc')
+      setForm((prev) => ({ ...prev, descriptionImages: [...prev.descriptionImages, url] }))
     }
     if (descImageInputRef.current) descImageInputRef.current.value = ''
   }
