@@ -122,13 +122,22 @@ export default function AdminVotesPage() {
     const validOptions = options.filter((o) => o.label.trim())
     if (validOptions.length < 2) return alert('최소 2개의 선택지를 입력하세요.')
 
-    const mappedOptions = validOptions.map((o, i) => ({
-      id: i + 1,
-      label: o.label,
-      votes: 0,
-      ...(o.mediaType && o.mediaData ? { mediaType: o.mediaType, mediaData: o.mediaData } : {}),
-      ...(o.link ? { link: o.link } : {}),
-    }))
+    const mappedOptions = validOptions.map((o, i) => {
+      const trimmedLink = (o.link || '').trim()
+      const opt: any = {
+        id: i + 1,
+        label: o.label,
+        votes: 0,
+      }
+      if (o.mediaType && o.mediaData) {
+        opt.mediaType = o.mediaType
+        opt.mediaData = o.mediaData
+      }
+      if (trimmedLink) {
+        opt.link = trimmedLink
+      }
+      return opt
+    })
 
     const voteData = {
       title: form.title,
@@ -365,17 +374,33 @@ export default function AdminVotesPage() {
                         )}
                       </div>
                       {/* Link input */}
-                      <input
-                        type="url"
-                        value={opt.link || ''}
-                        onChange={(e) => {
-                          const updated = [...options]
-                          updated[i] = { ...updated[i], link: e.target.value || undefined }
-                          setOptions(updated)
-                        }}
-                        placeholder="링크 URL (선택사항)"
-                        className="w-full px-3.5 py-2 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition-colors text-gray-500"
-                      />
+                      <div className="relative">
+                        <input
+                          type="url"
+                          value={opt.link || ''}
+                          onChange={(e) => {
+                            const updated = [...options]
+                            const val = e.target.value.trim()
+                            updated[i] = { ...updated[i], link: val || undefined }
+                            setOptions(updated)
+                          }}
+                          placeholder="링크 URL (선택사항)"
+                          className="w-full px-3.5 py-2 pr-16 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition-colors text-gray-500"
+                        />
+                        {opt.link && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = [...options]
+                              updated[i] = { ...updated[i], link: undefined }
+                              setOptions(updated)
+                            }}
+                            className="absolute right-1.5 top-1/2 -translate-y-1/2 px-2 py-1 text-[10px] font-medium text-red-600 hover:bg-red-50 rounded transition-colors"
+                          >
+                            제거
+                          </button>
+                        )}
+                      </div>
                       {/* Media upload */}
                       {opt.mediaData ? (
                         <div className="flex items-center gap-3">
