@@ -10,6 +10,7 @@ interface OptionInput {
   mediaType?: 'image' | 'audio'
   mediaData?: string
   link?: string
+  originalId?: number // tracks original option id for preserving vote counts on edit
 }
 
 const emptyForm = {
@@ -71,7 +72,7 @@ export default function AdminVotesPage() {
       pointReward: v.pointReward,
       endDate: v.endDate,
     })
-    setOptions(v.options.map((o) => ({ label: o.label, mediaType: o.mediaType, mediaData: o.mediaData, link: o.link })))
+    setOptions(v.options.map((o) => ({ label: o.label, mediaType: o.mediaType, mediaData: o.mediaData, link: o.link, originalId: o.id })))
     setModalOpen(true)
   }
 
@@ -122,12 +123,17 @@ export default function AdminVotesPage() {
     const validOptions = options.filter((o) => o.label.trim())
     if (validOptions.length < 2) return alert('최소 2개의 선택지를 입력하세요.')
 
+    // Preserve existing vote counts when editing: match by originalId
+    const existingVote = editingId !== null ? votes.find((v) => v.id === editingId) : null
     const mappedOptions = validOptions.map((o, i) => {
       const trimmedLink = (o.link || '').trim()
+      const preservedVotes = o.originalId && existingVote
+        ? existingVote.options.find((ov) => ov.id === o.originalId)?.votes ?? 0
+        : 0
       const opt: any = {
         id: i + 1,
         label: o.label,
-        votes: 0,
+        votes: preservedVotes,
       }
       if (o.mediaType && o.mediaData) {
         opt.mediaType = o.mediaType
