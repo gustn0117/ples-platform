@@ -378,6 +378,7 @@ export function castVote(voteId: number, optionId: number): { success: boolean; 
   if (!vote) return { success: false, error: '존재하지 않는 투표입니다.' };
   if (!vote.isActive) return { success: false, error: '종료된 투표입니다.' };
 
+  // Optimistic UI update
   const updated = votes.map((v) => {
     if (v.id !== voteId) return v;
     return {
@@ -388,7 +389,14 @@ export function castVote(voteId: number, optionId: number): { success: boolean; 
     };
   });
   setVotes(updated);
-  syncKeyToServer('votes', updated);
+
+  // Atomic server-side increment (avoids lost-update race when whole array is PUT)
+  fetch('/api/vote/cast', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ voteId, optionId }),
+    keepalive: true,
+  }).catch((e) => console.error('[castVote] sync error:', e));
 
   voted[voteId] = { optionId, date: today };
   setItem(KEYS.USER_VOTED, voted);

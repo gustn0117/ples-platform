@@ -29,14 +29,18 @@ export default function AdminVotesPage() {
   const [resultsOpen, setResultsOpen] = useState(false)
   const [selectedVote, setSelectedVote] = useState<Vote | null>(null)
 
-  const fetchVotes = async () => {
+  const fetchVotes = async (): Promise<Vote[]> => {
     try {
-      const res = await fetch('/api/store')
-      if (!res.ok) return
+      // Fetch only votes key (lite mode strips mediaData → smaller & faster)
+      const res = await fetch('/api/store?lite=1&keys=votes')
+      if (!res.ok) return []
       const data = await res.json()
-      setVotesState(data.votes || [])
+      const list: Vote[] = data.votes || []
+      setVotesState(list)
+      return list
     } catch (e) {
       console.error('Failed to fetch votes:', e)
+      return []
     }
   }
 
@@ -76,9 +80,13 @@ export default function AdminVotesPage() {
     setModalOpen(true)
   }
 
-  const openResults = (v: Vote) => {
+  const openResults = async (v: Vote) => {
     setSelectedVote(v)
     setResultsOpen(true)
+    // Refresh from server to show latest counts
+    const latest = await fetchVotes()
+    const updated = latest.find((x) => x.id === v.id)
+    if (updated) setSelectedVote(updated)
   }
 
   const addOption = () => setOptions([...options, { label: '' }])

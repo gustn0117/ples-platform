@@ -1,22 +1,7 @@
 import { NextResponse } from 'next/server';
-import { readServerStore } from '@/lib/server-store';
+import { getCachedStoreData } from '@/lib/store-cache';
 
 export const dynamic = 'force-dynamic';
-
-// Same in-memory cache pattern as parent route
-let cachedData: Record<string, any> | null = null;
-let cachedAt = 0;
-const CACHE_TTL_MS = 60 * 1000;
-
-async function getData(): Promise<Record<string, any>> {
-  const now = Date.now();
-  if (cachedData && now - cachedAt < CACHE_TTL_MS) return cachedData;
-  const result = await readServerStore();
-  const data = result.data || {};
-  cachedData = data;
-  cachedAt = now;
-  return data;
-}
 
 // Returns image data only for the requested entity type and IDs
 // GET /api/store/images?type=artists                    → all profile images only (small)
@@ -32,7 +17,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'type required' }, { status: 400 });
   }
 
-  const data = await getData();
+  const data = await getCachedStoreData();
   const items: any[] = Array.isArray(data[type]) ? data[type] : [];
   const ids = idsParam ? new Set(idsParam.split(',').map((s) => Number(s))) : null;
   const includeDesc = include.includes('desc') || !!ids;

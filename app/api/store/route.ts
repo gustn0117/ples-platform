@@ -1,54 +1,8 @@
 import { NextResponse } from 'next/server';
-import { readServerStore, writeServerStore, updateServerKey } from '@/lib/server-store';
-import {
-  artists as defaultArtists,
-  votes as defaultVotes,
-  artworks as defaultArtworks,
-  videos as defaultVideos,
-  banners as defaultBanners,
-} from '@/lib/mock-data';
+import { updateServerKey } from '@/lib/server-store';
+import { getCachedStoreData, invalidateStoreCache } from '@/lib/store-cache';
 
 export const dynamic = 'force-dynamic';
-
-const DEFAULTS: Record<string, any> = {
-  artists: defaultArtists,
-  votes: defaultVotes,
-  artworks: defaultArtworks,
-  videos: defaultVideos,
-  banners: defaultBanners,
-  chargeRate: 1.2,
-};
-
-// In-memory cache — DB is slow (5-10s) for JSONB with large base64.
-// Cache the DB result for a short window; writes invalidate.
-let cachedData: Record<string, any> | null = null;
-let cachedAt = 0;
-const CACHE_TTL_MS = 60 * 1000; // 60 seconds
-
-async function getData(): Promise<Record<string, any>> {
-  const now = Date.now();
-  if (cachedData && now - cachedAt < CACHE_TTL_MS) {
-    return cachedData;
-  }
-  const result = await readServerStore();
-  let data: Record<string, any>;
-  if (result.error) {
-    data = { ...DEFAULTS };
-  } else if (!result.data) {
-    data = { ...DEFAULTS };
-    await writeServerStore(data);
-  } else {
-    data = result.data;
-  }
-  cachedData = data;
-  cachedAt = now;
-  return data;
-}
-
-function invalidateCache() {
-  cachedData = null;
-  cachedAt = 0;
-}
 
 // Strip base64 image data from response to reduce payload size
 function stripImages(data: Record<string, any>): Record<string, any> {
@@ -81,7 +35,7 @@ export async function GET(request: Request) {
   const lite = searchParams.get('lite') === '1';
   const keys = searchParams.get('keys'); // e.g. "artists,banners"
 
-  let data = await getData();
+  let data = await getCachedStoreData();
 
   if (keys) {
     const keyList = keys.split(',');
@@ -102,7 +56,7 @@ export async function PUT(request: Request) {
     const { key, value } = await request.json();
     if (!key) return NextResponse.json({ error: 'key required' }, { status: 400 });
     await updateServerKey(key, value);
-    invalidateCache();
+    invalidateStoreCache();
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: 'invalid body' }, { status: 400 });
