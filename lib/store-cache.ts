@@ -1,6 +1,13 @@
-// Shared in-memory cache for /api/store GET requests.
-// Separated from the route handler so other endpoints (e.g. /api/vote/cast)
-// can invalidate it after mutations.
+// Shared store data accessor.
+//
+// Previously this had an in-memory cache (60s TTL), but in Next.js App Router
+// each route handler may load this module in its own context, so cache state
+// (and invalidation) is NOT reliably shared across route handlers. That caused
+// stale vote counts: /api/vote/cast incremented the DB but /api/store served
+// cached zeros for up to 60 seconds.
+//
+// Since base64 images were migrated to Supabase Storage, DB reads now take
+// ~100-150ms — fast enough to skip the cache entirely.
 
 import { readServerStore, writeServerStore } from './server-store'
 import {
@@ -20,29 +27,20 @@ const DEFAULTS: Record<string, any> = {
   chargeRate: 1.2,
 }
 
-let cachedData: Record<string, any> | null = null
-let cachedAt = 0
-const CACHE_TTL_MS = 60 * 1000
-
 export async function getCachedStoreData(): Promise<Record<string, any>> {
-  const now = Date.now()
-  if (cachedData && now - cachedAt < CACHE_TTL_MS) return cachedData
   const result = await readServerStore()
-  let data: Record<string, any>
   if (result.error) {
-    data = { ...DEFAULTS }
-  } else if (!result.data) {
-    data = { ...DEFAULTS }
-    await writeServerStore(data)
-  } else {
-    data = result.data
+    return { ...DEFAULTS }
   }
-  cachedData = data
-  cachedAt = now
-  return data
+  if (!result.data) {
+    const data = { ...DEFAULTS }
+    await writeServerStore(data)
+    return data
+  }
+  return result.data
 }
 
+// No-op: kept so existing callers compile. Cache is now disabled.
 export function invalidateStoreCache() {
-  cachedData = null
-  cachedAt = 0
+  // intentionally empty
 }
