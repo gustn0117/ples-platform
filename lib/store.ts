@@ -84,11 +84,26 @@ function getItem<T>(key: string, fallback: T): T {
   }
 }
 
+// Keys we may safely purge to free quota — shared/server-cache only,
+// never user-private data (stars, voted history, purchases, etc.)
+const SHARED_CACHE_KEYS = ['ples_artists', 'ples_artworks', 'ples_videos', 'ples_banners', 'ples_votes', 'ples_server_banners'];
+
 function setItem<T>(key: string, value: T) {
   try {
     localStorage.setItem(key, JSON.stringify(value));
-  } catch (e) {
-    console.warn(`[setItem] localStorage error for ${key}:`, e);
+  } catch (e: any) {
+    // QuotaExceededError: clear stale shared caches (often huge stale base64) and retry once
+    const isQuota = e?.name === 'QuotaExceededError' || /quota/i.test(e?.message || '');
+    if (!isQuota) {
+      console.warn(`[setItem] localStorage error for ${key}:`, e);
+      return;
+    }
+    try {
+      SHARED_CACHE_KEYS.forEach((k) => { if (k !== key) localStorage.removeItem(k); });
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (retryErr) {
+      console.warn(`[setItem] retry failed for ${key}:`, retryErr);
+    }
   }
 }
 
@@ -247,13 +262,17 @@ const KEYS = {
 
 // ============ Initialize ============
 
-const DATA_VERSION = '10';
+// Bump when the shared-data shape changes or a one-time client cache wipe is needed.
+// v11: post-Storage migration — purge any leftover base64 caches that exceed quota.
+const DATA_VERSION = '11';
 
 export function initStore() {
   if (typeof window === 'undefined') return;
   if (localStorage.getItem(KEYS.INIT_DONE) === DATA_VERSION) return;
 
+  // Wipe everything (shared caches + server-banner cache) to clear bloated base64 entries
   Object.values(KEYS).forEach((key) => localStorage.removeItem(key));
+  localStorage.removeItem('ples_server_banners');
   setItem(KEYS.STAR_HISTORY, []);
   setItem(KEYS.USER_STARS, 0);
   setItem(KEYS.USER_VOTED, {});
