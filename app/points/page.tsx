@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { initStore, getUserStars, getStarHistory, chargeStars, getChargeRate } from '@/lib/store';
 import type { StarHistory } from '@/lib/mock-data';
@@ -310,6 +311,26 @@ export default function PointsPage() {
             '충전할 금액을 선택하세요'
           )}
         </button>
+
+        {/* Stars usage & refund policy notice */}
+        <div className="mt-4 px-4 py-3.5 bg-gray-50 rounded-xl border border-gray-100">
+          <p className="text-xs font-semibold text-gray-700 mb-1.5">스타(포인트) 이용 안내</p>
+          <ul className="text-[11px] text-gray-500 space-y-1 leading-relaxed">
+            <li>• 충전한 스타의 이용 기간은 결제일로부터 1년(365일)이며, 경과 시 자동 소멸됩니다.</li>
+            <li>• 미사용 잔여 스타는 결제일로부터 1년 이내, 최초 결제 수단으로만 환불 가능합니다.</li>
+            <li>• 스타는 사이트 내 상품·서비스 구매 용도로만 사용되며, 현금화·양도가 불가합니다.</li>
+            <li>• 1회 충전 한도는 최대 10만 원입니다.</li>
+          </ul>
+          <Link
+            href="/refund"
+            className="inline-flex items-center gap-1 mt-2.5 text-[11px] font-medium text-gray-900 hover:text-gray-600"
+          >
+            스타 이용 및 환불 정책 전문 보기
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+        </div>
       </div>
 
       {/* ===== Charge Success Toast ===== */}

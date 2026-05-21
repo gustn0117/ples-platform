@@ -54,7 +54,32 @@ export default function RefundPage() {
             </ul>
           </section>
           <section>
-            <h2 className="text-lg font-semibold text-gray-900 mb-3">8. 문의</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">8. 스타(포인트·크레딧) 이용 및 환불 정책</h2>
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-semibold text-gray-800 mb-1.5">8-1. 포인트의 이용 기간</h3>
+                <p>충전된 스타의 이용 기간은 결제 시점으로부터 1년(365일) 이내로 제한됩니다. 1년이 경과한 포인트는 자동으로 소멸됩니다.</p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-800 mb-1.5">8-2. 포인트 환불 조건 및 정책</h3>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>충전된 스타의 환불 가능 기간은 결제 시점으로부터 1년 이내입니다.</li>
+                  <li>환불은 사용하지 않은 잔여 포인트에 한하여 신청 가능하며, 환불 시에는 반드시 최초 결제가 이루어졌던 동일한 결제 수단(해당 카드 취소 등)을 통해서만 환불 처리가 진행됩니다. (현금 환불이나 타 수단 대체 불가)</li>
+                  <li>부분 사용 후 남은 잔액에 대한 환불의 경우, 회사가 정한 소정의 취소 수수료나 환불 기준에 따라 원 결제 수단의 부분 취소 방식으로 처리됩니다.</li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-800 mb-1.5">8-3. 이용 제한 및 양도 금지</h3>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>스타는 홈페이지 내 지정된 상품 및 서비스 구매 용도로만 사용 가능하며, 외부로의 출금이나 현금화가 불가능합니다.</li>
+                  <li>충전된 스타는 어떠한 경우에도 사용자 간 양도, 매매, 증여가 절대 불가합니다.</li>
+                  <li>카드사 및 PG사 심사 정책에 따라 포인트 충전 금액 한도는 1회 최대 10만 원으로 제한됩니다.</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+          <section>
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">9. 문의</h2>
             <p>이메일: <a href="mailto:leahyu827@naver.com" className="text-indigo-600 hover:text-indigo-800 underline">leahyu827@naver.com</a></p>
           </section>
           <div className="pt-4 border-t border-gray-100">
