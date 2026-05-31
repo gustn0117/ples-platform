@@ -41,7 +41,7 @@ export default function ContactPage() {
           <div className="space-y-2 text-sm text-gray-500">
             <p><span className="text-gray-400 w-24 inline-block">상호</span> (주) 플레스</p>
             <p><span className="text-gray-400 w-24 inline-block">대표</span> 유리아</p>
-            <p><span className="text-gray-400 w-24 inline-block">전화</span> +82.10.8595.7077</p>
+            <p><span className="text-gray-400 w-24 inline-block">전화</span> 02-514-7077</p>
             <p><span className="text-gray-400 w-24 inline-block">주소</span> 서울특별시 강남구 테헤란로82길 15, 1489호(대치동)</p>
           </div>
         </div>

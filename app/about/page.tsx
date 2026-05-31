@@ -302,7 +302,7 @@ export default function AboutPage() {
                 </div>
                 <div>
                   <p className="text-xs font-medium text-gray-400 mb-1">전화</p>
-                  <p className="text-sm text-gray-900 font-medium">+82.10.8595.7077</p>
+                  <p className="text-sm text-gray-900 font-medium">02-514-7077</p>
                 </div>
                 <div>
                   <p className="text-xs font-medium text-gray-400 mb-1">주소</p>
