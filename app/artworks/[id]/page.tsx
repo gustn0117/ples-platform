@@ -17,6 +17,16 @@ export default function ArtworkDetailPage() {
   const [artwork, setArtwork] = useState<Artwork | null>(null);
   const [loading, setLoading] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'stars'>('cash');
+  // Compute which payment methods are allowed (undefined/empty = both allowed)
+  const allowed = artwork?.allowedPayments;
+  const cashAllowed = !allowed || allowed.length === 0 || allowed.includes('cash');
+  const starsAllowed = !allowed || allowed.length === 0 || allowed.includes('stars');
+  // Auto-correct selection to first allowed method
+  useEffect(() => {
+    if (!artwork) return;
+    if (paymentMethod === 'cash' && !cashAllowed && starsAllowed) setPaymentMethod('stars');
+    if (paymentMethod === 'stars' && !starsAllowed && cashAllowed) setPaymentMethod('cash');
+  }, [artwork, paymentMethod, cashAllowed, starsAllowed]);
   const [purchasing, setPurchasing] = useState(false);
   const [purchaseSuccess, setPurchaseSuccess] = useState(false);
   const [userStars, setUserStars] = useState(0);
@@ -239,14 +249,18 @@ export default function ArtworkDetailPage() {
           )}
 
           <div className="flex items-baseline gap-3 pb-6 border-b border-gray-100">
-            <span className="text-2xl font-extrabold text-gray-900 tabular-nums">
-              {artwork.price.toLocaleString()}원
-            </span>
-            <span className="text-gray-300">|</span>
-            <span className="text-base text-yellow-600 font-medium tabular-nums inline-flex items-center gap-1">
-              <IconCoin className="w-4 h-4" />
-              {artwork.pointPrice.toLocaleString()}★
-            </span>
+            {cashAllowed && (
+              <span className="text-2xl font-extrabold text-gray-900 tabular-nums">
+                {artwork.price.toLocaleString()}원
+              </span>
+            )}
+            {cashAllowed && starsAllowed && <span className="text-gray-300">|</span>}
+            {starsAllowed && (
+              <span className="text-base text-yellow-600 font-medium tabular-nums inline-flex items-center gap-1">
+                <IconCoin className="w-4 h-4" />
+                {artwork.pointPrice.toLocaleString()}★
+              </span>
+            )}
           </div>
 
           {user && (
@@ -278,6 +292,7 @@ export default function ArtworkDetailPage() {
 
             <div className="flex flex-col gap-3 mb-5">
               {/* Cash */}
+              {cashAllowed && (
               <button
                 onClick={() => setPaymentMethod('cash')}
                 className={`p-4 rounded-xl border-2 text-left transition-all duration-200 ${
@@ -301,8 +316,10 @@ export default function ArtworkDetailPage() {
                   </div>
                 </div>
               </button>
+              )}
 
               {/* Stars */}
+              {starsAllowed && (
               <button
                 onClick={() => setPaymentMethod('stars')}
                 className={`relative p-4 rounded-xl border-2 text-left transition-all duration-200 ${
@@ -347,6 +364,7 @@ export default function ArtworkDetailPage() {
                   </div>
                 </div>
               </button>
+              )}
             </div>
 
             {!user && paymentMethod === 'cash' && (

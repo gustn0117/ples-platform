@@ -45,6 +45,8 @@ export interface Artwork {
   mediaType?: 'image' | 'audio';
   mediaData?: string;       // base64 media (audio etc.)
   link?: string;            // external link URL
+  // Restrict payment methods. Empty/undefined = both allowed.
+  allowedPayments?: ('cash' | 'stars')[];
 }
 
 export interface Video {
