@@ -24,6 +24,7 @@ interface Artist {
   name: string;
   genre: string;
   likes: number;
+  imageData?: string;
 }
 
 
@@ -66,7 +67,7 @@ export default function Home() {
     const top5 = [...allArtists]
       .sort((a, b) => b.likes - a.likes)
       .slice(0, 5)
-      .map((a) => ({ id: String(a.id), name: a.name, genre: a.genre, likes: a.likes }));
+      .map((a) => ({ id: String(a.id), name: a.name, genre: a.genre, likes: a.likes, imageData: a.imageData }));
     setHotArtists(top5);
     setArtistsLoading(false);
 
@@ -639,10 +640,20 @@ export default function Home() {
                   <div className="flex flex-col sm:flex-row items-stretch">
                     {/* Large avatar area */}
                     <div className="relative w-full sm:w-72 shrink-0 bg-gradient-to-br from-gray-900 to-gray-700 flex items-center justify-center min-h-[200px] sm:min-h-[240px] overflow-hidden">
-                      <div className="absolute inset-0 dot-pattern opacity-10" />
-                      <div className="w-28 h-28 bg-white/10 backdrop-blur-sm text-white rounded-3xl flex items-center justify-center font-black text-5xl group-hover:scale-110 group-hover:rounded-2xl transition-all duration-500 border border-white/10">
-                        {hotArtists[0].name?.charAt(0) || '?'}
-                      </div>
+                      {hotArtists[0].imageData ? (
+                        <img
+                          src={hotArtists[0].imageData}
+                          alt={hotArtists[0].name}
+                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <>
+                          <div className="absolute inset-0 dot-pattern opacity-10" />
+                          <div className="w-28 h-28 bg-white/10 backdrop-blur-sm text-white rounded-3xl flex items-center justify-center font-black text-5xl group-hover:scale-110 group-hover:rounded-2xl transition-all duration-500 border border-white/10">
+                            {hotArtists[0].name?.charAt(0) || '?'}
+                          </div>
+                        </>
+                      )}
                       {/* Gold rank medal for #1 */}
                       <div className="absolute top-4 left-4 flex items-center gap-2">
                         <div
@@ -695,12 +706,20 @@ export default function Home() {
                         }}
                       >
                         <div className="relative aspect-square bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center overflow-hidden">
-                          {/* Subtle pattern */}
-                          <div className="absolute inset-0 line-pattern opacity-40 pointer-events-none" />
-                          {/* Letter avatar */}
-                          <div className="w-16 h-16 bg-gray-900 text-white rounded-2xl flex items-center justify-center font-bold text-xl group-hover:scale-110 group-hover:rounded-xl transition-all duration-500">
-                            {artist.name?.charAt(0) || '?'}
-                          </div>
+                          {artist.imageData ? (
+                            <img
+                              src={artist.imageData}
+                              alt={artist.name}
+                              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                          ) : (
+                            <>
+                              <div className="absolute inset-0 line-pattern opacity-40 pointer-events-none" />
+                              <div className="w-16 h-16 bg-gray-900 text-white rounded-2xl flex items-center justify-center font-bold text-xl group-hover:scale-110 group-hover:rounded-xl transition-all duration-500">
+                                {artist.name?.charAt(0) || '?'}
+                              </div>
+                            </>
+                          )}
                           {/* Rank medal badge */}
                           <div
                             className="absolute top-3 left-3 w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black shadow-sm"

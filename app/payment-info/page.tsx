@@ -72,16 +72,13 @@ export default function PaymentInfoPage() {
                 <p className="text-xs text-gray-500 mb-2">관심 아티스트에게 스타를 보내 응원. 보낸 스타는 아티스트 랭킹에 반영.</p>
                 <p className="text-xs text-gray-400">경로: <Link href="/artists" className="text-indigo-600 underline">/artists</Link> → 아티스트 상세 → 스타 보내기</p>
               </div>
-              <div className="rounded-xl border border-gray-100 p-4">
-                <p className="text-sm font-semibold text-gray-900 mb-1">③ 투표 참여 보상 (사용은 아님)</p>
-                <p className="text-xs text-gray-500 mb-2">투표 참여 시 보상으로 스타를 적립받을 수 있습니다(사용처가 아닌 적립처).</p>
-                <p className="text-xs text-gray-400">경로: <Link href="/vote" className="text-indigo-600 underline">/vote</Link></p>
-              </div>
-              <div className="rounded-xl border border-gray-100 p-4">
-                <p className="text-sm font-semibold text-gray-900 mb-1">④ 미디어 시청 보상 (사용은 아님)</p>
-                <p className="text-xs text-gray-500 mb-2">영상 시청을 통해 스타를 적립받을 수 있습니다(사용처가 아닌 적립처).</p>
-                <p className="text-xs text-gray-400">경로: <Link href="/videos" className="text-indigo-600 underline">/videos</Link></p>
-              </div>
+            </div>
+            <div className="mt-4 rounded-xl bg-gray-50 border border-gray-100 p-4">
+              <p className="text-xs font-semibold text-gray-700 mb-1.5">📌 위 ①②가 충전된 스타의 전체 사용처입니다.</p>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                현재 PLES 플랫폼에서 충전된 스타를 <strong>차감하는 사용처는 작품 구매(①)와 아티스트 응원(②) 두 가지</strong>이며, 그 외 경로(투표·영상 시청)는 스타를 <strong>적립</strong>하는 보상 경로로, 사용처가 아닙니다.
+                향후 스타 사용처가 추가될 경우 본 페이지에 사전 고지 후 반영합니다.
+              </p>
             </div>
           </section>
 
@@ -125,6 +122,75 @@ export default function PaymentInfoPage() {
                 </tbody>
               </table>
             </div>
+          </section>
+
+          {/* 7. 아티스트 응원(스타 보내기) 구조 */}
+          <section>
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">7. 아티스트 응원(스타 보내기) 구조 및 정산</h2>
+            <div className="rounded-2xl bg-yellow-50/40 border border-yellow-200 p-5 mb-4">
+              <p className="text-sm font-semibold text-gray-900 mb-2">⭐ 스타 보내기란?</p>
+              <p className="text-xs text-gray-600 leading-relaxed">
+                사이트 내에서 사용자가 보유한 스타를 좋아하는 아티스트에게 응원의 의미로 보낼 수 있는 기능입니다.
+                보낸 스타는 아티스트의 사이트 내 누적 응원 수치에 가산되어 <Link href="/ranking" className="text-indigo-600 underline">아티스트 랭킹</Link>에 반영됩니다.
+              </p>
+            </div>
+            <h3 className="text-sm font-semibold text-gray-800 mb-2">아티스트 정산 및 혜택 구조</h3>
+            <ul className="list-disc pl-5 space-y-1.5 mb-3">
+              <li>사용자가 보낸 스타는 <strong>사이트 내 가상 수치</strong>로 집계되며, 아티스트 계정에 직접 가상화폐가 적립되는 형태가 아닙니다.</li>
+              <li>아티스트는 사이트 내 노출 순위·랭킹 등 <strong>비금전적 마케팅 혜택</strong>을 받습니다.</li>
+              <li>실제 금전 정산은 본사(주식회사 플레스)와 개별 계약된 아티스트의 경우에만, <strong>월 단위 정산 보고서 기반으로 별도 계약서</strong>에 따라 이루어집니다.</li>
+              <li>사용자 ↔ 아티스트 간 <strong>직접적인 금전 거래·환전·송금은 발생하지 않으며</strong>, 모든 결제는 본사를 거쳐 처리됩니다.</li>
+              <li>본 기능은 <strong>P2P 송금이나 후원 결제대행이 아닌, 사이트 내부의 응원 시스템</strong>입니다.</li>
+            </ul>
+            <p className="text-xs text-gray-500">
+              ※ 본 구조는 가상재화의 사이트 내 사용 범위에 해당하며, 외부 금전 흐름·환전·정산 청구 등은 발생하지 않습니다.
+            </p>
+          </section>
+
+          {/* 8. 판매 상품 가격 및 형태 */}
+          <section>
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">8. 판매 상품 가격대 및 형태</h2>
+            <h3 className="text-sm font-semibold text-gray-800 mb-2">상품 형태</h3>
+            <ul className="list-disc pl-5 space-y-1.5 mb-4">
+              <li><strong>실물 작품</strong>: 평면아트, 조형아트, 포스터, 포토카드, 머천다이즈 등 실물로 배송되는 상품</li>
+              <li><strong>디지털 작품</strong>: 디지털 아트 파일, 사운드아트, 미디어아트 등 디지털 형태로 제공되는 상품 (다운로드/스트리밍 제공)</li>
+              <li><strong>책</strong>: 도서 형태로 판매되는 상품 (실물 배송)</li>
+            </ul>
+            <h3 className="text-sm font-semibold text-gray-800 mb-2">가격대 정책</h3>
+            <div className="overflow-x-auto mb-3">
+              <table className="w-full text-xs border-collapse">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="border border-gray-200 px-3 py-2 text-left font-semibold text-gray-700">구분</th>
+                    <th className="border border-gray-200 px-3 py-2 text-left font-semibold text-gray-700">가격대</th>
+                    <th className="border border-gray-200 px-3 py-2 text-left font-semibold text-gray-700">예시</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="border border-gray-200 px-3 py-2 font-medium text-gray-900">소액 굿즈·디지털</td>
+                    <td className="border border-gray-200 px-3 py-2 text-gray-500">1,000원 ~ 50,000원</td>
+                    <td className="border border-gray-200 px-3 py-2 text-gray-500">포스터, 포토카드, 디지털 콘텐츠</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-gray-200 px-3 py-2 font-medium text-gray-900">평면아트·앨범</td>
+                    <td className="border border-gray-200 px-3 py-2 text-gray-500">3,000원 ~ 100,000원</td>
+                    <td className="border border-gray-200 px-3 py-2 text-gray-500">「마린린먼로」 (3,000원)</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-gray-200 px-3 py-2 font-medium text-gray-900">조형아트·고가 작품</td>
+                    <td className="border border-gray-200 px-3 py-2 text-gray-500">100,000원 ~ 500,000원</td>
+                    <td className="border border-gray-200 px-3 py-2 text-gray-500">「호수 속 물방울」 (300,000원)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <ul className="list-disc pl-5 space-y-1.5 text-xs">
+              <li><strong>현재 판매 중 최고가</strong>: 300,000원 (「호수 속 물방울」)</li>
+              <li><strong>향후 판매 예정 최대 금액</strong>: <strong>500,000원 이내</strong>로 운영 예정</li>
+              <li>500,000원을 초과하는 고액 상품을 등록할 경우, 사전에 PG사와 협의 후 등록할 예정</li>
+              <li>1,000,000원 이상 고액 작품은 별도 견적/계약 방식으로 처리, 사이트 결제 대상에서 제외</li>
+            </ul>
           </section>
 
           <div className="pt-6 border-t border-gray-100 text-xs text-gray-400">
