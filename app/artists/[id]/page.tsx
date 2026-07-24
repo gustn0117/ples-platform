@@ -3,21 +3,15 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/lib/auth-context';
-import { initStore, getArtist, getUserStars, sendStarToArtist, getStarsSentToArtist } from '@/lib/store';
+import { initStore, getArtist } from '@/lib/store';
 import type { Artist } from '@/lib/mock-data';
 import { ArtistIcon } from '@/lib/icons';
-import { IconStar, IconStarFilled } from '@/components/icons';
 
 export default function ArtistDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { user } = useAuth();
   const [artist, setArtist] = useState<Artist | null>(null);
-  const [userStars, setUserStars] = useState(0);
-  const [sentStars, setSentStars] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [justSent, setJustSent] = useState(false);
 
   const artistId = Number(params.id);
 
@@ -44,23 +38,6 @@ export default function ArtistDetailPage() {
   function refreshData() {
     const a = getArtist(artistId);
     setArtist(a ?? null);
-    setUserStars(getUserStars());
-    setSentStars(getStarsSentToArtist(artistId));
-  }
-
-  function handleSendStar(amount: 1 | 2 | 3) {
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-    const result = sendStarToArtist(artistId, amount);
-    if (!result.success) {
-      alert(result.error);
-      return;
-    }
-    refreshData();
-    setJustSent(true);
-    setTimeout(() => setJustSent(false), 2000);
   }
 
   if (loading) {
@@ -123,26 +100,6 @@ export default function ArtistDetailPage() {
           </span>
         </div>
 
-        {/* Stats */}
-        <div className="flex items-center justify-center gap-8 mb-8 py-5 border-y border-gray-100">
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-1.5 mb-1">
-              <IconStar className="w-4 h-4 text-yellow-500" />
-              <p className="text-2xl font-bold text-gray-900 tabular-nums">
-                {artist.likes.toLocaleString()}
-              </p>
-            </div>
-            <p className="text-xs text-gray-400">받은 스타</p>
-          </div>
-          {sentStars > 0 && (
-            <div className="text-center">
-              <p className="text-2xl font-bold text-yellow-500 tabular-nums mb-1">
-                {sentStars}
-              </p>
-              <p className="text-xs text-gray-400">내가 보낸 스타</p>
-            </div>
-          )}
-        </div>
 
         {/* Description */}
         <div className="mb-8">
@@ -191,43 +148,6 @@ export default function ArtistDetailPage() {
           </div>
         )}
 
-        {/* Star Sending Section */}
-        <div className="space-y-3">
-          {user && (
-            <div className="flex items-center justify-between text-sm text-gray-500 px-1">
-              <span>보유 스타</span>
-              <span className="font-bold text-gray-900 flex items-center gap-1">
-                <svg className="w-3.5 h-3.5 text-yellow-500" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" /></svg>
-                {userStars.toLocaleString()}
-              </span>
-            </div>
-          )}
-
-          {justSent && (
-            <div className="flex items-center justify-center gap-2 py-3 bg-yellow-50 rounded-xl border border-yellow-200">
-              <IconStarFilled className="w-4 h-4 text-yellow-500" />
-              <span className="text-sm font-semibold text-gray-900">스타를 보냈습니다!</span>
-            </div>
-          )}
-
-          <div className="grid grid-cols-3 gap-3">
-            {([1, 2, 3] as const).map((n) => (
-              <button
-                key={n}
-                onClick={() => handleSendStar(n)}
-                disabled={user ? userStars < n : false}
-                className={`py-4 rounded-xl text-base font-semibold transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98] ${
-                  !user || userStars >= n
-                    ? 'bg-gray-900 text-white hover:bg-gray-800'
-                    : 'bg-gray-100 text-gray-300 cursor-not-allowed'
-                }`}
-              >
-                <IconStarFilled className="w-4 h-4 text-yellow-400" />
-                {n}★ 보내기
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );

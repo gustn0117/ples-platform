@@ -1,19 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/auth-context';
-import { initStore, getArtists, getUserStars, sendStarToArtist } from '@/lib/store';
+import { initStore, getArtists } from '@/lib/store';
 import { type Artist } from '@/lib/mock-data';
 import { ArtistIcon, CrownIcon } from '@/lib/icons';
-import { IconStar, IconStarFilled } from '@/components/icons';
+import { IconStar } from '@/components/icons';
 
 export default function RankingPage() {
-  const router = useRouter();
-  const { user } = useAuth();
   const [artists, setArtists] = useState<Artist[]>([]);
-  const [userStars, setUserStars] = useState(0);
-  const [openPicker, setOpenPicker] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,21 +23,6 @@ export default function RankingPage() {
     const all = getArtists();
     const sorted = [...all].sort((a, b) => b.likes - a.likes);
     setArtists(sorted);
-    setUserStars(getUserStars());
-  }
-
-  function handleSendStar(artistId: number, amount: 1 | 2 | 3) {
-    if (!user) {
-      alert('로그인이 필요합니다.');
-      return;
-    }
-    const result = sendStarToArtist(artistId, amount);
-    if (!result.success) {
-      alert(result.error);
-      return;
-    }
-    setOpenPicker(null);
-    refreshData();
   }
 
   const maxLikes = artists.length > 0 ? artists[0].likes : 1;
@@ -67,13 +46,7 @@ export default function RankingPage() {
       <div className="mb-10">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">아티스트 랭킹</h1>
         <div className="flex items-center gap-4">
-          <p className="text-gray-500">스타 수 기준 인기 아티스트 순위</p>
-          {user && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-yellow-50 border border-yellow-100 rounded-lg text-xs font-semibold text-gray-700">
-              <svg className="w-3.5 h-3.5 text-yellow-500" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" /></svg>
-              {userStars.toLocaleString()}
-            </span>
-          )}
+          <p className="text-gray-500">인기 아티스트 순위</p>
         </div>
       </div>
 
@@ -216,36 +189,7 @@ export default function RankingPage() {
                 </div>
               </div>
 
-              {/* Star Button with Picker */}
-              <div className="col-span-2 sm:col-span-2 flex justify-center">
-                <div className="relative">
-                      <button
-                        onClick={() => {
-                          if (!user) { router.push('/login'); return; }
-                          setOpenPicker(openPicker === artist.id ? null : artist.id);
-                        }}
-                        className="p-2 rounded-lg bg-gray-100 hover:bg-yellow-50 active:scale-90 transition-all duration-200"
-                      >
-                        <IconStar className="w-5 h-5 text-yellow-500" />
-                      </button>
-
-                      {/* Star amount picker */}
-                      {openPicker === artist.id && (
-                        <div className="absolute bottom-full right-0 mb-2 flex gap-1 bg-white border border-gray-200 rounded-xl p-1.5 shadow-lg z-10">
-                          {([1, 2, 3] as const).map((n) => (
-                            <button
-                              key={n}
-                              onClick={() => handleSendStar(artist.id, n)}
-                              className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg hover:bg-yellow-50 transition-colors whitespace-nowrap"
-                            >
-                              <IconStarFilled className="w-3 h-3 text-yellow-500" />
-                              {n}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                </div>
-              </div>
+              <div className="col-span-2 sm:col-span-2" />
             </div>
           );
         })}

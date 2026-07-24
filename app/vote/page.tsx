@@ -99,17 +99,8 @@ export default function VotePage() {
             세계시민 프로듀서 투표
           </h1>
           <p className="text-sm text-gray-500">
-            매일 투표에 참여하고 스타를 적립하세요
+            매일 투표에 참여해보세요
           </p>
-          {user && (
-            <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-yellow-50 border border-yellow-100 rounded-xl text-sm">
-              <svg className="w-4 h-4 text-yellow-500" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" /></svg>
-              <span className="text-gray-400">보유 스타</span>
-              <span className="font-bold text-gray-900 tabular-nums">
-                {userStars.toLocaleString()}
-              </span>
-            </div>
-          )}
         </div>
 
         {/* Vote Cards */}
@@ -140,11 +131,6 @@ export default function VotePage() {
                         {vote.title}
                       </h2>
                       <div className="flex items-center gap-2 shrink-0">
-                        {/* Star reward badge */}
-                        <span className="inline-flex items-center gap-1 bg-yellow-500 text-white rounded-lg px-2.5 py-1 text-xs font-semibold">
-                          <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" /></svg>
-                          +{vote.pointReward}
-                        </span>
                         {/* Status badges */}
                         {votedToday && (
                           <span className="inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-semibold bg-green-50 text-green-600 border border-green-200">
@@ -316,7 +302,7 @@ export default function VotePage() {
                       <div className="flex items-center justify-center gap-2 py-3 bg-yellow-50 rounded-xl border border-yellow-200">
                         <svg className="w-4 h-4 text-yellow-500" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" /></svg>
                         <span className="text-sm font-semibold text-gray-900">
-                          투표 완료! +{vote.pointReward}★ 적립되었습니다
+                          투표 완료! 참여해주셔서 감사합니다
                         </span>
                       </div>
                     ) : vote.isActive && canVote ? (
@@ -396,7 +382,7 @@ export default function VotePage() {
               <svg className="w-7 h-7" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" /></svg>
             </div>
             <h3 className="text-lg font-bold text-gray-900 mb-2">투표에 참여하세요!</h3>
-            <p className="text-sm text-gray-400 mb-6">로그인하거나 회원가입하여<br />투표하고 스타를 적립하세요</p>
+            <p className="text-sm text-gray-400 mb-6">로그인하거나 회원가입하여<br />투표에 참여해주세요</p>
             <div className="flex flex-col gap-2">
               <Link
                 href="/login"

@@ -2,24 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/auth-context';
-import { initStore, getArtists, getUserStars, sendStarToArtist } from '@/lib/store';
+import { initStore, getArtists } from '@/lib/store';
 import type { Artist } from '@/lib/mock-data';
-import { IconMicrophone, IconSearch, IconStar, IconStarFilled } from '@/components/icons';
+import { IconMicrophone, IconSearch } from '@/components/icons';
 import { ArtistIcon } from '@/lib/icons';
 
-type SortKey = 'popular' | 'latest' | 'investments';
+type SortKey = 'popular' | 'latest';
 
 export default function ArtistsPage() {
-  const { user } = useAuth();
-  const router = useRouter();
   const [artists, setArtists] = useState<Artist[]>([]);
-  const [userStars, setUserStars] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortKey>('popular');
   const [mounted, setMounted] = useState(false);
-  const [openPicker, setOpenPicker] = useState<number | null>(null);
 
   useEffect(() => {
     initStore();
@@ -32,21 +26,6 @@ export default function ArtistsPage() {
 
   function refreshData() {
     setArtists(getArtists());
-    setUserStars(getUserStars());
-  }
-
-  function handleSendStar(artistId: number, amount: 1 | 2 | 3) {
-    if (!user) {
-      alert('로그인이 필요합니다.');
-      return;
-    }
-    const result = sendStarToArtist(artistId, amount);
-    if (!result.success) {
-      alert(result.error);
-      return;
-    }
-    setOpenPicker(null);
-    refreshData();
   }
 
   const filteredArtists = artists
@@ -57,7 +36,6 @@ export default function ArtistsPage() {
     )
     .sort((a, b) => {
       if (sortBy === 'popular') return b.likes - a.likes;
-      if (sortBy === 'investments') return b.likes - a.likes;
       return b.id - a.id;
     });
 
@@ -101,14 +79,8 @@ export default function ArtistsPage() {
           </div>
           <div className="flex items-center gap-4 ml-[52px]">
             <p className="text-gray-400 text-sm">
-              좋아하는 아티스트를 응원하세요 · {artists.length}명
+              PLES에서 활동하는 아티스트를 만나보세요 · {artists.length}명
             </p>
-            {user && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-yellow-50 border border-yellow-100 rounded-lg text-xs font-semibold text-gray-700">
-                <svg className="w-3.5 h-3.5 text-yellow-500" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" /></svg>
-                {userStars.toLocaleString()}
-              </span>
-            )}
           </div>
         </div>
 
@@ -197,41 +169,15 @@ export default function ArtistsPage() {
                   </Link>
                   <p className="text-xs text-gray-400 mt-0.5 mb-3">{artist.genre}</p>
 
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1 text-gray-400">
-                      <IconStar className="w-3.5 h-3.5" />
-                      <span className="text-xs tabular-nums">{artist.likes.toLocaleString()}</span>
-                    </div>
-
-                    <div className="relative">
-                        <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (!user) { router.push('/login'); return; }
-                              setOpenPicker(openPicker === artist.id ? null : artist.id);
-                            }}
-                            className="p-2 rounded-lg bg-gray-100 hover:bg-yellow-50 active:scale-90 transition-all duration-200"
-                          >
-                            <IconStar className="w-4 h-4 text-yellow-500" />
-                          </button>
-
-                          {/* Star amount picker */}
-                          {openPicker === artist.id && (
-                            <div className="absolute bottom-full right-0 mb-2 flex gap-1 bg-white border border-gray-200 rounded-xl p-1.5 shadow-lg z-10">
-                              {([1, 2, 3] as const).map((n) => (
-                                <button
-                                  key={n}
-                                  onClick={(e) => { e.stopPropagation(); handleSendStar(artist.id, n); }}
-                                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg hover:bg-yellow-50 transition-colors whitespace-nowrap"
-                                >
-                                  <IconStarFilled className="w-3 h-3 text-yellow-500" />
-                                  {n}
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                    </div>
-                  </div>
+                  <Link
+                    href={`/artists/${artist.id}`}
+                    className="inline-flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-gray-900 transition-colors"
+                  >
+                    프로필 보기
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
                 </div>
               </div>
             ))}

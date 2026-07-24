@@ -104,12 +104,9 @@ export default function VideosPage() {
   const claimReward = () => {
     if (!activeVideo || !canClaim) return;
     const result = watchVideo(activeVideo.id);
-    if (result.success && result.stars && result.stars > 0) {
-      setEarnedStars(result.stars);
+    if (result.success) {
       setCompleted(true);
       refreshData();
-      setToast(`+${result.stars}★ 적립 완료!`);
-      setTimeout(() => setToast(null), 2500);
     } else if (result.success && (result.stars === 0 || !result.stars)) {
       setCompleted(true);
     } else {
@@ -141,10 +138,10 @@ export default function VideosPage() {
             <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-500">
               <VideoIcon className="w-5 h-5" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">미디어 리워드</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">미디어</h1>
           </div>
           <p className="text-gray-500 ml-[52px] text-sm">
-            미디어를 시청하고 매 미디어당 <span className="text-gray-900 font-semibold">스타</span>를 적립하세요
+            아티스트들의 다양한 미디어 콘텐츠를 감상해보세요
           </p>
 
           {/* Daily Progress Card */}
@@ -218,7 +215,7 @@ export default function VideosPage() {
           {!user && (
             <div className="mt-8 bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 text-center shadow-sm">
               <p className="text-gray-500 text-sm mb-3">
-                로그인하면 미디어 시청 시 스타를 적립할 수 있어요
+                로그인하면 시청 이력을 관리할 수 있어요
               </p>
               <Link
                 href="/login"
@@ -301,11 +298,6 @@ export default function VideosPage() {
                     <span className="absolute bottom-2 right-2 text-[11px] text-gray-600 bg-white/80 backdrop-blur-sm px-2 py-0.5 rounded-md font-medium">
                       {video.duration}
                     </span>
-
-                    {/* Point reward badge */}
-                    <span className="absolute top-2 right-2 text-[11px] text-yellow-700 bg-yellow-50/90 backdrop-blur-sm px-2 py-0.5 rounded-md font-bold border border-yellow-200">
-                      +{video.pointReward}★
-                    </span>
                   </div>
 
                   {/* Info */}
@@ -314,13 +306,10 @@ export default function VideosPage() {
                       {video.title}
                     </h3>
 
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="flex items-center gap-1 text-xs font-bold text-yellow-600 bg-yellow-50 px-2.5 py-1 rounded-lg border border-yellow-200">
-                        <CoinIcon className="w-3.5 h-3.5" /> +{video.pointReward}★
-                      </span>
+                    <div className="flex items-center justify-end mb-3">
                       {isWatched ? (
                         <span className="flex items-center gap-1 text-xs text-green-600 font-medium">
-                          <svg className="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4.5 12.75l6 6 9-13.5" /></svg> 적립 완료
+                          <svg className="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4.5 12.75l6 6 9-13.5" /></svg> 시청 완료
                         </span>
                       ) : limitReached && user ? (
                         <span className="text-xs text-gray-400">한도 초과</span>
@@ -423,17 +412,10 @@ export default function VideosPage() {
                 {/* Timer / Claim / Completed */}
                 {completed ? (
                   <div className="flex items-center justify-between">
-                    {earnedStars > 0 ? (
-                      <div className="flex items-center gap-2 px-4 py-2 bg-yellow-50 text-yellow-700 rounded-xl border border-yellow-200">
-                        <CoinIcon className="w-4 h-4" />
-                        <span className="text-sm font-bold">+{earnedStars}★ 적립 완료!</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-600 rounded-xl border border-gray-200">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4.5 12.75l6 6 9-13.5" /></svg>
-                        <span className="text-sm font-semibold">이미 적립된 미디어입니다</span>
-                      </div>
-                    )}
+                    <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-600 rounded-xl border border-gray-200">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4.5 12.75l6 6 9-13.5" /></svg>
+                      <span className="text-sm font-semibold">시청 완료</span>
+                    </div>
                     <button
                       onClick={closeModal}
                       className="px-5 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-semibold hover:bg-gray-800 transition-colors"
@@ -448,36 +430,30 @@ export default function VideosPage() {
                     </span>
                     <button
                       onClick={claimReward}
-                      className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-500 transition-all flex items-center gap-2 animate-pulse"
+                      className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-500 transition-all"
                     >
-                      <CoinIcon className="w-4 h-4" />
-                      +{activeVideo.pointReward}★ 받기
+                      확인
                     </button>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-xl">
-                        <div className="relative w-8 h-8">
-                          <svg className="w-8 h-8 transform -rotate-90" viewBox="0 0 36 36">
-                            <circle cx="18" cy="18" r="15" fill="none" stroke="#e5e7eb" strokeWidth="2" />
-                            <circle
-                              cx="18" cy="18" r="15" fill="none"
-                              stroke="#818cf8" strokeWidth="2.5" strokeLinecap="round"
-                              strokeDasharray={`${(watchTimer / watchDuration) * 94.2} 94.2`}
-                              className="transition-all duration-1000"
-                            />
-                          </svg>
-                          <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-gray-700">
-                            {Math.floor(watchTimer / 60)}:{String(watchTimer % 60).padStart(2, '0')}
-                          </span>
-                        </div>
-                        <span className="text-xs text-gray-500">{Math.floor(watchTimer / 60)}분 {watchTimer % 60}초 후 리워드 수령 가능</span>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-xl">
+                      <div className="relative w-8 h-8">
+                        <svg className="w-8 h-8 transform -rotate-90" viewBox="0 0 36 36">
+                          <circle cx="18" cy="18" r="15" fill="none" stroke="#e5e7eb" strokeWidth="2" />
+                          <circle
+                            cx="18" cy="18" r="15" fill="none"
+                            stroke="#818cf8" strokeWidth="2.5" strokeLinecap="round"
+                            strokeDasharray={`${(watchTimer / watchDuration) * 94.2} 94.2`}
+                            className="transition-all duration-1000"
+                          />
+                        </svg>
+                        <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-gray-700">
+                          {Math.floor(watchTimer / 60)}:{String(watchTimer % 60).padStart(2, '0')}
+                        </span>
                       </div>
+                      <span className="text-xs text-gray-500">시청 중</span>
                     </div>
-                    <span className="flex items-center gap-1.5 text-xs font-bold text-yellow-600 bg-yellow-50 px-3 py-1.5 rounded-xl border border-yellow-200">
-                      <CoinIcon className="w-3.5 h-3.5" /> +{activeVideo.pointReward}★
-                    </span>
                   </div>
                 )}
               </div>
@@ -485,15 +461,6 @@ export default function VideosPage() {
           </div>
         );
       })()}
-
-      {/* Toast */}
-      {toast && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 animate-bounce">
-          <div className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-semibold text-sm shadow-2xl shadow-indigo-500/30 flex items-center gap-2">
-            <CoinIcon className="w-4 h-4" /> {toast}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

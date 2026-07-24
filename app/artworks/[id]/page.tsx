@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
-import { initStore, getArtworks, getUserStars, purchaseArtwork } from '@/lib/store';
+import { initStore, getArtworks } from '@/lib/store';
 import type { Artwork } from '@/lib/mock-data';
 import { ArtworkIcon } from '@/lib/icons';
-import { IconShoppingBag, IconCoin, IconWallet, IconCheck } from '@/components/icons';
+import { IconShoppingBag, IconWallet, IconCheck } from '@/components/icons';
 import { generateOrderId } from '@/lib/toss';
 
 export default function ArtworkDetailPage() {
@@ -16,20 +16,12 @@ export default function ArtworkDetailPage() {
   const { user } = useAuth();
   const [artwork, setArtwork] = useState<Artwork | null>(null);
   const [loading, setLoading] = useState(true);
-  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'stars'>('cash');
-  // Compute which payment methods are allowed (undefined/empty = both allowed)
-  const allowed = artwork?.allowedPayments;
-  const cashAllowed = !allowed || allowed.length === 0 || allowed.includes('cash');
-  const starsAllowed = !allowed || allowed.length === 0 || allowed.includes('stars');
-  // Auto-correct selection to first allowed method
-  useEffect(() => {
-    if (!artwork) return;
-    if (paymentMethod === 'cash' && !cashAllowed && starsAllowed) setPaymentMethod('stars');
-    if (paymentMethod === 'stars' && !starsAllowed && cashAllowed) setPaymentMethod('cash');
-  }, [artwork, paymentMethod, cashAllowed, starsAllowed]);
+  // Site-wide policy: card payment only (star system disabled for PG compliance)
+  const paymentMethod = 'cash' as const;
+  const cashAllowed = true;
+  const starsAllowed = false;
   const [purchasing, setPurchasing] = useState(false);
-  const [purchaseSuccess, setPurchaseSuccess] = useState(false);
-  const [userStars, setUserStars] = useState(0);
+  const [purchaseSuccess] = useState(false);
   const [guestEmail, setGuestEmail] = useState('');
 
   const artworkId = Number(params.id);
@@ -38,27 +30,14 @@ export default function ArtworkDetailPage() {
     initStore();
     const found = getArtworks().find((a) => a.id === artworkId);
     setArtwork(found ?? null);
-    setUserStars(getUserStars());
     setLoading(false);
   }, [artworkId]);
-
-  function refreshData() {
-    const found = getArtworks().find((a) => a.id === artworkId);
-    setArtwork(found ?? null);
-    setUserStars(getUserStars());
-  }
 
   async function handlePurchase() {
     if (!artwork) return;
 
-    // Stars payment requires login (uses user's star balance)
-    if (paymentMethod === 'stars' && !user) {
-      alert('스타 결제는 로그인이 필요합니다. 현금 결제는 비회원도 가능합니다.');
-      return;
-    }
-
-    // For guest cash purchase, require email for order receipt
-    if (paymentMethod === 'cash' && !user) {
+    // Guest cash purchase requires email for order receipt
+    if (!user) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(guestEmail.trim())) {
         alert('비회원 결제를 위해 유효한 이메일을 입력해주세요.');
@@ -68,64 +47,44 @@ export default function ArtworkDetailPage() {
 
     setPurchasing(true);
 
-    if (paymentMethod === 'cash') {
-      // Real Toss Payments flow - available for guests and members
-      try {
-        const orderId = generateOrderId('ART');
-        const userEmail = user?.email || guestEmail.trim();
-        const userId = user?.id || `guest_${Date.now()}`;
-        const res = await fetch('/api/payment/orders', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            orderId,
-            userEmail,
-            userId,
-            orderType: 'artwork',
-            itemId: artwork.id,
-            itemName: artwork.title,
-            amount: artwork.price,
-            metadata: { artist: artwork.artist, category: artwork.category, guest: !user },
-          }),
-        });
-
-        if (!res.ok) {
-          alert('주문 생성에 실패했습니다.');
-          setPurchasing(false);
-          return;
-        }
-
-        // Redirect to checkout page
-        const params = new URLSearchParams({
+    try {
+      const orderId = generateOrderId('ART');
+      const userEmail = user?.email || guestEmail.trim();
+      const userId = user?.id || `guest_${Date.now()}`;
+      const res = await fetch('/api/payment/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           orderId,
-          orderName: artwork.title,
-          amount: artwork.price.toString(),
+          userEmail,
+          userId,
           orderType: 'artwork',
-          email: userEmail,
-          customerName: user?.email || '게스트',
-        });
-        router.push(`/checkout?${params.toString()}`);
-      } catch {
-        alert('결제 요청 중 오류가 발생했습니다.');
+          itemId: artwork.id,
+          itemName: artwork.title,
+          amount: artwork.price,
+          metadata: { artist: artwork.artist, category: artwork.category, guest: !user },
+        }),
+      });
+
+      if (!res.ok) {
+        alert('주문 생성에 실패했습니다.');
         setPurchasing(false);
+        return;
       }
-      return;
-    }
 
-    // Stars payment (existing local flow)
-    const result = purchaseArtwork(artwork.id, 'stars');
-    if (!result.success) {
-      alert(result.error || '구매에 실패했습니다.');
+      const params = new URLSearchParams({
+        orderId,
+        orderName: artwork.title,
+        amount: artwork.price.toString(),
+        orderType: 'artwork',
+        email: userEmail,
+        customerName: user?.email || '게스트',
+      });
+      router.push(`/checkout?${params.toString()}`);
+    } catch {
+      alert('결제 요청 중 오류가 발생했습니다.');
       setPurchasing(false);
-      return;
     }
-
-    setPurchaseSuccess(true);
-    refreshData();
-    setTimeout(() => {
-      setPurchaseSuccess(false);
-      setPurchasing(false);
-    }, 2000);
   }
 
   if (loading) {
@@ -159,8 +118,6 @@ export default function ArtworkDetailPage() {
 
   const isSoldOut = artwork.soldOut || artwork.stock <= 0;
   const lowStock = !isSoldOut && artwork.stock > 0 && artwork.stock < 10;
-  const discount = artwork.price - artwork.pointPrice;
-  const insufficientStars = userStars < artwork.pointPrice;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -249,29 +206,10 @@ export default function ArtworkDetailPage() {
           )}
 
           <div className="flex items-baseline gap-3 pb-6 border-b border-gray-100">
-            {cashAllowed && (
-              <span className="text-2xl font-extrabold text-gray-900 tabular-nums">
-                {artwork.price.toLocaleString()}원
-              </span>
-            )}
-            {cashAllowed && starsAllowed && <span className="text-gray-300">|</span>}
-            {starsAllowed && (
-              <span className="text-base text-yellow-600 font-medium tabular-nums inline-flex items-center gap-1">
-                <IconCoin className="w-4 h-4" />
-                {artwork.pointPrice.toLocaleString()}★
-              </span>
-            )}
+            <span className="text-2xl font-extrabold text-gray-900 tabular-nums">
+              {artwork.price.toLocaleString()}원
+            </span>
           </div>
-
-          {user && (
-            <div className="flex items-center gap-2 mt-4 mb-2">
-              <IconCoin className="w-4 h-4 text-yellow-500" />
-              <span className="text-sm text-gray-500">보유 스타</span>
-              <span className="text-sm font-bold text-gray-900 tabular-nums">
-                {userStars.toLocaleString()}★
-              </span>
-            </div>
-          )}
         </div>
 
         {/* Purchase Success */}
@@ -288,86 +226,21 @@ export default function ArtworkDetailPage() {
         {/* Purchase Section */}
         {!isSoldOut && !purchaseSuccess && (
           <div className="bg-white rounded-2xl border border-gray-200 p-6">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">결제 방법</p>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">결제</p>
 
-            <div className="flex flex-col gap-3 mb-5">
-              {/* Cash */}
-              {cashAllowed && (
-              <button
-                onClick={() => setPaymentMethod('cash')}
-                className={`p-4 rounded-xl border-2 text-left transition-all duration-200 ${
-                  paymentMethod === 'cash'
-                    ? 'border-gray-900 bg-gray-50'
-                    : 'border-gray-200 bg-white hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${paymentMethod === 'cash' ? 'bg-gray-900' : 'bg-gray-100'}`}>
-                      <IconWallet className={`w-5 h-5 ${paymentMethod === 'cash' ? 'text-white' : 'text-gray-400'}`} />
-                    </div>
-                    <div>
-                      <p className={`font-semibold text-sm ${paymentMethod === 'cash' ? 'text-gray-900' : 'text-gray-500'}`}>일반결제</p>
-                      <p className="text-sm text-gray-500 mt-0.5 tabular-nums">{artwork.price.toLocaleString()}원</p>
-                    </div>
-                  </div>
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${paymentMethod === 'cash' ? 'border-gray-900 bg-gray-900' : 'border-gray-300'}`}>
-                    {paymentMethod === 'cash' && <IconCheck className="w-3 h-3 text-white" />}
-                  </div>
+            <div className="mb-5 p-4 rounded-xl border-2 border-gray-900 bg-gray-50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gray-900 flex items-center justify-center">
+                  <IconWallet className="w-5 h-5 text-white" />
                 </div>
-              </button>
-              )}
-
-              {/* Stars */}
-              {starsAllowed && (
-              <button
-                onClick={() => setPaymentMethod('stars')}
-                className={`relative p-4 rounded-xl border-2 text-left transition-all duration-200 ${
-                  paymentMethod === 'stars'
-                    ? 'border-yellow-500 bg-yellow-50'
-                    : 'border-gray-200 bg-white hover:border-gray-300'
-                }`}
-              >
-                {discount > 0 && (
-                  <div className="absolute -top-2.5 left-4">
-                    <span className="text-[10px] font-bold text-gray-900 bg-yellow-400 px-2 py-0.5 rounded-md shadow-lg shadow-yellow-400/20">
-                      {discount.toLocaleString()}원 할인
-                    </span>
-                  </div>
-                )}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${paymentMethod === 'stars' ? 'bg-yellow-500' : 'bg-gray-100'}`}>
-                      <IconCoin className={`w-5 h-5 ${paymentMethod === 'stars' ? 'text-white' : 'text-gray-400'}`} />
-                    </div>
-                    <div>
-                      <p className={`font-semibold text-sm ${paymentMethod === 'stars' ? 'text-gray-900' : 'text-gray-500'}`}>스타결제</p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-sm text-yellow-600 tabular-nums font-medium">{artwork.pointPrice.toLocaleString()}★</span>
-                        {discount > 0 && (
-                          <span className="text-xs text-gray-400 line-through tabular-nums">{artwork.price.toLocaleString()}원</span>
-                        )}
-                      </div>
-                      {user && insufficientStars && (
-                        <p className="text-xs text-red-500 mt-1.5 flex items-center gap-1">
-                          <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                          스타가 부족합니다.{' '}
-                          <Link href="/points" className="underline hover:text-red-400 font-medium">충전하기</Link>
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${paymentMethod === 'stars' ? 'border-yellow-500 bg-yellow-500' : 'border-gray-300'}`}>
-                    {paymentMethod === 'stars' && <IconCheck className="w-3 h-3 text-white" />}
-                  </div>
+                <div>
+                  <p className="font-semibold text-sm text-gray-900">카드 결제</p>
+                  <p className="text-sm text-gray-500 mt-0.5 tabular-nums">{artwork.price.toLocaleString()}원</p>
                 </div>
-              </button>
-              )}
+              </div>
             </div>
 
-            {!user && paymentMethod === 'cash' && (
+            {!user && (
               <div className="mb-4">
                 <label className="block text-xs font-medium text-gray-600 mb-1.5">
                   비회원 결제 · 이메일 <span className="text-red-500">*</span>
@@ -387,7 +260,7 @@ export default function ArtworkDetailPage() {
 
             <button
               onClick={handlePurchase}
-              disabled={purchasing || (paymentMethod === 'stars' && insufficientStars)}
+              disabled={purchasing}
               className="w-full py-4 rounded-xl bg-gray-900 text-white text-base font-bold hover:bg-gray-800 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-[0.98]"
             >
               {purchasing ? (

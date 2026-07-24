@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
-import { getUserStars } from '@/lib/store'
 
 const NAV_LINKS = [
   { href: '/vote', label: '투표' },
@@ -20,17 +19,7 @@ export default function Header() {
   const { user, profile, loading, logout } = useAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
-  const [stars, setStars] = useState(0)
   const dropdownRef = useRef<HTMLDivElement>(null)
-
-  // Sync stars from store
-  useEffect(() => {
-    if (user) {
-      setStars(getUserStars())
-      const interval = setInterval(() => setStars(getUserStars()), 1000)
-      return () => clearInterval(interval)
-    }
-  }, [user])
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -103,19 +92,6 @@ export default function Header() {
               <div className="h-8 w-20 animate-pulse rounded-lg bg-gray-50" />
             ) : user && profile ? (
               <>
-                {/* Stars Badge */}
-                <Link
-                  href="/points"
-                  className="group/pts flex items-center gap-2 rounded-full bg-gradient-to-r from-yellow-50 to-yellow-100/80 border border-yellow-200/60 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-300 hover:border-yellow-300 hover:shadow-sm hover:shadow-yellow-500/10 badge-shine"
-                  style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
-                >
-                  <svg className="h-4 w-4 text-yellow-500 group-hover/pts:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" /></svg>
-                  <span className="tabular-nums">{stars.toLocaleString()}</span>
-                  <svg className="h-3 w-3 text-gray-400 group-hover/pts:translate-x-0.5 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                  </svg>
-                </Link>
-
                 {/* Profile Dropdown */}
                 <div className="relative" ref={dropdownRef}>
                   <button
@@ -171,17 +147,6 @@ export default function Header() {
                             </svg>
                           </span>
                           마이페이지
-                        </Link>
-                        <Link
-                          href="/points"
-                          className="group/item flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200"
-                        >
-                          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-100 text-gray-500 group-hover/item:bg-gray-200 group-hover/item:text-gray-700 transition-all duration-200 group-hover/item:rotate-[8deg] group-hover/item:scale-105">
-                            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                          </span>
-                          스타
                         </Link>
                         <Link
                           href="/admin"
@@ -319,12 +284,7 @@ export default function Header() {
                 <p className="text-sm font-semibold text-gray-900 truncate">
                   {profile.nickname}
                 </p>
-                <div className="flex items-center gap-1.5 mt-1">
-                  <svg className="h-3.5 w-3.5 text-yellow-500" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" /></svg>
-                  <span className="text-xs font-semibold text-gray-600 tabular-nums">
-                    {stars.toLocaleString()}
-                  </span>
-                </div>
+                <p className="text-xs text-gray-400 truncate mt-0.5">{profile.email || user.email}</p>
               </div>
             </div>
           </div>
@@ -362,15 +322,6 @@ export default function Header() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                 </svg>
                 마이페이지
-              </Link>
-              <Link
-                href="/points"
-                className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-600 hover:bg-white hover:text-gray-900 transition-all duration-200"
-              >
-                <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                스타
               </Link>
               <Link
                 href="/admin"

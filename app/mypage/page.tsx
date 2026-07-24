@@ -4,15 +4,11 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import {
   initStore,
-  getUserStars,
   getUserVoted,
-  getSupportedArtistIds,
   getUserPurchases,
   getUserWatched,
   getVotes,
-  getArtists,
   getVideos,
-  getStarHistory,
   type Purchase,
 } from '@/lib/store';
 
@@ -29,24 +25,13 @@ interface Order {
 }
 import Link from 'next/link';
 import {
-  IconCoin,
   IconVote,
-  IconStar,
   IconShoppingBag,
   IconPlay,
   IconArrowRight,
-  IconWallet,
 } from '@/components/icons';
-import { ArtistIcon } from '@/lib/icons';
 
-type TabKey = 'votes' | 'artists' | 'purchases' | 'videos';
-
-function getMembershipBadge(stars: number) {
-  if (stars >= 10000) return { label: 'VIP', color: 'bg-yellow-500 text-black' };
-  if (stars >= 5000) return { label: 'PRO', color: 'bg-gray-600 text-white' };
-  if (stars >= 1000) return { label: 'MEMBER', color: 'bg-gray-400 text-white' };
-  return { label: 'NEW', color: 'bg-gray-200 text-gray-600' };
-}
+type TabKey = 'votes' | 'purchases' | 'videos';
 
 export default function MyPage() {
   const { user, profile } = useAuth();
@@ -54,18 +39,14 @@ export default function MyPage() {
   const [ready, setReady] = useState(false);
 
   // Data states
-  const [stars, setStars] = useState(0);
   const [votedMap, setVotedMap] = useState<Record<number, any>>({});
-  const [likedIds, setLikedIds] = useState<number[]>([]);
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [watchedIds, setWatchedIds] = useState<number[]>([]);
 
   useEffect(() => {
     initStore();
-    setStars(getUserStars());
     setVotedMap(getUserVoted());
-    setLikedIds(getSupportedArtistIds());
     setPurchases(getUserPurchases());
     setWatchedIds(getUserWatched());
     setReady(true);
@@ -120,18 +101,14 @@ export default function MyPage() {
 
   const nickname = profile?.nickname || '회원';
   const email = profile?.email || user.email || '';
-  const membership = getMembershipBadge(stars);
 
   // Derived data for tabs
   const allVotes = getVotes();
-  const allArtists = getArtists();
   const allVideos = getVideos();
 
   const voteCount = Object.keys(votedMap).length;
-  const likedCount = likedIds.length;
   const paidOrders = orders.filter((o) => o.status === 'paid');
   const purchaseCount = purchases.length + paidOrders.length;
-  const watchedCount = watchedIds.length;
 
   // Build vote history with chosen option
   const voteHistory = Object.entries(votedMap).map(([voteIdStr, value]) => {
@@ -143,30 +120,22 @@ export default function MyPage() {
       voteId,
       title: vote?.title || '삭제된 투표',
       chosenOption: chosenOption?.label || '알 수 없음',
-      pointReward: vote?.pointReward || 0,
     };
   });
-
-  // Build liked artist names
-  const likedArtistList = likedIds
-    .map((id) => allArtists.find((a) => a.id === id))
-    .filter(Boolean) as { id: number; name: string; genre: string }[];
 
   // Build watched video titles
   const watchedVideoList = watchedIds
     .map((id) => allVideos.find((v) => v.id === id))
-    .filter(Boolean) as { id: number; title: string; duration: string; pointReward: number }[];
+    .filter(Boolean) as { id: number; title: string; duration: string }[];
 
   const statCards = [
-    { label: '보유 스타', value: stars.toLocaleString(), suffix: '★', icon: <IconCoin className="w-5 h-5" />, highlight: true },
     { label: '투표 참여', value: voteCount.toString(), suffix: '회', icon: <IconVote className="w-5 h-5" />, highlight: false },
-    { label: '응원 아티스트', value: likedCount.toString(), suffix: '명', icon: <IconStar className="w-5 h-5" />, highlight: false },
-    { label: '작품 구매', value: purchaseCount.toString(), suffix: '건', icon: <IconShoppingBag className="w-5 h-5" />, highlight: false },
+    { label: '작품 구매', value: purchaseCount.toString(), suffix: '건', icon: <IconShoppingBag className="w-5 h-5" />, highlight: true },
+    { label: '시청 미디어', value: watchedIds.length.toString(), suffix: '개', icon: <IconPlay className="w-5 h-5" />, highlight: false },
   ];
 
   const tabs: { key: TabKey; label: string; icon: React.ReactNode }[] = [
     { key: 'votes', label: '투표내역', icon: <IconVote className="w-4 h-4" /> },
-    { key: 'artists', label: '응원 아티스트', icon: <IconStar className="w-4 h-4" /> },
     { key: 'purchases', label: '구매내역', icon: <IconShoppingBag className="w-4 h-4" /> },
     { key: 'videos', label: '시청미디어', icon: <IconPlay className="w-4 h-4" /> },
   ];
@@ -189,20 +158,14 @@ export default function MyPage() {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <h2 className="text-xl font-bold text-white truncate">{nickname}</h2>
-              <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-black tracking-wider ${membership.color}`}>
-                {membership.label}
-              </span>
             </div>
             <p className="text-sm text-white/50 truncate">{email}</p>
-            <p className="text-sm text-white/40 mt-1">
-              보유 스타 <span className="text-white font-bold">{stars.toLocaleString()}★</span>
-            </p>
           </div>
         </div>
       </div>
 
-      {/* ===== Stats Grid (4 cards) ===== */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+      {/* ===== Stats Grid ===== */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         {statCards.map((stat) => (
           <div
             key={stat.label}
@@ -228,22 +191,6 @@ export default function MyPage() {
         ))}
       </div>
 
-      {/* ===== Point History Link ===== */}
-      <Link
-        href="/points"
-        className="flex items-center justify-between bg-white rounded-2xl border border-gray-100 p-5 mb-8 hover:border-gray-200 hover:shadow-sm transition-all group"
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gray-900 flex items-center justify-center">
-            <IconWallet className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-gray-900">스타 내역 및 충전</p>
-            <p className="text-xs text-gray-400 mt-0.5">충전, 적립, 사용 내역을 확인하세요</p>
-          </div>
-        </div>
-        <IconArrowRight className="w-5 h-5 text-gray-300 group-hover:text-gray-500 transition-colors" />
-      </Link>
 
       {/* ===== Activity Tabs ===== */}
       <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden mb-8">
@@ -295,35 +242,8 @@ export default function MyPage() {
                       </div>
                     </div>
                     <span className="text-xs text-green-600 font-medium bg-green-50 px-2 py-1 rounded-lg shrink-0 ml-3">
-                      +{record.pointReward}★
+                      참여 완료
                     </span>
-                  </div>
-                ))}
-              </div>
-            )
-          )}
-
-          {/* ---- 스타 아티스트 Tab ---- */}
-          {activeTab === 'artists' && (
-            likedArtistList.length === 0 ? (
-              <EmptyState
-                icon={<IconStar className="w-8 h-8 text-gray-300" />}
-                title="응원한 아티스트가 없어요"
-                desc="마음에 드는 아티스트를 발견하고 응원해보세요"
-                link="/ranking"
-                linkLabel="아티스트 둘러보기"
-              />
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {likedArtistList.map((artist) => (
-                  <div key={artist.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors group">
-                    <div className="w-10 h-10 rounded-xl bg-gray-900 flex items-center justify-center shrink-0">
-                      <span className="text-white"><ArtistIcon genre={artist.genre} className="w-5 h-5" /></span>
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 truncate">{artist.name}</p>
-                      <p className="text-xs text-gray-400">{artist.genre}</p>
-                    </div>
                   </div>
                 ))}
               </div>
@@ -346,13 +266,8 @@ export default function MyPage() {
                 {paidOrders.map((order) => (
                   <div key={order.id} className="flex items-center justify-between py-3.5 group">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-gray-200 transition-colors ${
-                        order.order_type === 'points' ? 'bg-blue-50' : 'bg-gray-100'
-                      }`}>
-                        {order.order_type === 'points'
-                          ? <IconCoin className="w-4 h-4 text-blue-500" />
-                          : <IconShoppingBag className="w-4 h-4 text-gray-500" />
-                        }
+                      <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center shrink-0 group-hover:bg-gray-200 transition-colors">
+                        <IconShoppingBag className="w-4 h-4 text-gray-500" />
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">{order.item_name}</p>
@@ -413,7 +328,7 @@ export default function MyPage() {
                       </div>
                     </div>
                     <span className="text-xs text-green-600 font-medium bg-green-50 px-2 py-1 rounded-lg shrink-0 ml-3">
-                      +{video.pointReward}★
+                      시청 완료
                     </span>
                   </div>
                 ))}
