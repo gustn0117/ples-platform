@@ -134,7 +134,7 @@ export default function ArtworksPage() {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {filteredArtworks.map((artwork) => {
-              const isSoldOut = artwork.soldOut || artwork.stock <= 0;
+              const isSoldOut = artwork.soldOut === true;
               const lowStock = !isSoldOut && artwork.stock > 0 && artwork.stock < 10;
 
               return (

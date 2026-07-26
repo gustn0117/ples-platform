@@ -116,7 +116,9 @@ export default function ArtworkDetailPage() {
     );
   }
 
-  const isSoldOut = artwork.soldOut || artwork.stock <= 0;
+  // 품절은 관리자가 명시적으로 soldOut 체크한 경우에만 적용.
+  // stock 0은 "재고 미지정"으로 해석 (자동 품절 X). 재고 제한이 필요한 상품만 stock > 0으로 설정.
+  const isSoldOut = artwork.soldOut === true;
   const lowStock = !isSoldOut && artwork.stock > 0 && artwork.stock < 10;
 
   return (

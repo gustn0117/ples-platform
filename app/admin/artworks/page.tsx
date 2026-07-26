@@ -22,8 +22,6 @@ const emptyForm = {
   mediaType: '' as '' | 'image' | 'audio',
   mediaData: '',
   link: '',
-  cashAllowed: true,
-  starsAllowed: true,
 }
 
 export default function AdminArtworksPage() {
@@ -70,7 +68,6 @@ export default function AdminArtworksPage() {
 
   const openEdit = (a: Artwork) => {
     setEditingId(a.id)
-    const allowed = a.allowedPayments
     setForm({
       title: a.title,
       artist: a.artist,
@@ -83,8 +80,6 @@ export default function AdminArtworksPage() {
       mediaType: a.mediaType || '',
       mediaData: a.mediaData || '',
       link: a.link || '',
-      cashAllowed: !allowed || allowed.length === 0 || allowed.includes('cash'),
-      starsAllowed: !allowed || allowed.length === 0 || allowed.includes('stars'),
     })
     setModalOpen(true)
   }
@@ -123,14 +118,8 @@ export default function AdminArtworksPage() {
 
   const handleSave = () => {
     if (!form.title || !form.artist) return alert('제목과 아티스트는 필수입니다.')
-    if (!form.cashAllowed && !form.starsAllowed) return alert('결제 수단을 최소 1개 이상 선택해주세요.')
 
-    // Build allowedPayments — omit (undefined) if both are allowed for backwards compat
-    const allowedPayments: ('cash' | 'stars')[] = []
-    if (form.cashAllowed) allowedPayments.push('cash')
-    if (form.starsAllowed) allowedPayments.push('stars')
-    const bothAllowed = allowedPayments.length === 2
-
+    // 사이트 정책: 카드 결제만 지원 (스타 시스템 제거됨). 모든 신규 상품 카드 전용으로 저장.
     const data = {
       title: form.title,
       artist: form.artist,
@@ -143,7 +132,7 @@ export default function AdminArtworksPage() {
       mediaType: (form.mediaType || undefined) as 'image' | 'audio' | undefined,
       mediaData: form.mediaData || undefined,
       link: form.link || undefined,
-      allowedPayments: bothAllowed ? undefined : allowedPayments,
+      allowedPayments: ['cash'] as ('cash' | 'stars')[],
     }
 
     let updated: Artwork[]
@@ -541,29 +530,6 @@ export default function AdminArtworksPage() {
                   rows={3}
                   className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition-colors resize-none"
                 />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1.5">결제 수단 (최소 1개)</label>
-                <div className="flex gap-3">
-                  <label className="flex-1 flex items-center gap-2 px-3.5 py-2.5 border border-gray-200 rounded-lg cursor-pointer hover:border-gray-300">
-                    <input
-                      type="checkbox"
-                      checked={form.cashAllowed}
-                      onChange={(e) => setForm({ ...form, cashAllowed: e.target.checked })}
-                      className="w-4 h-4 rounded text-gray-900 focus:ring-gray-900/20"
-                    />
-                    <span className="text-sm text-gray-700">일반결제 (원화)</span>
-                  </label>
-                  <label className="flex-1 flex items-center gap-2 px-3.5 py-2.5 border border-gray-200 rounded-lg cursor-pointer hover:border-gray-300">
-                    <input
-                      type="checkbox"
-                      checked={form.starsAllowed}
-                      onChange={(e) => setForm({ ...form, starsAllowed: e.target.checked })}
-                      className="w-4 h-4 rounded text-yellow-500 focus:ring-yellow-500/20"
-                    />
-                    <span className="text-sm text-gray-700">스타 결제</span>
-                  </label>
-                </div>
               </div>
             </div>
 
