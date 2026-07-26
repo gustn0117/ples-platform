@@ -261,7 +261,6 @@ export default function ArtworkDetailPage() {
         {!isSoldOut && !purchaseSuccess && !anyEnabled && (
           <div className="bg-white rounded-2xl border border-gray-200 p-6 text-center">
             <p className="text-sm text-gray-500">현재 이 작품은 감상 전용입니다</p>
-            <p className="text-xs text-gray-400 mt-1">결제 준비가 완료되면 안내드립니다</p>
           </div>
         )}
 
