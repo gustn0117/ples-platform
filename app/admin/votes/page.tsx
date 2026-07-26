@@ -106,18 +106,22 @@ export default function AdminVotesPage() {
     const isImage = file.type.startsWith('image/')
     const isAudio = file.type.startsWith('audio/')
     if (!isImage && !isAudio) return alert('이미지 또는 오디오 파일만 업로드 가능합니다.')
-    if (file.size > 50 * 1024 * 1024) return alert('파일 크기는 50MB 이하로 제한됩니다.')
+    if (file.size > 100 * 1024 * 1024) return alert('파일 크기는 100MB 이하로 제한됩니다.')
 
-    const url = await uploadFile(file, 'votes')
-    setOptions((prev) => {
-      const updated = [...prev]
-      updated[index] = {
-        ...updated[index],
-        mediaType: isImage ? 'image' : 'audio',
-        mediaData: url,
-      }
-      return updated
-    })
+    try {
+      const url = await uploadFile(file, 'votes')
+      setOptions((prev) => {
+        const updated = [...prev]
+        updated[index] = {
+          ...updated[index],
+          mediaType: isImage ? 'image' : 'audio',
+          mediaData: url,
+        }
+        return updated
+      })
+    } catch (err: any) {
+      alert(`파일 업로드에 실패했습니다: ${err?.message || '알 수 없는 오류'}`)
+    }
   }
 
   const removeMedia = (index: number) => {

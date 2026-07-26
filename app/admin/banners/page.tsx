@@ -30,12 +30,16 @@ export default function AdminBannersPage() {
       alert('이미지 파일만 업로드 가능합니다.')
       return
     }
-    if (file.size > 50 * 1024 * 1024) {
-      alert('이미지 크기는 50MB 이하만 가능합니다.')
+    if (file.size > 100 * 1024 * 1024) {
+      alert('이미지 크기는 100MB 이하만 가능합니다.')
       return
     }
-    const url = await uploadFile(file, 'banners')
-    setForm((prev) => ({ ...prev, bgImage: url }))
+    try {
+      const url = await uploadFile(file, 'banners')
+      setForm((prev) => ({ ...prev, bgImage: url }))
+    } catch (err: any) {
+      alert(`업로드에 실패했습니다: ${err?.message || '알 수 없는 오류'}`)
+    }
     e.target.value = ''
   }
 

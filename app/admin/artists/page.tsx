@@ -68,9 +68,13 @@ export default function AdminArtistsPage() {
     const file = e.target.files?.[0]
     if (!file) return
     if (!file.type.startsWith('image/')) return alert('이미지 파일만 업로드 가능합니다.')
-    if (file.size > 50 * 1024 * 1024) return alert('이미지 크기는 50MB 이하만 가능합니다.')
-    const url = await uploadFile(file, 'artists')
-    setForm({ ...form, imageData: url })
+    if (file.size > 100 * 1024 * 1024) return alert('이미지 크기는 100MB 이하만 가능합니다.')
+    try {
+      const url = await uploadFile(file, 'artists')
+      setForm({ ...form, imageData: url })
+    } catch (err: any) {
+      alert(`이미지 업로드에 실패했습니다: ${err?.message || '알 수 없는 오류'}`)
+    }
   }
 
   const handleDescImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,9 +82,13 @@ export default function AdminArtistsPage() {
     if (files.length === 0) return
     for (const file of files) {
       if (!file.type.startsWith('image/')) { alert('이미지 파일만 업로드 가능합니다.'); continue }
-      if (file.size > 50 * 1024 * 1024) { alert(`${file.name}: 50MB 이하만 가능합니다.`); continue }
-      const url = await uploadFile(file, 'artists/desc')
-      setForm((prev) => ({ ...prev, descriptionImages: [...prev.descriptionImages, url] }))
+      if (file.size > 100 * 1024 * 1024) { alert(`${file.name}: 100MB 이하만 가능합니다.`); continue }
+      try {
+        const url = await uploadFile(file, 'artists/desc')
+        setForm((prev) => ({ ...prev, descriptionImages: [...prev.descriptionImages, url] }))
+      } catch (err: any) {
+        alert(`${file.name} 업로드 실패: ${err?.message || '알 수 없는 오류'}`)
+      }
     }
     if (descImageInputRef.current) descImageInputRef.current.value = ''
   }

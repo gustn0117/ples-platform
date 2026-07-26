@@ -93,9 +93,13 @@ export default function AdminArtworksPage() {
     const file = e.target.files?.[0]
     if (!file) return
     if (!file.type.startsWith('image/')) return alert('이미지 파일만 업로드 가능합니다.')
-    if (file.size > 50 * 1024 * 1024) return alert('이미지 크기는 50MB 이하만 가능합니다.')
-    const url = await uploadFile(file, 'artworks')
-    setForm((f) => ({ ...f, imageData: url }))
+    if (file.size > 100 * 1024 * 1024) return alert('이미지 크기는 100MB 이하만 가능합니다.')
+    try {
+      const url = await uploadFile(file, 'artworks')
+      setForm((f) => ({ ...f, imageData: url }))
+    } catch (err: any) {
+      alert(`이미지 업로드에 실패했습니다: ${err?.message || '알 수 없는 오류'}`)
+    }
   }
 
   const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,13 +108,17 @@ export default function AdminArtworksPage() {
     const isImage = file.type.startsWith('image/')
     const isAudio = file.type.startsWith('audio/')
     if (!isImage && !isAudio) return alert('이미지 또는 오디오 파일만 업로드 가능합니다.')
-    if (file.size > 50 * 1024 * 1024) return alert('파일 크기는 50MB 이하로 제한됩니다.')
-    const url = await uploadFile(file, 'artworks/media')
-    setForm((f) => ({
-      ...f,
-      mediaType: isImage ? 'image' : 'audio',
-      mediaData: url,
-    }))
+    if (file.size > 100 * 1024 * 1024) return alert('파일 크기는 100MB 이하로 제한됩니다.')
+    try {
+      const url = await uploadFile(file, 'artworks/media')
+      setForm((f) => ({
+        ...f,
+        mediaType: isImage ? 'image' : 'audio',
+        mediaData: url,
+      }))
+    } catch (err: any) {
+      alert(`파일 업로드에 실패했습니다: ${err?.message || '알 수 없는 오류'}`)
+    }
   }
 
   const handleSave = () => {
