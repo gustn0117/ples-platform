@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
-import { initStore, getArtworks } from '@/lib/store';
+import { initStore, getArtworks, getUserStars, purchaseArtwork } from '@/lib/store';
 import type { Artwork } from '@/lib/mock-data';
 import { ArtworkIcon } from '@/lib/icons';
-import { IconShoppingBag, IconWallet, IconCheck } from '@/components/icons';
+import { IconShoppingBag, IconWallet, IconCoin, IconCheck } from '@/components/icons';
 import { generateOrderId } from '@/lib/toss';
 
 export default function ArtworkDetailPage() {
@@ -16,13 +16,21 @@ export default function ArtworkDetailPage() {
   const { user } = useAuth();
   const [artwork, setArtwork] = useState<Artwork | null>(null);
   const [loading, setLoading] = useState(true);
-  // Only card payment is site-wide supported. Show the pay button only when
-  // admin has enabled cash payment for this artwork. Stars payment field is
-  // ignored on the buyer side (system disabled).
+  // Reflect admin's payment choices verbatim.
   const cashEnabled = !!artwork?.allowedPayments?.includes('cash');
+  const starsEnabled = !!artwork?.allowedPayments?.includes('stars');
+  const anyEnabled = cashEnabled || starsEnabled;
+  // Default selection: whatever is available; if both, prefer cash.
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'stars'>('cash');
+  useEffect(() => {
+    if (!artwork) return;
+    if (cashEnabled) setPaymentMethod('cash');
+    else if (starsEnabled) setPaymentMethod('stars');
+  }, [artwork, cashEnabled, starsEnabled]);
   const [purchasing, setPurchasing] = useState(false);
-  const [purchaseSuccess] = useState(false);
+  const [purchaseSuccess, setPurchaseSuccess] = useState(false);
   const [guestEmail, setGuestEmail] = useState('');
+  const [userStars, setUserStars] = useState(0);
 
   const artworkId = Number(params.id);
 
@@ -30,13 +38,37 @@ export default function ArtworkDetailPage() {
     initStore();
     const found = getArtworks().find((a) => a.id === artworkId);
     setArtwork(found ?? null);
+    setUserStars(getUserStars());
     setLoading(false);
   }, [artworkId]);
 
   async function handlePurchase() {
     if (!artwork) return;
 
-    // Guest cash purchase requires email for order receipt
+    if (paymentMethod === 'stars') {
+      if (!user) {
+        alert('스타 결제는 로그인이 필요합니다.');
+        router.push('/login');
+        return;
+      }
+      if (userStars < artwork.pointPrice) {
+        alert('스타가 부족합니다.');
+        return;
+      }
+      setPurchasing(true);
+      const result = purchaseArtwork(artwork.id, 'stars');
+      if (!result.success) {
+        alert(result.error || '구매에 실패했습니다.');
+        setPurchasing(false);
+        return;
+      }
+      setPurchaseSuccess(true);
+      setUserStars(getUserStars());
+      setTimeout(() => setPurchasing(false), 1500);
+      return;
+    }
+
+    // Cash payment via Toss
     if (!user) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(guestEmail.trim())) {
@@ -226,7 +258,7 @@ export default function ArtworkDetailPage() {
         )}
 
         {/* No payment method enabled by admin — display-only */}
-        {!isSoldOut && !purchaseSuccess && !cashEnabled && (
+        {!isSoldOut && !purchaseSuccess && !anyEnabled && (
           <div className="bg-white rounded-2xl border border-gray-200 p-6 text-center">
             <p className="text-sm text-gray-500">현재 이 작품은 감상 전용입니다</p>
             <p className="text-xs text-gray-400 mt-1">결제 준비가 완료되면 안내드립니다</p>
@@ -234,23 +266,73 @@ export default function ArtworkDetailPage() {
         )}
 
         {/* Purchase Section */}
-        {!isSoldOut && !purchaseSuccess && cashEnabled && (
+        {!isSoldOut && !purchaseSuccess && anyEnabled && (
           <div className="bg-white rounded-2xl border border-gray-200 p-6">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">결제</p>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">결제 방법</p>
 
-            <div className="mb-5 p-4 rounded-xl border-2 border-gray-900 bg-gray-50">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gray-900 flex items-center justify-center">
-                  <IconWallet className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <p className="font-semibold text-sm text-gray-900">카드 결제</p>
-                  <p className="text-sm text-gray-500 mt-0.5 tabular-nums">{artwork.price.toLocaleString()}원</p>
-                </div>
-              </div>
+            <div className="flex flex-col gap-3 mb-5">
+              {/* Cash option */}
+              {cashEnabled && (
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod('cash')}
+                  className={`p-4 rounded-xl border-2 text-left transition-all duration-200 ${
+                    paymentMethod === 'cash'
+                      ? 'border-gray-900 bg-gray-50'
+                      : 'border-gray-200 bg-white hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${paymentMethod === 'cash' ? 'bg-gray-900' : 'bg-gray-100'}`}>
+                        <IconWallet className={`w-5 h-5 ${paymentMethod === 'cash' ? 'text-white' : 'text-gray-400'}`} />
+                      </div>
+                      <div>
+                        <p className={`font-semibold text-sm ${paymentMethod === 'cash' ? 'text-gray-900' : 'text-gray-500'}`}>카드 결제</p>
+                        <p className="text-sm text-gray-500 mt-0.5 tabular-nums">{artwork.price.toLocaleString()}원</p>
+                      </div>
+                    </div>
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${paymentMethod === 'cash' ? 'border-gray-900 bg-gray-900' : 'border-gray-300'}`}>
+                      {paymentMethod === 'cash' && <IconCheck className="w-3 h-3 text-white" />}
+                    </div>
+                  </div>
+                </button>
+              )}
+
+              {/* Stars option */}
+              {starsEnabled && (
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod('stars')}
+                  className={`p-4 rounded-xl border-2 text-left transition-all duration-200 ${
+                    paymentMethod === 'stars'
+                      ? 'border-yellow-500 bg-yellow-50'
+                      : 'border-gray-200 bg-white hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${paymentMethod === 'stars' ? 'bg-yellow-500' : 'bg-gray-100'}`}>
+                        <IconCoin className={`w-5 h-5 ${paymentMethod === 'stars' ? 'text-white' : 'text-gray-400'}`} />
+                      </div>
+                      <div>
+                        <p className={`font-semibold text-sm ${paymentMethod === 'stars' ? 'text-gray-900' : 'text-gray-500'}`}>스타 결제</p>
+                        <p className="text-sm text-yellow-600 mt-0.5 tabular-nums font-medium">{artwork.pointPrice.toLocaleString()}★</p>
+                        {user && userStars < artwork.pointPrice && (
+                          <p className="text-xs text-red-500 mt-1">보유 스타 부족 (현재 {userStars.toLocaleString()}★)</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${paymentMethod === 'stars' ? 'border-yellow-500 bg-yellow-500' : 'border-gray-300'}`}>
+                      {paymentMethod === 'stars' && <IconCheck className="w-3 h-3 text-white" />}
+                    </div>
+                  </div>
+                </button>
+              )}
             </div>
 
-            {!user && (
+            {/* Guest email input (only for cash) */}
+            {paymentMethod === 'cash' && !user && (
               <div className="mb-4">
                 <label className="block text-xs font-medium text-gray-600 mb-1.5">
                   비회원 결제 · 이메일 <span className="text-red-500">*</span>
@@ -270,7 +352,7 @@ export default function ArtworkDetailPage() {
 
             <button
               onClick={handlePurchase}
-              disabled={purchasing}
+              disabled={purchasing || (paymentMethod === 'stars' && !!user && userStars < artwork.pointPrice)}
               className="w-full py-4 rounded-xl bg-gray-900 text-white text-base font-bold hover:bg-gray-800 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-[0.98]"
             >
               {purchasing ? (
