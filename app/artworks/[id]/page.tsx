@@ -240,11 +240,22 @@ export default function ArtworkDetailPage() {
             </a>
           )}
 
-          <div className="flex items-baseline gap-3 pb-6 border-b border-gray-100">
-            <span className="text-2xl font-extrabold text-gray-900 tabular-nums">
-              {artwork.price.toLocaleString()}원
-            </span>
-          </div>
+          {anyEnabled && (
+            <div className="flex items-baseline gap-3 pb-6 border-b border-gray-100">
+              {cashEnabled && (
+                <span className="text-2xl font-extrabold text-gray-900 tabular-nums">
+                  {artwork.price.toLocaleString()}원
+                </span>
+              )}
+              {cashEnabled && starsEnabled && <span className="text-gray-300">|</span>}
+              {starsEnabled && (
+                <span className="text-base text-yellow-600 font-medium tabular-nums inline-flex items-center gap-1">
+                  <IconCoin className="w-4 h-4" />
+                  {artwork.pointPrice.toLocaleString()}★
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Purchase Success */}
@@ -379,25 +390,27 @@ export default function ArtworkDetailPage() {
           </div>
         )}
 
-        {/* Shipping & Refund info */}
-        <div className="mt-6 bg-gray-50 rounded-2xl border border-gray-100 p-5">
-          <h3 className="text-sm font-bold text-gray-900 mb-3">배송 및 환불 안내</h3>
-          <ul className="text-xs text-gray-500 space-y-1.5 leading-relaxed">
-            <li>• 배송: 결제 확인 후 3~7 영업일 이내 발송</li>
-            <li>• 배송비: 단순 변심 시 고객 부담 / 상품 하자 시 회사 부담</li>
-            <li>• 환불: 상품 수령일로부터 7일 이내 요청 가능</li>
-            <li>• 디지털 콘텐츠는 이용 전 전액 환불 가능</li>
-          </ul>
-          <Link
-            href="/refund"
-            className="inline-flex items-center gap-1 mt-3 text-xs font-medium text-gray-900 hover:text-gray-700"
-          >
-            환불 및 교환 정책 전문 보기
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </Link>
-        </div>
+        {/* Shipping & Refund info — only for purchasable artworks */}
+        {anyEnabled && (
+          <div className="mt-6 bg-gray-50 rounded-2xl border border-gray-100 p-5">
+            <h3 className="text-sm font-bold text-gray-900 mb-3">배송 및 환불 안내</h3>
+            <ul className="text-xs text-gray-500 space-y-1.5 leading-relaxed">
+              <li>• 배송: 결제 확인 후 3~7 영업일 이내 발송</li>
+              <li>• 배송비: 단순 변심 시 고객 부담 / 상품 하자 시 회사 부담</li>
+              <li>• 환불: 상품 수령일로부터 7일 이내 요청 가능</li>
+              <li>• 디지털 콘텐츠는 이용 전 전액 환불 가능</li>
+            </ul>
+            <Link
+              href="/refund"
+              className="inline-flex items-center gap-1 mt-3 text-xs font-medium text-gray-900 hover:text-gray-700"
+            >
+              환불 및 교환 정책 전문 보기
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );
