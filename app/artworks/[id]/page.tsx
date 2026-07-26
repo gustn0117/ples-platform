@@ -16,10 +16,10 @@ export default function ArtworkDetailPage() {
   const { user } = useAuth();
   const [artwork, setArtwork] = useState<Artwork | null>(null);
   const [loading, setLoading] = useState(true);
-  // Site-wide policy: card payment only (star system disabled for PG compliance)
-  const paymentMethod = 'cash' as const;
-  const cashAllowed = true;
-  const starsAllowed = false;
+  // Only card payment is site-wide supported. Show the pay button only when
+  // admin has enabled cash payment for this artwork. Stars payment field is
+  // ignored on the buyer side (system disabled).
+  const cashEnabled = !!artwork?.allowedPayments?.includes('cash');
   const [purchasing, setPurchasing] = useState(false);
   const [purchaseSuccess] = useState(false);
   const [guestEmail, setGuestEmail] = useState('');
@@ -225,8 +225,16 @@ export default function ArtworkDetailPage() {
           </div>
         )}
 
+        {/* No payment method enabled by admin — display-only */}
+        {!isSoldOut && !purchaseSuccess && !cashEnabled && (
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 text-center">
+            <p className="text-sm text-gray-500">현재 이 작품은 감상 전용입니다</p>
+            <p className="text-xs text-gray-400 mt-1">결제 준비가 완료되면 안내드립니다</p>
+          </div>
+        )}
+
         {/* Purchase Section */}
-        {!isSoldOut && !purchaseSuccess && (
+        {!isSoldOut && !purchaseSuccess && cashEnabled && (
           <div className="bg-white rounded-2xl border border-gray-200 p-6">
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">결제</p>
 
