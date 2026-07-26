@@ -71,23 +71,21 @@ export default function Home() {
     setHotArtists(top5);
     setArtistsLoading(false);
 
-    const active = getActiveBanners();
-    if (active.length > 0) {
-      setBanners(active);
-      setBannersLoading(false);
-    }
+    // Always mirror the current banner state — including "no banners".
+    setBanners(getActiveBanners());
+    setBannersLoading(false);
   }
 
   useEffect(() => {
     initStore();
 
-    // Show cached server banners immediately
     const BANNER_CACHE_KEY = 'ples_server_banners';
+    // Show cached banners immediately (may be stale) — server fetch below reconciles.
     try {
       const cached = localStorage.getItem(BANNER_CACHE_KEY);
       if (cached) {
         const parsed = JSON.parse(cached);
-        if (parsed.length > 0) {
+        if (Array.isArray(parsed)) {
           setBanners(parsed);
           setBannersLoading(false);
         }
@@ -103,9 +101,12 @@ export default function Home() {
         const active = allBanners
           .filter((b) => b.isActive)
           .sort((a, b) => a.order - b.order);
+        // Always apply — even empty — so deletions in admin propagate.
+        setBanners(active);
         if (active.length > 0) {
-          setBanners(active);
           localStorage.setItem(BANNER_CACHE_KEY, JSON.stringify(active));
+        } else {
+          localStorage.removeItem(BANNER_CACHE_KEY);
         }
       })
       .catch(() => {})
