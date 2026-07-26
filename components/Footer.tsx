@@ -2,12 +2,13 @@
 
 import Link from 'next/link'
 
+// 다른 링크는 잠시 숨김 처리 (되살릴 때 아래 주석 해제)
 const SERVICE_LINKS = [
-  { label: '투표', href: '/vote' },
-  { label: '아티스트', href: '/artists' },
+  // { label: '투표', href: '/vote' },
+  // { label: '아티스트', href: '/artists' },
   { label: '갤러리', href: '/artworks' },
-  { label: '미디어', href: '/videos' },
-  { label: '랭킹', href: '/ranking' },
+  // { label: '미디어', href: '/videos' },
+  // { label: '랭킹', href: '/ranking' },
 ]
 
 const SUPPORT_LINKS = [
