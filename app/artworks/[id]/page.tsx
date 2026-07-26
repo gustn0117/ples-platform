@@ -210,9 +210,8 @@ export default function ArtworkDetailPage() {
         <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-1">{artwork.title}</h1>
           <p className="text-gray-500 mb-4">{artwork.artist}</p>
-          <p className="text-gray-600 leading-relaxed mb-4 whitespace-pre-line">{artwork.description}</p>
 
-          {/* Media attachment */}
+          {/* Media attachment — placed above description so audio player stays visible */}
           {artwork.mediaData && artwork.mediaType === 'audio' && (
             <div className="mb-4">
               <audio controls className="w-full" src={artwork.mediaData} />
@@ -223,6 +222,8 @@ export default function ArtworkDetailPage() {
               <img src={artwork.mediaData} alt="첨부 이미지" className="w-full" />
             </div>
           )}
+
+          <p className="text-gray-600 leading-relaxed mb-4 whitespace-pre-line">{artwork.description}</p>
 
           {/* External link */}
           {artwork.link && (
