@@ -6,3 +6,6 @@ out/
 next-env.d.ts
 data/
 .vercel
+
+# Adobe Illustrator source files (not for web)
+*.ai

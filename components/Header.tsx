@@ -57,13 +57,13 @@ export default function Header() {
       <header className="sticky top-0 z-50 w-full border-b border-gray-100/80 bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/70">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-7 h-7 bg-gray-900 rounded-lg flex items-center justify-center group-hover:rounded-xl transition-all duration-300">
-              <span className="text-[10px] font-bold text-white tracking-tight">P</span>
-            </div>
-            <span className="text-lg font-bold text-gray-900 logo-text-animate">
-              PLES
-            </span>
+          <Link href="/" className="flex items-center group" aria-label="PLES 홈으로">
+            <img
+              src="/logo/ples-logo-96.png"
+              srcSet="/logo/ples-logo-48.png 1x, /logo/ples-logo-96.png 2x"
+              alt="PLES"
+              className="h-6 w-auto group-hover:opacity-80 transition-opacity duration-200"
+            />
           </Link>
 
           {/* Desktop Nav */}
@@ -251,9 +251,11 @@ export default function Header() {
       >
         {/* Drawer Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <span className="text-lg font-bold tracking-tight text-gray-900">
-            PLES
-          </span>
+          <img
+            src="/logo/ples-logo-96.png"
+            alt="PLES"
+            className="h-6 w-auto"
+          />
           <button
             onClick={() => setMobileOpen(false)}
             className="flex items-center justify-center w-8 h-8 rounded-full border border-gray-200 hover:bg-gray-50 hover:rotate-90 transition-all duration-300"

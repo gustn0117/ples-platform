@@ -34,15 +34,12 @@ export default function Footer() {
 
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
-            <Link href="/" className="inline-block group">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 bg-gray-900 rounded-lg flex items-center justify-center group-hover:rounded-xl transition-all duration-300">
-                  <span className="text-[10px] font-bold text-white tracking-tight">P</span>
-                </div>
-                <span className="text-xl font-bold text-gray-900 logo-text-animate">
-                  PLES
-                </span>
-              </div>
+            <Link href="/" className="inline-block group" aria-label="PLES 홈으로">
+              <img
+                src="/logo/ples-logo-96.png"
+                alt="PLES"
+                className="h-7 w-auto group-hover:opacity-80 transition-opacity duration-200"
+              />
             </Link>
             <p className="mt-3 text-sm text-gray-400 leading-relaxed">
               우리가 만드는<br />월드 아티스트

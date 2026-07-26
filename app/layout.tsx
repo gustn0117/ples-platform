@@ -8,11 +8,16 @@ export const metadata: Metadata = {
   description:
     'PLES는 우리가 직접 참여하여 아티스트를 응원하고 성장시키는 플랫폼입니다. 투표, 갤러리, 랭킹 등 다양한 기능을 통해 함께합니다.',
   keywords: ['PLES', '아티스트', '투표', '랭킹', 'K-POP', '월드 아티스트'],
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+  },
   openGraph: {
     title: 'PLES - 우리가 만드는 월드 아티스트',
     description:
       '우리가 직접 참여하여 아티스트를 응원하고 성장시키는 플랫폼',
     type: 'website',
+    images: ['/og-image.png'],
   },
 }
 
