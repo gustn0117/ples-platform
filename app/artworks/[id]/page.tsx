@@ -199,11 +199,6 @@ export default function ArtworkDetailPage() {
             </div>
           )}
 
-          <div className="absolute bottom-4 left-4">
-            <span className="bg-white/80 backdrop-blur-md text-gray-600 rounded-lg px-3 py-1.5 text-sm font-medium border border-gray-200">
-              {artwork.category}
-            </span>
-          </div>
         </div>
 
         {/* Info */}

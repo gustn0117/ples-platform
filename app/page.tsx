@@ -146,8 +146,8 @@ export default function Home() {
     },
     {
       icon: IconShoppingBag,
-      title: '갤러리',
-      desc: '한정판 아트워크와 굿즈를 만나보세요',
+      title: '전체',
+      desc: '',
       href: '/artworks',
       accent: 'from-gray-700 to-gray-500',
     },

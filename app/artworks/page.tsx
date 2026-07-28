@@ -8,7 +8,7 @@ import { IconShoppingBag, IconCoin, IconPalette } from '@/components/icons';
 import type { Artwork } from '@/lib/mock-data';
 import { ArtworkIcon } from '@/lib/icons';
 
-const CATEGORIES = ['전체', '앨범', '포스터', '포토카드', '머천다이즈', '디지털', '평면아트', '조형아트', '미디어아트', '사운드아트', '책'] as const;
+const CATEGORIES = ['전체'] as const;
 type Category = typeof CATEGORIES[number];
 
 export default function ArtworksPage() {
@@ -81,9 +81,8 @@ export default function ArtworksPage() {
             <div className="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center">
               <IconShoppingBag className="w-5 h-5 text-gray-600" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">갤러리</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">전체</h1>
           </div>
-          <p className="text-gray-500 ml-[52px] text-sm">한정판 아트워크와 굿즈를 만나보세요</p>
           {user && (
             <div className="mt-4 ml-[52px] inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl shadow-sm">
               <IconCoin className="w-4 h-4 text-yellow-500" />
@@ -182,12 +181,6 @@ export default function ArtworksPage() {
                       </div>
                     )}
 
-                    {/* Category Badge */}
-                    <div className="absolute bottom-3 left-3">
-                      <span className="bg-white/80 backdrop-blur-md text-gray-600 rounded-lg px-2.5 py-1 text-[11px] font-medium border border-gray-200">
-                        {artwork.category}
-                      </span>
-                    </div>
                   </Link>
 
                   {/* Product Info */}
