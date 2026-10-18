@@ -164,43 +164,48 @@ export async function syncFromServer(): Promise<void> {
     if (!res.ok) return;
     const data = await res.json();
 
-    // Merge with existing cached data to preserve images already loaded
+    // Merge with whatever images we already know about, so the lite payload
+    // never blanks out images that are already on screen.
     const prev = { ...serverCache };
     serverCache = data;
 
-    // Preserve image data from previous cache
-    if (Array.isArray(data.artists) && Array.isArray(prev.artists)) {
-      serverCache.artists = data.artists.map((a: any) => {
-        const old = prev.artists.find((o: any) => o.id === a.id);
-        return {
-          ...a,
-          imageData: a.imageData || old?.imageData,
-          mediaData: a.mediaData || old?.mediaData,
-          descriptionImages: a.descriptionImages || old?.descriptionImages,
-        };
+    // Base for the merge: in-memory cache first, else the last good localStorage
+    // copy. Without the localStorage fallback the very first sync of a session
+    // has no base and images flicker off until the per-entity fetch lands.
+    function mergeBase(prevList: any, localKey: string): any[] {
+      if (Array.isArray(prevList) && prevList.length > 0) return prevList;
+      const stored = getItem<any[]>(localKey, []);
+      return Array.isArray(stored) ? stored : [];
+    }
+
+    function preserveImages(fresh: any, prevList: any, localKey: string, fields: string[]): any[] {
+      if (!Array.isArray(fresh)) return [];
+      const base = mergeBase(prevList, localKey);
+      if (base.length === 0) return fresh;
+      return fresh.map((item: any) => {
+        const old = base.find((o: any) => o.id === item.id);
+        if (!old) return item;
+        const merged: any = { ...item };
+        for (const f of fields) {
+          if (!merged[f] && old[f]) merged[f] = old[f];
+        }
+        return merged;
       });
     }
-    if (Array.isArray(data.artworks) && Array.isArray(prev.artworks)) {
-      serverCache.artworks = data.artworks.map((a: any) => {
-        const old = prev.artworks.find((o: any) => o.id === a.id);
-        return { ...a, imageData: a.imageData || old?.imageData, mediaData: a.mediaData || old?.mediaData };
-      });
-    }
-    if (Array.isArray(data.videos) && Array.isArray(prev.videos)) {
-      serverCache.videos = data.videos.map((v: any) => {
-        const old = prev.videos.find((o: any) => o.id === v.id);
-        return { ...v, thumbnailData: v.thumbnailData || old?.thumbnailData };
-      });
-    }
-    if (Array.isArray(data.banners) && Array.isArray(prev.banners)) {
-      serverCache.banners = data.banners.map((b: any) => {
-        const old = prev.banners.find((o: any) => o.id === b.id);
-        return { ...b, bgImage: b.bgImage || old?.bgImage };
-      });
-    }
-    if (Array.isArray(data.votes) && Array.isArray(prev.votes)) {
+
+    serverCache.artists = preserveImages(data.artists, prev.artists, 'ples_artists', [
+      'imageData', 'mediaData', 'descriptionImages',
+    ]);
+    serverCache.artworks = preserveImages(data.artworks, prev.artworks, 'ples_artworks', [
+      'imageData', 'mediaData',
+    ]);
+    serverCache.videos = preserveImages(data.videos, prev.videos, 'ples_videos', ['thumbnailData']);
+    serverCache.banners = preserveImages(data.banners, prev.banners, 'ples_banners', ['bgImage']);
+
+    if (Array.isArray(data.votes)) {
+      const voteBase = mergeBase(prev.votes, 'ples_votes');
       serverCache.votes = data.votes.map((v: any) => {
-        const oldVote = prev.votes.find((o: any) => o.id === v.id);
+        const oldVote = voteBase.find((o: any) => o.id === v.id);
         if (!oldVote || !Array.isArray(v.options)) return v;
         return {
           ...v,

@@ -37,7 +37,21 @@ export default function ArtistDetailPage() {
 
   function refreshData() {
     const a = getArtist(artistId);
-    setArtist(a ?? null);
+    if (!a) {
+      setArtist(null);
+      return;
+    }
+    // Keep images we already resolved. The store's lite sync (and the
+    // list-level image API, which omits descriptionImages) would otherwise
+    // blank them out and make the photo flicker.
+    setArtist((prev) => {
+      if (!prev) return a;
+      return {
+        ...a,
+        imageData: a.imageData || prev.imageData,
+        descriptionImages: a.descriptionImages || prev.descriptionImages,
+      };
+    });
   }
 
   if (loading) {
