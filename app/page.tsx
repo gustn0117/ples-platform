@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { useAuth } from '@/lib/auth-context';
 import { initStore, getArtists, getActiveBanners } from '@/lib/store';
 import type { Banner } from '@/lib/mock-data';
 import {
@@ -51,7 +50,6 @@ function useFadeInOnScroll(threshold = 0.1) {
 }
 
 export default function Home() {
-  const { user } = useAuth();
   const [hotArtists, setHotArtists] = useState<Artist[]>([]);
   const [artistsLoading, setArtistsLoading] = useState(true);
   const [banners, setBanners] = useState<Banner[]>([]);
@@ -278,19 +276,9 @@ export default function Home() {
           <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left — Content */}
             <div>
-              {/* Badge with animated border glow */}
-              <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-gray-50 border border-gray-200 mb-10 animate-fade-in-up animated-border-glow">
-                <span className="relative w-2 h-2 rounded-full bg-gray-900">
-                  <span className="absolute inset-0 rounded-full bg-gray-900 ring-pulse" />
-                </span>
-                <span className="text-xs font-semibold text-gray-600 tracking-wider uppercase">
-                  우리가 만드는 월드 아티스트
-                </span>
-              </div>
-
-              {/* Heading with glowing orb */}
+              {/* Exhibition mark with glowing orb */}
               <div className="relative">
-                {/* Glowing orb behind heading */}
+                {/* Glowing orb behind the mark */}
                 <div
                   className="absolute -top-20 -left-20 w-80 h-80 rounded-full pointer-events-none animate-pulse-glow"
                   style={{
@@ -298,32 +286,24 @@ export default function Home() {
                     filter: 'blur(40px)',
                   }}
                 />
-                <h1 className="relative text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight text-gray-900 leading-[1.1]">
-                  <span className="whitespace-nowrap">우리가 만드는</span>
-                  <br />
-                  <span className="relative inline-block">
-                    <span className="whitespace-nowrap">월드 아티스트</span>
-                    <svg className="absolute -bottom-2 left-0 w-full h-3 text-gray-300" viewBox="0 0 200 12" preserveAspectRatio="none">
-                      <path d="M0 8 Q50 0, 100 8 Q150 16, 200 8" stroke="currentColor" strokeWidth="3" fill="none" />
-                    </svg>
-                  </span>
+                <h1 className="relative animate-fade-in-up">
+                  <img
+                    src="/logo/ples-hero.png"
+                    srcSet="/logo/ples-hero-1x.png 1x, /logo/ples-hero.png 2x"
+                    alt="Gaudi Back to the Origins"
+                    className="w-52 sm:w-64 lg:w-80 h-auto"
+                  />
                 </h1>
               </div>
 
-              <p className="mt-10 text-base sm:text-lg lg:text-xl text-gray-400 leading-relaxed max-w-lg">
-                투표하고, 응원하고, 시청하면서
-                <br className="hidden sm:block" />
-                스타를 쌓는 새로운 참여형 플랫폼
-              </p>
-
               <div className="mt-12 flex flex-wrap items-center gap-3">
                 <Link
-                  href={user ? '/vote' : '/login'}
+                  href="/artworks"
                   className="group relative inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gray-900 text-white text-sm font-semibold rounded-xl hover:bg-black transition-all duration-300 hover:shadow-lg hover:shadow-black/15 hover:-translate-y-0.5 overflow-hidden"
                 >
                   <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/[0.07] to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
                   <span className="relative z-10 flex items-center gap-2">
-                    지금 시작하기
+                    전시 보러가기
                     <IconArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-300" />
                   </span>
                 </Link>
@@ -872,7 +852,7 @@ export default function Home() {
                   지금 바로
                 </span>
                 <br />
-                <span className="text-gray-900 inline-block" style={{ transform: 'translateX(0.15em)', marginTop: '0.1em' }}>참여하세요</span>
+                <span className="text-gray-900 inline-block" style={{ transform: 'translateX(0.15em)', marginTop: '0.1em' }}>감상하세요</span>
               </h2>
               <p
                 className="mt-8 text-lg sm:text-xl text-gray-500 max-w-lg mx-auto leading-relaxed"
@@ -882,7 +862,7 @@ export default function Home() {
                   transition: 'opacity 0.6s ease 0.35s, transform 0.6s ease 0.35s',
                 }}
               >
-                가입하고 첫 투표에 참여하면 바로 스타를 받을 수 있어요
+                Gaudi Back to the Origins 전시를 온라인으로 만나보세요
               </p>
               <div
                 className="mt-14 flex flex-wrap items-center justify-center gap-4"
@@ -893,12 +873,12 @@ export default function Home() {
                 }}
               >
                 <Link
-                  href={user ? '/vote' : '/login'}
+                  href="/artworks"
                   className="group relative inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-gray-900 text-white text-sm font-semibold rounded-xl hover:bg-black transition-all duration-300 hover:shadow-lg hover:shadow-gray-900/15 hover:-translate-y-0.5 overflow-hidden"
                 >
                   <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
                   <span className="relative z-10 flex items-center gap-2">
-                    무료로 시작하기
+                    전시 보러가기
                     <IconArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-300" />
                   </span>
                 </Link>
