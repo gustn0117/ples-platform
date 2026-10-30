@@ -6,6 +6,7 @@ import Link from 'next/link'
 const SERVICE_LINKS = [
   { label: '전체', href: '/artworks' },
   { label: '아티스트', href: '/artists' },
+  { label: '미디어', href: '/videos' },
 ]
 
 const SUPPORT_LINKS = [
