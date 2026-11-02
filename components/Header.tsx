@@ -7,10 +7,10 @@ import { useAuth } from '@/lib/auth-context'
 
 // 일부 탭은 잠시 숨김 처리 (되살릴 때 아래 주석 해제)
 const NAV_LINKS = [
-  // { href: '/vote', label: '투표' },
-  { href: '/artworks', label: '전체' },
   { href: '/artists', label: '아티스트' },
-  { href: '/videos', label: '미디어' },
+  { href: '/artworks', label: '갤러리' },
+  { href: '/videos', label: '영상' },
+  { href: '/vote', label: '투표' },
   // { href: '/ranking', label: '랭킹' },
   // { href: '/about', label: '회사소개' },
 ]

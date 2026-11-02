@@ -81,7 +81,7 @@ export default function ArtworksPage() {
             <div className="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center">
               <IconShoppingBag className="w-5 h-5 text-gray-600" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">전체</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">갤러리</h1>
           </div>
           {user && (
             <div className="mt-4 ml-[52px] inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl shadow-sm">

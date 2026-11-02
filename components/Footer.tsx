@@ -4,9 +4,10 @@ import Link from 'next/link'
 
 // 현재 노출 중인 탭과 동일하게 유지 (숨긴 탭은 Header.tsx 참고)
 const SERVICE_LINKS = [
-  { label: '전체', href: '/artworks' },
   { label: '아티스트', href: '/artists' },
-  { label: '미디어', href: '/videos' },
+  { label: '갤러리', href: '/artworks' },
+  { label: '영상', href: '/videos' },
+  { label: '투표', href: '/vote' },
 ]
 
 const SUPPORT_LINKS = [

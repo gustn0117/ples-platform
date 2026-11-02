@@ -127,48 +127,35 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [totalBannerPages]);
 
+  // 노출 중인 탭과 같은 이름·순서로 유지 (Header.tsx의 NAV_LINKS 참고)
   const features = [
-    {
-      icon: IconVote,
-      title: '투표',
-      desc: '매일 투표에 참여하고 스타를 적립하세요',
-      href: '/vote',
-      accent: 'from-gray-900 to-gray-700',
-    },
     {
       icon: IconMicrophone,
       title: '아티스트',
-      desc: '좋아하는 아티스트에게 투자하고 응원하세요',
+      desc: '전시에 참여한 아티스트를 만나보세요',
       href: '/artists',
-      accent: 'from-gray-800 to-gray-600',
-    },
-    {
-      icon: IconShoppingBag,
-      title: '전체',
-      desc: '',
-      href: '/artworks',
-      accent: 'from-gray-700 to-gray-500',
-    },
-    {
-      icon: IconPlay,
-      title: '미디어 리워드',
-      desc: '미디어를 시청하고 스타를 받으세요',
-      href: '/videos',
       accent: 'from-gray-900 to-gray-700',
     },
     {
-      icon: IconTrophy,
-      title: '랭킹',
-      desc: '인기 아티스트 순위를 확인하세요',
-      href: '/ranking',
+      icon: IconShoppingBag,
+      title: '갤러리',
+      desc: '전시 작품을 둘러보세요',
+      href: '/artworks',
       accent: 'from-gray-800 to-gray-600',
     },
     {
-      icon: IconCoin,
-      title: '스타',
-      desc: '스타를 충전하고 다양한 혜택을 누리세요',
-      href: '/points',
+      icon: IconPlay,
+      title: '영상',
+      desc: '전시 영상을 감상하세요',
+      href: '/videos',
       accent: 'from-gray-700 to-gray-500',
+    },
+    {
+      icon: IconVote,
+      title: '투표',
+      desc: '진행 중인 투표에 참여해보세요',
+      href: '/vote',
+      accent: 'from-gray-900 to-gray-700',
     },
   ];
 
