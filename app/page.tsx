@@ -468,7 +468,7 @@ export default function Home() {
               <span className="gradient-text-elegant">가치를 높입니다</span>
             </h2>
             <p className="mt-5 text-gray-400 max-w-md mx-auto text-lg">
-              투표, 응원, 시청 등 다양한 활동으로 스타를 적립하세요
+              아티스트, 작품, 영상까지 전시의 모든 것을 만나보세요
             </p>
           </div>
 
