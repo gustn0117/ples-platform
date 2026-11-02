@@ -165,6 +165,12 @@ export default function AdminArtworksPage() {
     saveToServer(updated)
   }
 
+  const toggleHidden = (id: number, current: boolean) => {
+    const updated = artworks.map((a) => (a.id === id ? { ...a, hidden: !current } : a))
+    setArtworksState(updated)
+    saveToServer(updated)
+  }
+
   const handleDelete = (id: number, title: string) => {
     if (!confirm(`"${title}" 작품을 삭제하시겠습니까?`)) return
     const updated = artworks.filter((a) => a.id !== id)
@@ -298,16 +304,23 @@ export default function AdminArtworksPage() {
                       </span>
                     </td>
                     <td className="px-5 py-3.5">
-                      <span
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full ${
-                          a.soldOut
-                            ? 'bg-red-50 text-red-600'
-                            : 'bg-green-50 text-green-600'
-                        }`}
-                      >
-                        <span className={`w-1.5 h-1.5 rounded-full ${a.soldOut ? 'bg-red-500' : 'bg-green-500'}`} />
-                        {a.soldOut ? '품절' : '판매중'}
-                      </span>
+                      {a.hidden ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-500">
+                          <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                          숨김
+                        </span>
+                      ) : (
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full ${
+                            a.soldOut
+                              ? 'bg-red-50 text-red-600'
+                              : 'bg-green-50 text-green-600'
+                          }`}
+                        >
+                          <span className={`w-1.5 h-1.5 rounded-full ${a.soldOut ? 'bg-red-500' : 'bg-green-500'}`} />
+                          {a.soldOut ? '품절' : '판매중'}
+                        </span>
+                      )}
                     </td>
                     <td className="px-5 py-3.5">
                       <div className="flex gap-1.5">
@@ -316,6 +329,16 @@ export default function AdminArtworksPage() {
                           className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs bg-gray-50 text-gray-600 rounded-md hover:bg-gray-100 transition-colors border border-gray-200"
                         >
                           수정
+                        </button>
+                        <button
+                          onClick={() => toggleHidden(a.id, a.hidden ?? false)}
+                          className={`px-2.5 py-1.5 text-xs rounded-md transition-colors border ${
+                            a.hidden
+                              ? 'bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100'
+                              : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+                          }`}
+                        >
+                          {a.hidden ? '보이기' : '숨기기'}
                         </button>
                         <button
                           onClick={() => toggleSoldOut(a.id, a.soldOut)}

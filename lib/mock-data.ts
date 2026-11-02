@@ -47,6 +47,8 @@ export interface Artwork {
   link?: string;            // external link URL
   // Restrict payment methods. Empty/undefined = both allowed.
   allowedPayments?: ('cash' | 'stars')[];
+  // Hidden from the public gallery list. Kept in the DB and in admin.
+  hidden?: boolean;
 }
 
 export interface Video {

@@ -132,7 +132,8 @@ export default function ArtworkDetailPage() {
     );
   }
 
-  if (!artwork) {
+  // 관리자가 숨긴 작품은 직접 URL로 접근해도 노출하지 않음
+  if (!artwork || artwork.hidden) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">

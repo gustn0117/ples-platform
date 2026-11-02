@@ -31,18 +31,24 @@ export default function ArtworksPage() {
     return () => window.removeEventListener('ples-data-synced', onSync);
   }, []);
 
+  // 관리자가 '숨기기' 처리한 작품은 공개 목록에서 제외
+  const visibleArtworks = useMemo(
+    () => artworks.filter((a) => !a.hidden),
+    [artworks]
+  );
+
   const filteredArtworks = useMemo(() => {
-    if (selectedCategory === '전체') return artworks;
-    return artworks.filter((a) => a.category === selectedCategory);
-  }, [artworks, selectedCategory]);
+    if (selectedCategory === '전체') return visibleArtworks;
+    return visibleArtworks.filter((a) => a.category === selectedCategory);
+  }, [visibleArtworks, selectedCategory]);
 
   const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = { '전체': artworks.length };
-    for (const a of artworks) {
+    const counts: Record<string, number> = { '전체': visibleArtworks.length };
+    for (const a of visibleArtworks) {
       counts[a.category] = (counts[a.category] || 0) + 1;
     }
     return counts;
-  }, [artworks]);
+  }, [visibleArtworks]);
 
   if (loading) {
     return (
